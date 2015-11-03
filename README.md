@@ -9,6 +9,14 @@ pycont is a python library to control Tricontinent C3000 pumps. It is meant to b
 
 ## Tutorial
 
+### Wiring the pumps
+
+Some documents are available in the [docs folder](http://datalore.chem.gla.ac.uk/JOG/pycont/tree/master/docs).
+
+### Using the library
+
+An example is availbale in the [tests folder](http://datalore.chem.gla.ac.uk/JOG/pycont/tree/master/tests).
+
 Using a [config file](http://datalore.chem.gla.ac.uk/JOG/pycont/blob/master/tests/pump_setup_config.json), you can define:
 - the communication port you are using
 - a description of each pumps you use in your system, for each pump you define:
