@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import time
+import json
 import serial
 import logging
+
 
 import pump_protocol
 
@@ -73,6 +75,11 @@ class PumpIO(object):
             timeout = DEFAULT_IO_TIMEOUT
 
         return cls(port, baudrate, timeout)
+
+    @classmethod
+    def from_configfile(cls, io_configfile):
+        with open(io_configfile) as f:
+            return cls.from_config(json.load(f))
 
     def __del__(self):
         self.close()
@@ -325,7 +332,7 @@ class C3000Controller(object):
         else:
             raise ValueError('Valve position received was {}. It is unknown'.format(raw_valve_position))
 
-    def set_valve_position(self, valve_position):
+    def set_valve_position(self, valve_position, wait=True):
 
         if valve_position == VALVE_INPUT:
             valve_position_packet = self._protocol.forge_valve_input_packet()
@@ -340,6 +347,9 @@ class C3000Controller(object):
 
         self.write_and_read_from_pump(valve_position_packet)
 
+        if wait:
+            self.wait_until_idle()
+
 
 class MultiPumpController(object):
 
@@ -350,6 +360,11 @@ class MultiPumpController(object):
         for pump_config in setup_config['pumps']:
             pump_name = pump_config['name']
             self.pumps[pump_name] = C3000Controller.from_config(self._io, pump_config)
+
+    @classmethod
+    def from_configfile(cls, setup_configfile):
+        with open(setup_configfile) as f:
+            return cls(json.load(f))
 
     def apply_command_to_pumps(self, pump_names, command, *args, **kwargs):
 
