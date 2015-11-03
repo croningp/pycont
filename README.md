@@ -27,14 +27,14 @@ A config file looks like this:
   },
   "pumps": [
       {
-        "name": "pump0",
+        "name": "acetone",
         "switch": "0",
         "volume": 5,
         "micro_step_mode": 2,
         "top_velocity": 24000
       },
       {
-          "name": "pump1",
+          "name": "water",
           "switch": "1",
           "volume": 5,
           "micro_step_mode": 2,
@@ -42,6 +42,7 @@ A config file looks like this:
       }
   ]
 }
+
 ```
 
 You can then instantiate a MultiPumpController, and have fun:
