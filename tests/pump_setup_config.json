@@ -1,0 +1,23 @@
+{
+  "io": {
+      "port": "/dev/ttyUSB0",
+      "baudrate": 9600,
+      "timeout": 1
+  },
+  "pumps": [
+      {
+        "name": "pump0",
+        "switch": "0",
+        "volume": 5,
+        "micro_step_mode": 2,
+        "top_velocity": 24000
+      },
+      {
+          "name": "pump1",
+          "switch": "1",
+          "volume": 5,
+          "micro_step_mode": 2,
+          "top_velocity": 24000
+      }
+  ]
+}
