@@ -14,6 +14,20 @@ pycont is a python library to control Tricontinent C3000 pumps. It is meant to b
 
 Some documents are available in the [docs folder](http://datalore.chem.gla.ac.uk/JOG/pycont/tree/master/docs).
 
+### Installing the library
+
+```
+git clone http://datalore.chem.gla.ac.uk/JOG/pycont.git
+cd pycont
+python setup.py install  # with the appropriate rights, might need to use sudo
+```
+
+Alternatively, if you plan to work on the library itself, use
+```
+python setup.py develop
+```
+which make a direct link to the folder you are working on
+
 ### Using the library
 
 An example is availbale in the [tests folder](http://datalore.chem.gla.ac.uk/JOG/pycont/tree/master/tests).
