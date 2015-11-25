@@ -31,6 +31,10 @@ C3000SwitchToAddress = {
     'BROADCAST': C3000Broadcast,
 }
 
+INITIALIZE_VALVE_RIGHT = 'Z'
+INITIALIZE_VALVE_LEFT = 'Y'
+INITIALIZE_NO_VALVE = 'W'
+
 VALVE_INPUT = 'I'
 VALVE_OUTPUT = 'O'
 VALVE_BYPASS = 'B'
@@ -105,7 +109,9 @@ class PumpIO(object):
         self._serial.flushInput()
 
     def write(self, packet):
-        self._serial.write(packet.to_string())
+        str_to_send = packet.to_string()
+        logger.info("Sending {}".format(str_to_send))
+        self._serial.write(str_to_send)
 
     def readline(self):
         return self._serial.readline()
@@ -157,7 +163,7 @@ class C3000Controller(object):
             return self._protocol.decode_packet(response)
         # if no reponse (timeout) return False, should be handled better, maybe raising an error
         return False
-    
+
     ##
     def volume_to_step(self, volume_in_ml):
         return int(round(volume_in_ml * self.steps_per_ml))
@@ -182,38 +188,38 @@ class C3000Controller(object):
     def wait_until_idle(self):
         while self.is_busy():
             time.sleep(WAIT_SLEEP_TIME)
-    
-    ##
-    def eeprom_config(self, argument):
-        eeprom_packet = self._protocol.forge_eeprom_config_packet(argument)
-        (_, _, eeprom_response) = self.write_and_read_from_pump(eeprom_packet)
-        return bool(int(eeprom_response))
-    
+
     ##
     def is_initialized(self):
         initialized_packet = self._protocol.forge_report_initialized_packet()
         (_, _, init_status) = self.write_and_read_from_pump(initialized_packet)
         return bool(int(init_status))
 
-    def smart_initialize(self, valve_position='right'):
+    def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
         if not self.is_initialized():
-            self.initialize(valve_position)
+            self.initialize(valve_position, operand_value)
         self.set_all_pump_parameters()
 
-    def initialize(self, valve_position='right'):
-        if valve_position == 'right':
-            self.initialize_right()
-        if valve_position == 'left':
-            self.initialize_left()
+    def initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
+
+        if valve_position == INITIALIZE_VALVE_RIGHT:
+            self.initialize_valve_right(operand_value)
+        elif valve_position == INITIALIZE_VALVE_LEFT:
+            self.initialize_valve_left(operand_value)
+        elif valve_position == INITIALIZE_NO_VALVE:
+            self.initialize_no_valve(operand_value)
         else:
-            raise ValueError('Initialization with valve {} not hadled'.format(valve_position))
+            raise ValueError('Initialization with valve {} not handled'.format(valve_position))
         self.wait_until_idle()
 
-    def initialize_right(self):
-        self.write_and_read_from_pump(self._protocol.forge_initialize_right_packet())
+    def initialize_valve_right(self, operand_value=0):
+        self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
 
-    def initialize_left(self):
-        self.write_and_read_from_pump(self._protocol.forge_initialize_left_packet())
+    def initialize_valve_left(self, operand_value=0):
+        self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
+
+    def initialize_no_valve(self, operand_value=0):
+        self.write_and_read_from_pump(self._protocol.forge_initialize_no_valve_packet(operand_value))
 
     ##
     def set_all_pump_parameters(self):
@@ -361,6 +367,17 @@ class C3000Controller(object):
         if wait:
             self.wait_until_idle()
 
+    def set_eeprom_config(self, operand_value):
+        eeprom_config_packet = self._protocol.forge_eeprom_config_packet(operand_value)
+        self.write_and_read_from_pump(eeprom_config_packet)
+        print("####################################################")
+        print("Unpower and repower the pump to make changes active!")
+        print("####################################################")
+
+    def get_eeprom_config(self):
+        (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
+        return eeprom_config
+
 
 class MultiPumpController(object):
 
@@ -390,8 +407,8 @@ class MultiPumpController(object):
         return self.apply_command_to_pumps(self.pumps.keys(), command, *args, **kwargs)
 
     ##
-    def smart_initialize(self):
-        self.apply_command_to_all_pumps('smart_initialize')
+    def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
+        self.apply_command_to_all_pumps('smart_initialize', valve_position, operand_value)
 
     def wait_until_all_pumps_idle(self):
         self.apply_command_to_all_pumps('wait_until_idle')

@@ -3,14 +3,21 @@
 import os
 import sys
 import time
+
+import logging
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
+#
+filepath = os.path.dirname(__file__)
+
 # add parent folder to the path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(filepath, '..')))
 
 # simply import the module
 import pycont
 
 # link to your config file
-SETUP_CONFIG_FILE = './pump_setup_config.json'
+SETUP_CONFIG_FILE = os.path.join(filepath, 'pump_setup_config.json')
 
 # and load the config file in a MultiPumpController
 controller = pycont.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
