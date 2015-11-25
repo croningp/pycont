@@ -3,14 +3,17 @@
 import dtprotocol
 
 CMD_EXECUTE = 'R'
-CMD_INITIALIZE_RIGHT = 'Z'
+CMD_INITIALIZE_VALVE_RIGHT = 'Z'
+CMD_INITIALIZE_VALVE_LEFT = 'Y'
+CMD_INITIALIZE_NO_VALVE = 'W'
 CMD_MICROSTEPMODE = 'N'
 CMD_MOVE_TO = 'A'
 CMD_PUMP = 'P'
 CMD_DELIVER = 'D'
 CMD_TOPVELOCITY = 'V'
+CMD_EEPROM_CONFIG = 'U'      # Requires power restart to take effect     [donk]
 
-CMD_VALVE_INPUT = 'I'
+CMD_VALVE_INPUT = 'I'       # Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>     [donk]
 CMD_VALVE_OUTPUT = 'O'
 CMD_VALVE_BYPASS = 'B'
 CMD_VALVE_EXTRA = 'E'
@@ -22,6 +25,7 @@ CMD_REPORT_PEAK_VELOCITY = '?2'
 CMD_REPORT_CUTOFF_VELOCITY = '?3'
 CMD_REPORT_VALVE_POSITION = '?6'
 CMD_REPORT_INTIALIZED = '?19'
+CMD_REPORT_EEPROM = '?27'
 
 STATUS_IDLE_ERROR_FREE = '`'
 STATUS_BUSY_ERROR_FREE = '@'
@@ -32,10 +36,11 @@ class C3000Protocol(object):
     def __init__(self, address):
         self.address = address
 
-    def forge_packet(self, dtcommands):
+    def forge_packet(self, dtcommands, execute=True):
         if type(dtcommands) == dtprotocol.DTCommand:
             dtcommands = [dtcommands]
-        dtcommands.append(dtprotocol.DTCommand(CMD_EXECUTE))
+        if execute:
+            dtcommands.append(dtprotocol.DTCommand(CMD_EXECUTE))
         return dtprotocol.DTInstructionPacket(self.address, dtcommands)
 
     # handling answers
@@ -44,8 +49,16 @@ class C3000Protocol(object):
 
     # the functions below should be generated automatically but not really  needed for now
 
-    def forge_initialize_right_packet(self, operand_value=0):
-        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_RIGHT, str(operand_value))
+    def forge_initialize_valve_right_packet(self, operand_value=0):
+        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_RIGHT, str(operand_value))
+        return self.forge_packet(dtcommand)
+
+    def forge_initialize_valve_left_packet(self, operand_value=0):
+        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_LEFT, str(operand_value))
+        return self.forge_packet(dtcommand)
+
+    def forge_initialize_no_valve_packet(self, operand_value=0):
+        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_LEFT, str(operand_value))
         return self.forge_packet(dtcommand)
 
     def forge_microstep_mode_packet(self, operand_value):
@@ -70,11 +83,23 @@ class C3000Protocol(object):
         dtcommand = dtprotocol.DTCommand(CMD_TOPVELOCITY, str(operand_value))
         return self.forge_packet(dtcommand)
 
-    def forge_valve_input_packet(self):
-        return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_INPUT))
+    def forge_eeprom_config_packet(self, operand_value):
+        dtcommand = dtprotocol.DTCommand(CMD_EEPROM_CONFIG, str(operand_value))
+        return self.forge_packet(dtcommand, execute=False)
 
-    def forge_valve_output_packet(self):
-        return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_OUTPUT))
+    def forge_valve_input_packet(self, operand_value=None):
+        if operand_value:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_INPUT, str(operand_value))
+        else:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_INPUT)
+        return self.forge_packet(dtcommand)
+
+    def forge_valve_output_packet(self, operand_value=None):
+        if operand_value:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_OUTPUT, str(operand_value))
+        else:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_OUTPUT)
+        return self.forge_packet(dtcommand)
 
     def forge_valve_bypass_packet(self):
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_BYPASS))
@@ -102,3 +127,6 @@ class C3000Protocol(object):
 
     def forge_report_initialized_packet(self):
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_INTIALIZED))
+
+    def forge_report_eeprom_packet(self):
+        return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_EEPROM))
