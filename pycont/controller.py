@@ -5,7 +5,6 @@ import json
 import serial
 import logging
 
-
 import pump_protocol
 
 logger = logging.getLogger(__name__)

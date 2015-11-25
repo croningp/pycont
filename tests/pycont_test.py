@@ -1,26 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import os
 import sys
 import time
 
 import logging
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-#
-filepath = os.path.dirname(__file__)
-
-# add parent folder to the path
-sys.path.append(os.path.abspath(os.path.join(filepath, '..')))
-
 # simply import the module
-import pycont
+import pycont.controller
 
 # link to your config file
-SETUP_CONFIG_FILE = os.path.join(filepath, 'pump_setup_config.json')
+SETUP_CONFIG_FILE = './pump_setup_config.json'
 
 # and load the config file in a MultiPumpController
-controller = pycont.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
+controller = pycont.controller.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
 
 # initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
 controller.smart_initialize()
