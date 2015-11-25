@@ -71,14 +71,15 @@ A config file looks like this:
 You can then instantiate a MultiPumpController, and have fun:
 
 ```python
+
 # simply import the module
-import pycont
+import pycont.controller
 
 # link to your config file
 SETUP_CONFIG_FILE = './pump_setup_config.json'
 
 # and load the config file in a MultiPumpController
-controller = pycont.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
+controller = pycont.controller.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
 
 # initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
 controller.smart_initialize()
