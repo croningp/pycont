@@ -31,10 +31,10 @@ C3000SwitchToAddress = {
     'BROADCAST': C3000Broadcast,
 }
 
-VALVE_INPUT = 'i'
-VALVE_OUTPUT = 'o'
-VALVE_BYPASS = 'b'
-VALVE_EXTRA = 'e'
+VALVE_INPUT = 'I'
+VALVE_OUTPUT = 'O'
+VALVE_BYPASS = 'B'
+VALVE_EXTRA = 'E'
 
 MICRO_STEP_MODE_0 = 0
 MICRO_STEP_MODE_2 = 2
@@ -157,7 +157,7 @@ class C3000Controller(object):
             return self._protocol.decode_packet(response)
         # if no reponse (timeout) return False, should be handled better, maybe raising an error
         return False
-
+    
     ##
     def volume_to_step(self, volume_in_ml):
         return int(round(volume_in_ml * self.steps_per_ml))
@@ -182,7 +182,13 @@ class C3000Controller(object):
     def wait_until_idle(self):
         while self.is_busy():
             time.sleep(WAIT_SLEEP_TIME)
-
+    
+    ##
+    def eeprom_config(self, argument):
+        eeprom_packet = self._protocol.forge_eeprom_config_packet(argument)
+        (_, _, eeprom_response) = self.write_and_read_from_pump(eeprom_packet)
+        return bool(int(eeprom_response))
+    
     ##
     def is_initialized(self):
         initialized_packet = self._protocol.forge_report_initialized_packet()
@@ -197,12 +203,17 @@ class C3000Controller(object):
     def initialize(self, valve_position='right'):
         if valve_position == 'right':
             self.initialize_right()
+        if valve_position == 'left':
+            self.initialize_left()
         else:
             raise ValueError('Initialization with valve {} not hadled'.format(valve_position))
         self.wait_until_idle()
 
     def initialize_right(self):
         self.write_and_read_from_pump(self._protocol.forge_initialize_right_packet())
+
+    def initialize_left(self):
+        self.write_and_read_from_pump(self._protocol.forge_initialize_left_packet())
 
     ##
     def set_all_pump_parameters(self):

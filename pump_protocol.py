@@ -4,13 +4,15 @@ import dtprotocol
 
 CMD_EXECUTE = 'R'
 CMD_INITIALIZE_RIGHT = 'Z'
+CMD_INITIALIZE_LEFT = 'Y'
 CMD_MICROSTEPMODE = 'N'
 CMD_MOVE_TO = 'A'
 CMD_PUMP = 'P'
 CMD_DELIVER = 'D'
 CMD_TOPVELOCITY = 'V'
+CMD_EEPROMCONFIG = 'U'      # Requires power restart to take effect     [donk]
 
-CMD_VALVE_INPUT = 'I'
+CMD_VALVE_INPUT = 'I'       # Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>     [donk]
 CMD_VALVE_OUTPUT = 'O'
 CMD_VALVE_BYPASS = 'B'
 CMD_VALVE_EXTRA = 'E'
@@ -48,6 +50,10 @@ class C3000Protocol(object):
         dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_RIGHT, str(operand_value))
         return self.forge_packet(dtcommand)
 
+    def forge_initialize_left_packet(self, operand_value=0):
+        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_LEFT, str(operand_value))
+        return self.forge_packet(dtcommand)
+
     def forge_microstep_mode_packet(self, operand_value):
         if operand_value not in range(3):
             raise ValueError('Microstep operand must be in [0-2], you entered {}'.format(operand_value))
@@ -70,11 +76,23 @@ class C3000Protocol(object):
         dtcommand = dtprotocol.DTCommand(CMD_TOPVELOCITY, str(operand_value))
         return self.forge_packet(dtcommand)
 
-    def forge_valve_input_packet(self):
-        return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_INPUT))
+    def forge_eeprom_config_packet(self, operand_value):
+        dtcommand = dtprotocol.DTCommand(CMD_EEPROMCONFIG, str(operand_value))
+        return self.forge_packet(dtcommand)
+        
+    def forge_valve_input_packet(self, operand_value=None):
+        if operand_value:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_INPUT, str(operand_value))
+        else:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_INPUT)
+        return self.forge_packet(dtcommand)
 
-    def forge_valve_output_packet(self):
-        return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_OUTPUT))
+    def forge_valve_output_packet(self, operand_value=None):
+        if operand_value:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_OUTPUT, str(operand_value))
+        else:
+            dtcommand = dtprotocol.DTCommand(CMD_VALVE_OUTPUT)
+        return self.forge_packet(dtcommand)
 
     def forge_valve_bypass_packet(self):
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_BYPASS))
