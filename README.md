@@ -5,8 +5,9 @@ pycont is a python library to control Tricontinent C3000 pumps. It is meant to b
 ## TODO
 
  - be more robust to errors from the pumps
+ - implement initialized different par pump if set in config file
+ - use get_param to load param from dict
  - implement a transfer function, transferring volume from valve to valve
- - package it so we can do ```python setup.py install```
 
 ## Tutorial
 

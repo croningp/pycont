@@ -3,8 +3,8 @@
 import sys
 import time
 
-import logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# import logging
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 # simply import the module
 import pycont.controller
@@ -52,25 +52,26 @@ while controller.are_pumps_busy():
     # and record the volume in real time as the pumps are moving
     print(controller.apply_command_to_all_pumps('get_volume'))
 
+controller.apply_command_to_all_pumps('go_to_volume', 1)
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change valve position
 # for this you should use the command set_valve_position(valve_position) using for valvle position the global variable define in pycont. They are VALVE_INPUT, VALVE_OUTPUT, VALVE_BYPASS, VALVE_EXTRA
-controller.pumps['acetone'].set_valve_position(pycont.VALVE_OUTPUT)
-controller.pumps['water'].set_valve_position(pycont.VALVE_OUTPUT)
+controller.pumps['acetone'].set_valve_position(pycont.controller.VALVE_OUTPUT)
+controller.pumps['water'].set_valve_position(pycont.controller.VALVE_OUTPUT)
 
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change all the valve position at once
 # apply_command_to_all_pumps will forward all additional argument
-controller.apply_command_to_all_pumps('set_valve_position', pycont.VALVE_INPUT)
+controller.apply_command_to_all_pumps('set_valve_position', pycont.controller.VALVE_INPUT)
 
-# get valvel position
+# get valve position
 print(controller.pumps['water'].get_valve_position())
 print(controller.apply_command_to_all_pumps('get_valve_position'))
 
 # and compare it with global defined variable
-if controller.pumps['water'].get_valve_position() == pycont.VALVE_INPUT:
+if controller.pumps['water'].get_valve_position() == pycont.controller.VALVE_INPUT:
     print('The valve for water is indeed in input position')
 else:
     print('Something went wrong when setting the valve position')

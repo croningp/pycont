@@ -199,7 +199,7 @@ class C3000Controller(object):
             self.initialize(valve_position, operand_value)
         self.set_all_pump_parameters()
 
-    def initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
+    def initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0, wait=True):
 
         if valve_position == INITIALIZE_VALVE_RIGHT:
             self.initialize_valve_right(operand_value)
@@ -209,7 +209,8 @@ class C3000Controller(object):
             self.initialize_no_valve(operand_value)
         else:
             raise ValueError('Initialization with valve {} not handled'.format(valve_position))
-        self.wait_until_idle()
+        if wait:
+            self.wait_until_idle()
 
     def initialize_valve_right(self, operand_value=0):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
@@ -407,7 +408,12 @@ class MultiPumpController(object):
 
     ##
     def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
-        self.apply_command_to_all_pumps('smart_initialize', valve_position, operand_value)
+        for pump_name in self.pumps.keys():
+            if not self.pumps[pump_name].is_initialized():
+                self.pumps[pump_name].initialize(valve_position, operand_value, wait=False)
+        self.wait_until_all_pumps_idle()
+        self.apply_command_to_all_pumps('set_all_pump_parameters')
+        self.wait_until_all_pumps_idle()
 
     def wait_until_all_pumps_idle(self):
         self.apply_command_to_all_pumps('wait_until_idle')
