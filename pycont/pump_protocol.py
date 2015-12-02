@@ -41,6 +41,7 @@ class C3000Protocol(object):
         self.address = address
 
     def forge_packet(self, dtcommands, execute=True):
+        self.logger.debug("Forging packet with {} and execute set to {}".format(dtcommands, execute))
         if type(dtcommands) == dtprotocol.DTCommand:
             dtcommands = [dtcommands]
         if execute:
@@ -49,6 +50,7 @@ class C3000Protocol(object):
 
     # handling answers
     def decode_packet(self, dtresponse):
+        self.logger.debug("Decoding {}".format(dtresponse))
         return dtprotocol.DTStatus(dtresponse).decode()
 
     # the functions below should be generated automatically but not really  needed for now

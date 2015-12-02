@@ -116,8 +116,15 @@ class PumpIO(object):
 
     def readline(self):
         msg = self._serial.readline()
-        self.logger.debug("Received {}".format(msg))
-        return msg
+        if msg:
+            self.logger.debug("Received {}".format(msg))
+            return msg
+        else:
+            raise PumpIOTimeOutError
+
+
+class PumpIOTimeOutError(Exception):
+    pass
 
 
 class C3000Controller(object):
@@ -161,11 +168,11 @@ class C3000Controller(object):
     def write_and_read_from_pump(self, packet):
         self._io.flushInput()
         self._io.write(packet)
-        response = self._io.readline()
-        if response:
+        try:
+            response = self._io.readline()
             return self._protocol.decode_packet(response)
-        # if no reponse (timeout) return False, should be handled better, maybe raising an error
-        return False
+        except PumpIOTimeOutError:
+            return False
 
     ##
     def volume_to_step(self, volume_in_ml):
@@ -409,6 +416,12 @@ class C3000Controller(object):
         print("Unpower and repower the pump to make changes active!")
         print("####################################################")
 
+    def flash_eeprom_3_way_valve(self):
+        self.set_eeprom_config("10_210")
+
+    def flash_eeprom_4_way_valve(self):
+        self.set_eeprom_config("11_2130001")
+
     def get_eeprom_config(self):
         (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
         return eeprom_config
@@ -430,6 +443,7 @@ class MultiPumpController(object):
         for pump_name, pump_config in setup_config['pumps'].items():
             defaulted_pump_config = self.default_pump_config(pump_config)
             self.pumps[pump_name] = C3000Controller.from_config(self._io, pump_name, defaulted_pump_config)
+        self.set_pumps_as_attributes()
 
     @classmethod
     def from_configfile(cls, setup_configfile):
@@ -443,6 +457,13 @@ class MultiPumpController(object):
             defaulted_pump_config[k] = v
 
         return defaulted_pump_config
+
+    def set_pumps_as_attributes(self):
+        for pump_name, pump in self.pumps.items():
+            if hasattr(self, pump_name):
+                self.logger.warning("Pump named {pump_name} is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[{pump_name}]".format(pump_name=pump_name))
+            else:
+                setattr(self, pump_name, pump)
 
     def apply_command_to_pumps(self, pump_names, command, *args, **kwargs):
 

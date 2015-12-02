@@ -2,8 +2,8 @@
 
 import time
 
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
+import logging
+logging.basicConfig(level=logging.INFO)
 
 # simply import the module
 import pycont.controller
@@ -16,6 +16,13 @@ controller = pycont.controller.MultiPumpController.from_configfile(SETUP_CONFIG_
 
 # initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
 controller.smart_initialize()
+
+# idividual pumps can be accessed in two ways:
+# - in the dict ```controller.pumps['pump_name']```
+# - directly as an attribute ```controller.pump_name```
+# the two above method link to the same pump instance
+# we use the first convention becuase it highlight well the name of the pumps
+# the second convention is certainly more convenient for online testing using ipython
 
 # ask a pump to go to a specific position, calling it by its name
 # the wait argument signifies if the command is blocking or non-blocking
