@@ -487,7 +487,7 @@ class MultiPumpController(object):
 
     ##
     def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
-        for _, pump in self.pumps.item():
+        for _, pump in self.pumps.items():
             if not pump.is_initialized():
                 pump.initialize(valve_position, operand_value, wait=False)
         self.wait_until_all_pumps_idle()
@@ -510,15 +510,15 @@ class MultiPumpController(object):
     def transfer(self, pump_names, volume_in_ml, from_valve, to_valve):
 
         volume_transfered = 1000  # some big number 1L is more than any syringe
-        for _, pump in self.pumps.item():
+        for _, pump in self.pumps.items():
             candidate_volume = min(volume_in_ml, pump.remaining_volume)
             volume_transfered = min(candidate_volume, volume_transfered)
 
-        for _, pump in self.pumps.item():
+        for _, pump in self.pumps.items():
             pump.pump(volume_transfered, from_valve)
         self.wait_until_all_pumps_idle()
 
-        for _, pump in self.pumps.item():
+        for _, pump in self.pumps.items():
             self.deliver(volume_transfered, to_valve)
         self.wait_until_all_pumps_idle()
 
