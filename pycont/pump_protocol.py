@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import logging
+module_logger = logging.getLogger(__name__)
 
 import dtprotocol
 
@@ -34,6 +36,8 @@ STATUS_BUSY_ERROR_FREE = '@'
 class C3000Protocol(object):
 
     def __init__(self, address):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         self.address = address
 
     def forge_packet(self, dtcommands, execute=True):

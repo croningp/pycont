@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import time
 
 # import logging
-# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 # simply import the module
 import pycont.controller
@@ -36,6 +35,16 @@ if succeed:
     print('How could you pump 1000 mL')
 else:
     print('You cannot pump 1000 mL!')
+
+# the pump and deliver function respectively have a from_valve and to_valve argument
+# if set, the valve position is set before the pump moves
+controller.pumps['water'].pump(0.5, from_valve=pycont.controller.VALVE_INPUT, wait=True)
+controller.pumps['water'].deliver(0.5, to_valve=pycont.controller.VALVE_OUTPUT, wait=True)
+
+# you can also transfer volume from valve to valve
+# the function is recusive so even of the volume is bigger than the syringe, it will iterate as many times as needed
+controller.pumps['acetone'].transfer(7, pycont.controller.VALVE_INPUT, pycont.controller.VALVE_OUTPUT)  # this function is blocking, no wait argument
+# note that it pump from and to the position it is currently set to, made it easy to leave a small volume in the pump if needed
 
 # you can also iterate on all the pumps
 for _, pump in controller.pumps.items():

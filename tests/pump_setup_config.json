@@ -4,20 +4,19 @@
       "baudrate": 9600,
       "timeout": 1
   },
-  "pumps": [
-      {
-        "name": "acetone",
-        "switch": "0",
-        "volume": 5,
-        "micro_step_mode": 2,
-        "top_velocity": 24000
+  "default": {
+    "volume": 5,
+    "micro_step_mode": 2,
+    "top_velocity": 24000,
+    "initialize_mode": "left"
+  },
+  "pumps": {
+      "acetone": {
+        "switch": "0"
       },
-      {
-          "name": "water",
+      "water": {
           "switch": "1",
-          "volume": 5,
-          "micro_step_mode": 2,
-          "top_velocity": 24000
+          "top_velocity": 12000
       }
-  ]
+  }
 }

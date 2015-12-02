@@ -3,11 +3,11 @@
 import time
 import json
 import serial
+
 import logging
+module_logger = logging.getLogger(__name__)
 
 import pump_protocol
-
-logger = logging.getLogger(__name__)
 
 C3000Broadcast = '_'
 
@@ -30,9 +30,9 @@ C3000SwitchToAddress = {
     'BROADCAST': C3000Broadcast,
 }
 
-INITIALIZE_VALVE_RIGHT = 'Z'
-INITIALIZE_VALVE_LEFT = 'Y'
-INITIALIZE_NO_VALVE = 'W'
+INITIALIZE_VALVE_RIGHT = 'right'
+INITIALIZE_VALVE_LEFT = 'left'
+INITIALIZE_NO_VALVE = 'no_valve'
 
 VALVE_INPUT = 'I'
 VALVE_OUTPUT = 'O'
@@ -57,6 +57,8 @@ WAIT_SLEEP_TIME = 0.1
 class PumpIO(object):
 
     def __init__(self, port, baudrate=DEFAULT_IO_BAUDRATE, timeout=DEFAULT_IO_TIMEOUT):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
@@ -92,40 +94,46 @@ class PumpIO(object):
 
     def open(self, port, baudrate=DEFAULT_IO_BAUDRATE, timeout=DEFAULT_IO_TIMEOUT):
         self._serial = serial.Serial(port, baudrate, timeout=timeout)
-        logger.info("Opening port '%s'", self.port,
-                    extra={'port': self.port,
-                           'baudrate': self.baudrate,
-                           'timeout': self.timeout})
+        self.logger.debug("Opening port '%s'", self.port,
+                          extra={'port': self.port,
+                                 'baudrate': self.baudrate,
+                                 'timeout': self.timeout})
 
     def close(self):
         self._serial.close()
-        logger.info("Closing port '%s'", self.port,
-                    extra={'port': self.port,
-                           'baudrate': self.baudrate,
-                           'timeout': self.timeout})
+        self.logger.debug("Closing port '%s'", self.port,
+                          extra={'port': self.port,
+                                 'baudrate': self.baudrate,
+                                 'timeout': self.timeout})
 
     def flushInput(self):
         self._serial.flushInput()
 
     def write(self, packet):
         str_to_send = packet.to_string()
-        logger.info("Sending {}".format(str_to_send))
+        self.logger.debug("Sending {}".format(str_to_send))
         self._serial.write(str_to_send)
 
     def readline(self):
-        return self._serial.readline()
+        msg = self._serial.readline()
+        self.logger.debug("Received {}".format(msg))
+        return msg
 
 
 class C3000Controller(object):
 
-    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=2, top_velocity=6000):
+    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000, initialize_mode=INITIALIZE_VALVE_RIGHT, initialize_operand=0):
         self._io = pump_io
 
         self.name = name
-        self.address = address
-        self.total_volume = float(total_volume)  # in ml (float)
 
-        self.micro_step_mode = micro_step_mode
+        self.address = address
+        self._protocol = pump_protocol.C3000Protocol(self.address)
+
+        self.initialize_mode = initialize_mode
+        self.initialize_operand = initialize_operand
+
+        self.set_microstep_mode(micro_step_mode)
         if self.micro_step_mode == MICRO_STEP_MODE_0:
             self.number_of_steps = float(N_STEP_MICRO_STEP_MODE_0)  # float
         elif self.micro_step_mode == MICRO_STEP_MODE_2:
@@ -133,25 +141,21 @@ class C3000Controller(object):
         else:
             raise ValueError('Microstep mode {} is not handled'.format(self.micro_step_mode))
 
-        self.top_velocity = top_velocity
+        self.total_volume = float(total_volume)  # in ml (float)
         self.steps_per_ml = self.number_of_steps / self.total_volume
 
-        self._protocol = pump_protocol.C3000Protocol(self.address)
+        self.set_top_velocity(top_velocity)
 
     @classmethod
-    def from_config(cls, pump_io, pump_config):
-        name = pump_config['name']
-        address = C3000SwitchToAddress[pump_config['switch']]
-        total_volume = float(pump_config['volume'])  # in ml (float)
+    def from_config(cls, pump_io, pump_name, pump_config):
 
-        kwargs = {}
-        if 'micro_step_mode' in pump_config:
-            kwargs['micro_step_mode'] = pump_config['micro_step_mode']
+        pump_config['address'] = C3000SwitchToAddress[pump_config['switch']]
+        del(pump_config['switch'])
 
-        if 'top_velocity' in pump_config:
-            kwargs['top_velocity'] = pump_config['top_velocity']
+        pump_config['total_volume'] = float(pump_config['volume'])  # in ml (float)
+        del(pump_config['volume'])
 
-        return C3000Controller(pump_io, name, address, total_volume, **kwargs)
+        return cls(pump_io, pump_name, **pump_config)
 
     ##
     def write_and_read_from_pump(self, packet):
@@ -194,12 +198,18 @@ class C3000Controller(object):
         (_, _, init_status) = self.write_and_read_from_pump(initialized_packet)
         return bool(int(init_status))
 
-    def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
+    def smart_initialize(self, valve_position=None, operand_value=None):
         if not self.is_initialized():
             self.initialize(valve_position, operand_value)
         self.set_all_pump_parameters()
 
-    def initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0, wait=True):
+    def initialize(self, valve_position=None, operand_value=None, wait=True):
+
+        if valve_position is None:
+            valve_position = self.initialize_mode
+
+        if operand_value is None:
+            operand_value = self.initialize_operand
 
         if valve_position == INITIALIZE_VALVE_RIGHT:
             self.initialize_valve_right(operand_value)
@@ -223,15 +233,17 @@ class C3000Controller(object):
 
     ##
     def set_all_pump_parameters(self):
-        self.set_microstep_mode()
+        self.set_microstep_mode(self.micro_step_mode)
         self.wait_until_idle()
 
-        self.set_top_velocity()
+        self.set_top_velocity(self.top_velocity)
         self.wait_until_idle()
 
     ##
-    def set_microstep_mode(self):
-        self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(self.micro_step_mode))
+    def set_microstep_mode(self, micro_step_mode):
+        self.micro_step_mode = micro_step_mode
+        if self.is_initialized():
+            self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
 
     ##
     def is_top_velocity_within_range(self, top_velocity):
@@ -249,8 +261,10 @@ class C3000Controller(object):
         (_, _, top_velocity) = self.write_and_read_from_pump(top_velocity_packet)
         return int(top_velocity)
 
-    def set_top_velocity(self):
-        self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(self.top_velocity))
+    def set_top_velocity(self, top_velocity):
+        self.top_velocity = top_velocity
+        if self.is_initialized():
+            self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
 
     def change_top_velocity(self, new_top_velocity):
         self.top_velocity = new_top_velocity
@@ -277,10 +291,17 @@ class C3000Controller(object):
     def is_volume_pumpable(self, volume_in_ml):
         return volume_in_ml <= self.remaining_volume
 
-    def pump(self, volume_in_ml, wait=False):
+    def pump(self, volume_in_ml, from_valve=None, wait=False):
+        """
+        top_velocity is just a temporary velocity change for only this pump command
+        """
         if self.is_volume_pumpable(volume_in_ml):
-            steps_to_pump = self.volume_to_step(volume_in_ml)
 
+            if from_valve is not None:
+                self.set_valve_position(from_valve)
+                self.wait_until_idle()
+
+            steps_to_pump = self.volume_to_step(volume_in_ml)
             packet = self._protocol.forge_pump_packet(steps_to_pump)
             self.write_and_read_from_pump(packet)
 
@@ -295,10 +316,14 @@ class C3000Controller(object):
     def is_volume_deliverable(self, volume_in_ml):
         return volume_in_ml <= self.current_volume
 
-    def deliver(self, volume_in_ml, wait=False):
+    def deliver(self, volume_in_ml, to_valve=None, wait=False):
         if self.is_volume_deliverable(volume_in_ml):
-            steps_to_deliver = self.volume_to_step(volume_in_ml)
 
+            if to_valve is not None:
+                self.set_valve_position(to_valve)
+                self.wait_until_idle()
+
+            steps_to_deliver = self.volume_to_step(volume_in_ml)
             packet = self._protocol.forge_deliver_packet(steps_to_deliver)
             self.write_and_read_from_pump(packet)
 
@@ -308,6 +333,16 @@ class C3000Controller(object):
             return True
         else:
             return False
+
+    ##
+    def transfer(self, volume_in_ml, from_valve, to_valve):
+        volume_transfered = min(volume_in_ml, self.remaining_volume)
+        self.pump(volume_transfered, from_valve, wait=True)
+        self.deliver(volume_transfered, to_valve, wait=True)
+
+        remaining_volume_to_transfer = volume_in_ml - volume_transfered
+        if remaining_volume_to_transfer > 0:
+            self.transfer(remaining_volume_to_transfer, from_valve, to_valve)
 
     ##
     def is_volume_valid(self, volume_in_ml):
@@ -382,17 +417,32 @@ class C3000Controller(object):
 class MultiPumpController(object):
 
     def __init__(self, setup_config):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         self._io = PumpIO.from_config(setup_config['io'])
 
+        if 'default' in setup_config:
+            self.default_config = setup_config['default']
+        else:
+            self.default_config = {}
+
         self.pumps = {}
-        for pump_config in setup_config['pumps']:
-            pump_name = pump_config['name']
-            self.pumps[pump_name] = C3000Controller.from_config(self._io, pump_config)
+        for pump_name, pump_config in setup_config['pumps'].items():
+            defaulted_pump_config = self.default_pump_config(pump_config)
+            self.pumps[pump_name] = C3000Controller.from_config(self._io, pump_name, defaulted_pump_config)
 
     @classmethod
     def from_configfile(cls, setup_configfile):
         with open(setup_configfile) as f:
             return cls(json.load(f))
+
+    def default_pump_config(self, pump_config):
+        defaulted_pump_config = dict(self.default_config)  # make a copy
+
+        for k, v in pump_config.items():
+            defaulted_pump_config[k] = v
+
+        return defaulted_pump_config
 
     def apply_command_to_pumps(self, pump_names, command, *args, **kwargs):
 
