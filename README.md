@@ -4,11 +4,17 @@ pycont is a python library to control Tricontinent C3000 pumps. It is meant to b
 
 ## TODO
 
- - be more robust to errors from the pumps
- - implement initialized different par pump if set in config file
+ - be more robust to errors from the pumps, handle timeout
+ - global default setting in config file
+ - implement initialized different per pump if set in config file
  - remove field name for pumps and make it a dict
  - remove C3000... in class method and replace by cls
  - implement a transfer function, transferring volume from valve to valve
+ - flash eeprom 3 way, 4 way
+ - pump and deliver with from_valve and speed
+ - set function should have a parameter set the variable and send if pump is initialized
+ - set pump as attribute of the class
+
 
 ## Tutorial
 
