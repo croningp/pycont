@@ -68,7 +68,20 @@ while controller.are_pumps_busy():
     # and record the volume in real time as the pumps are moving
     print(controller.apply_command_to_all_pumps('get_volume'))
 
-controller.apply_command_to_all_pumps('go_to_volume', 1)
+# and you set pump group in the config file and apply command to a group of pumps
+# check the config file for group definition
+# in this example 'chemicals' contains ['water', 'acetone']
+controller.apply_command_to_group('chemicals', 'go_to_volume', 1)
+controller.wait_until_all_pumps_idle()
+
+# the two above function call the more generic apply_command_to_pumps function
+# which take a list of pumps to apply the command to
+controller.apply_command_to_pumps(['water', 'acetone'], 'go_to_volume', 1.5)
+controller.wait_until_all_pumps_idle()
+
+# So the three above way are different way to do the same things
+# groups are a powerful way to automate initialization of your setup
+
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change valve position

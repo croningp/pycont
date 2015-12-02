@@ -439,6 +439,11 @@ class MultiPumpController(object):
         else:
             self.default_config = {}
 
+        if 'groups' in setup_config:
+            self.groups = setup_config['groups']
+        else:
+            self.groups = {}
+
         self.pumps = {}
         for pump_name, pump_config in setup_config['pumps'].items():
             defaulted_pump_config = self.default_pump_config(pump_config)
@@ -476,6 +481,9 @@ class MultiPumpController(object):
 
     def apply_command_to_all_pumps(self, command, *args, **kwargs):
         return self.apply_command_to_pumps(self.pumps.keys(), command, *args, **kwargs)
+
+    def apply_command_to_group(self, group_name, command, *args, **kwargs):
+        return self.apply_command_to_pumps(self.groups[group_name], command, *args, **kwargs)
 
     ##
     def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):

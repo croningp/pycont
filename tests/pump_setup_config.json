@@ -10,6 +10,9 @@
     "top_velocity": 24000,
     "initialize_mode": "left"
   },
+  "groups": {
+    "chemicals": ["acetone", "water"]
+  },
   "pumps": {
       "acetone": {
         "switch": "0"
