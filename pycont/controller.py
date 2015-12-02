@@ -470,6 +470,12 @@ class MultiPumpController(object):
             else:
                 setattr(self, pump_name, pump)
 
+    def get_pumps(self, pump_names):
+        pumps = []
+        for pump_name in pump_names:
+            pumps.append(self.pumps[pump_name])
+        return pumps
+
     def apply_command_to_pumps(self, pump_names, command, *args, **kwargs):
 
         returns = {}
@@ -507,20 +513,36 @@ class MultiPumpController(object):
     def are_pumps_busy(self):
         return not self.are_pumps_idle()
 
+    def pump(self, pump_names, volume_in_ml, from_valve=None, wait=False):
+
+        if from_valve is not None:
+            self.apply_command_to_pumps(pump_names, 'set_valve_position', from_valve)
+
+        self.apply_command_to_pumps(pump_names, 'pump', volume_in_ml, from_valve=None)
+
+        if wait:
+            self.wait_until_all_pumps_idle()
+
+    def deliver(self, pump_names, volume_in_ml, to_valve=None, wait=False):
+
+        if to_valve is not None:
+            self.apply_command_to_pumps(pump_names, 'set_valve_position', to_valve)
+
+        self.apply_command_to_pumps(pump_names, 'deliver', volume_in_ml, to_valve=None)
+        self.wait_until_all_pumps_idle()
+
+        if wait:
+            self.wait_until_all_pumps_idle()
+
     def transfer(self, pump_names, volume_in_ml, from_valve, to_valve):
 
         volume_transfered = 1000  # some big number 1L is more than any syringe
-        for _, pump in self.pumps.items():
+        for pump in self.get_pumps(pump_names):
             candidate_volume = min(volume_in_ml, pump.remaining_volume)
             volume_transfered = min(candidate_volume, volume_transfered)
 
-        for _, pump in self.pumps.items():
-            pump.pump(volume_transfered, from_valve)
-        self.wait_until_all_pumps_idle()
-
-        for _, pump in self.pumps.items():
-            self.deliver(volume_transfered, to_valve)
-        self.wait_until_all_pumps_idle()
+        self.pump(pump_names, volume_transfered, from_valve, wait=True)
+        self.deliver(pump_names, volume_transfered, to_valve, wait=True)
 
         remaining_volume_to_transfer = volume_in_ml - volume_transfered
         if remaining_volume_to_transfer > 0:
