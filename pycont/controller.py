@@ -417,10 +417,10 @@ class C3000Controller(object):
         print("####################################################")
 
     def flash_eeprom_3_way_valve(self):
-        self.set_eeprom_config("10_210")
+        self.set_eeprom_config("1")
 
     def flash_eeprom_4_way_valve(self):
-        self.set_eeprom_config("11_2130001")
+        self.set_eeprom_config("2")
 
     def get_eeprom_config(self):
         (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
