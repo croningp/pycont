@@ -2,6 +2,9 @@
 
 import itertools
 
+import logging
+module_logger = logging.getLogger(__name__)
+
 
 DTStart = '/'
 DTStop = '\r'
@@ -74,11 +77,20 @@ class DTStatus(object):
         """
 
     def __init__(self, response):
-        self.response = response.decode()
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.debug('Received {}'.format(response))
+        try:
+            self.response = response.decode()
+        except UnicodeDecodeError:
+            self.logger.debug('Could not decode  {}'.format(response))
+            self.response = None
 
     def decode(self):
-        info = self.response.rstrip().rstrip('\x03').lstrip(DTStart)
-        address = info[0]
-        status = info[1]
-        data = info[2:]
-        return (address, status, data)
+        if self.response is not None:
+            info = self.response.rstrip().rstrip('\x03').lstrip(DTStart)
+            address = info[0]
+            status = info[1]
+            data = info[2:]
+            return (address, status, data)
+        else:
+            return (None, None, None)
