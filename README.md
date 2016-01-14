@@ -2,14 +2,12 @@
 
 pycont is a python library to control Tricontinent C3000 pumps. It is meant to be easy to use, and transparent such that when reading your program you can actually know what is going on.
 
-## TODO
-
- - be more robust to errors from the pumps, handle timeout
- - groups of pumps
 
 ## Tutorial
 
 ### Wiring the pumps
+
+[Components to buy](http://datalore.chem.gla.ac.uk/JOG/pycont/blob/master/docs/useful_links.md)
 
 Some documents are available in the [docs folder](http://datalore.chem.gla.ac.uk/JOG/pycont/tree/master/docs).
 
