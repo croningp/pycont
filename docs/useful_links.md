@@ -3,6 +3,9 @@
 ## D-Sub socket
 - http://uk.rs-online.com/web/p/d-sub-connector-kits/7659457
 
+## USB to RS232
+- http://uk.rs-online.com/web/p/interface-development-kits/0429252/
+
 ## RS232 cable
 - http://uk.rs-online.com/web/p/serial-cable-assemblies/3943326/
 
