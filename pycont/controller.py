@@ -529,7 +529,6 @@ class MultiPumpController(object):
             self.apply_command_to_pumps(pump_names, 'set_valve_position', to_valve)
 
         self.apply_command_to_pumps(pump_names, 'deliver', volume_in_ml, to_valve=None)
-        self.wait_until_all_pumps_idle()
 
         if wait:
             self.wait_until_all_pumps_idle()
