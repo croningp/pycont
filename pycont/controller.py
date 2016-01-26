@@ -140,10 +140,10 @@ class C3000Controller(object):
         self.initialize_mode = initialize_mode
         self.initialize_operand = initialize_operand
 
-        self.set_microstep_mode(micro_step_mode)
-        if self.micro_step_mode == MICRO_STEP_MODE_0:
+        self.init_micro_step_mode = micro_step_mode
+        if micro_step_mode == MICRO_STEP_MODE_0:
             self.number_of_steps = float(N_STEP_MICRO_STEP_MODE_0)  # float
-        elif self.micro_step_mode == MICRO_STEP_MODE_2:
+        elif micro_step_mode == MICRO_STEP_MODE_2:
             self.number_of_steps = float(N_STEP_MICRO_STEP_MODE_2)  # float
         else:
             raise ValueError('Microstep mode {} is not handled'.format(self.micro_step_mode))
@@ -151,7 +151,7 @@ class C3000Controller(object):
         self.total_volume = float(total_volume)  # in ml (float)
         self.steps_per_ml = self.number_of_steps / self.total_volume
 
-        self.set_top_velocity(top_velocity)
+        self.init_top_velocity = top_velocity
 
     @classmethod
     def from_config(cls, pump_io, pump_name, pump_config):
@@ -208,7 +208,7 @@ class C3000Controller(object):
     def smart_initialize(self, valve_position=None, operand_value=None):
         if not self.is_initialized():
             self.initialize(valve_position, operand_value)
-        self.set_all_pump_parameters()
+        self.init_all_pump_parameters()
 
     def initialize(self, valve_position=None, operand_value=None, wait=True):
 
@@ -239,16 +239,15 @@ class C3000Controller(object):
         self.write_and_read_from_pump(self._protocol.forge_initialize_no_valve_packet(operand_value))
 
     ##
-    def set_all_pump_parameters(self):
-        self.set_microstep_mode(self.micro_step_mode)
+    def init_all_pump_parameters(self):
+        self.set_microstep_mode(self.init_micro_step_mode)
         self.wait_until_idle()
 
-        self.set_top_velocity(self.top_velocity)
+        self.set_top_velocity(self.init_top_velocity)
         self.wait_until_idle()
 
     ##
     def set_microstep_mode(self, micro_step_mode):
-        self.micro_step_mode = micro_step_mode
         if self.is_initialized():
             self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
 
@@ -269,13 +268,8 @@ class C3000Controller(object):
         return int(top_velocity)
 
     def set_top_velocity(self, top_velocity):
-        self.top_velocity = top_velocity
         if self.is_initialized():
             self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
-
-    def change_top_velocity(self, new_top_velocity):
-        self.top_velocity = new_top_velocity
-        self.set_top_velocity()
 
     ##
     def get_plunger_position(self):
@@ -498,7 +492,7 @@ class MultiPumpController(object):
                 pump.initialize(valve_position, operand_value, wait=False)
         self.wait_until_all_pumps_idle()
 
-        self.apply_command_to_all_pumps('set_all_pump_parameters')
+        self.apply_command_to_all_pumps('init_all_pump_parameters')
         self.wait_until_all_pumps_idle()
 
     def wait_until_all_pumps_idle(self):
