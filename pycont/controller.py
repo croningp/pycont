@@ -140,10 +140,10 @@ class C3000Controller(object):
         self.initialize_mode = initialize_mode
         self.initialize_operand = initialize_operand
 
-        self.init_micro_step_mode = micro_step_mode
-        if micro_step_mode == MICRO_STEP_MODE_0:
+        self.micro_step_mode = micro_step_mode
+        if self.micro_step_mode == MICRO_STEP_MODE_0:
             self.number_of_steps = float(N_STEP_MICRO_STEP_MODE_0)  # float
-        elif micro_step_mode == MICRO_STEP_MODE_2:
+        elif self.micro_step_mode == MICRO_STEP_MODE_2:
             self.number_of_steps = float(N_STEP_MICRO_STEP_MODE_2)  # float
         else:
             raise ValueError('Microstep mode {} is not handled'.format(self.micro_step_mode))
@@ -240,7 +240,7 @@ class C3000Controller(object):
 
     ##
     def init_all_pump_parameters(self):
-        self.set_microstep_mode(self.init_micro_step_mode)
+        self.set_microstep_mode(self.micro_step_mode)
         self.wait_until_idle()
 
         self.set_top_velocity(self.init_top_velocity)
@@ -252,15 +252,16 @@ class C3000Controller(object):
             self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
 
     ##
-    def is_top_velocity_within_range(self, top_velocity):
+    def check_top_velocity_within_range(self, top_velocity):
         if self.micro_step_mode == MICRO_STEP_MODE_0:
             max_range = MAX_TOP_VELOCITY_MICRO_STEP_MODE_0
         elif self.micro_step_mode == MICRO_STEP_MODE_2:
             max_range = MAX_TOP_VELOCITY_MICRO_STEP_MODE_2
+
+        if top_velocity in range(1, max_range + 1):
+            return True
         else:
             raise ValueError('Top velocity {} is not in range'.format(self.micro_step_mode))
-
-        return top_velocity in range(1, max_range + 1)
 
     def get_top_velocity(self):
         top_velocity_packet = self._protocol.forge_report_peak_velocity_packet()
@@ -269,6 +270,7 @@ class C3000Controller(object):
 
     def set_top_velocity(self, top_velocity):
         if self.is_initialized():
+            self.check_top_velocity_within_range(top_velocity)
             self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
 
     ##
@@ -292,11 +294,15 @@ class C3000Controller(object):
     def is_volume_pumpable(self, volume_in_ml):
         return volume_in_ml <= self.remaining_volume
 
-    def pump(self, volume_in_ml, from_valve=None, wait=False):
+    def pump(self, volume_in_ml, from_valve=None, speed_in=None, wait=False):
         """
-        top_velocity is just a temporary velocity change for only this pump command
+        warning change of speed will last after the scope of this function
         """
         if self.is_volume_pumpable(volume_in_ml):
+
+            if speed_in is not None:
+                self.set_top_velocity(speed_in)
+                self.wait_until_idle()
 
             if from_valve is not None:
                 self.set_valve_position(from_valve)
@@ -317,8 +323,15 @@ class C3000Controller(object):
     def is_volume_deliverable(self, volume_in_ml):
         return volume_in_ml <= self.current_volume
 
-    def deliver(self, volume_in_ml, to_valve=None, wait=False):
+    def deliver(self, volume_in_ml, to_valve=None, speed_out=None, wait=False):
+        """
+        warning change of speed will last after the scope of this function
+        """
         if self.is_volume_deliverable(volume_in_ml):
+
+            if speed_out is not None:
+                self.set_top_velocity(speed_out)
+                self.wait_until_idle()
 
             if to_valve is not None:
                 self.set_valve_position(to_valve)
@@ -336,14 +349,14 @@ class C3000Controller(object):
             return False
 
     ##
-    def transfer(self, volume_in_ml, from_valve, to_valve):
+    def transfer(self, volume_in_ml, from_valve, to_valve, speed_in=None, speed_out=None):
         volume_transfered = min(volume_in_ml, self.remaining_volume)
-        self.pump(volume_transfered, from_valve, wait=True)
-        self.deliver(volume_transfered, to_valve, wait=True)
+        self.pump(volume_transfered, from_valve, speed_in=speed_in, wait=True)
+        self.deliver(volume_transfered, to_valve, speed_out=speed_out, wait=True)
 
         remaining_volume_to_transfer = volume_in_ml - volume_transfered
         if remaining_volume_to_transfer > 0:
-            self.transfer(remaining_volume_to_transfer, from_valve, to_valve)
+            self.transfer(remaining_volume_to_transfer, from_valve, to_valve, speed_in, speed_out)
 
     ##
     def is_volume_valid(self, volume_in_ml):
@@ -507,7 +520,10 @@ class MultiPumpController(object):
     def are_pumps_busy(self):
         return not self.are_pumps_idle()
 
-    def pump(self, pump_names, volume_in_ml, from_valve=None, wait=False):
+    def pump(self, pump_names, volume_in_ml, from_valve=None, speed_in=None, wait=False):
+
+        if speed_in is not None:
+            self.apply_command_to_pumps(pump_names, 'set_top_velocity', speed_in)
 
         if from_valve is not None:
             self.apply_command_to_pumps(pump_names, 'set_valve_position', from_valve)
@@ -517,7 +533,10 @@ class MultiPumpController(object):
         if wait:
             self.wait_until_all_pumps_idle()
 
-    def deliver(self, pump_names, volume_in_ml, to_valve=None, wait=False):
+    def deliver(self, pump_names, volume_in_ml, to_valve=None, speed_out=None, wait=False):
+
+        if speed_out is not None:
+            self.apply_command_to_pumps(pump_names, 'set_top_velocity', speed_out)
 
         if to_valve is not None:
             self.apply_command_to_pumps(pump_names, 'set_valve_position', to_valve)
@@ -527,16 +546,16 @@ class MultiPumpController(object):
         if wait:
             self.wait_until_all_pumps_idle()
 
-    def transfer(self, pump_names, volume_in_ml, from_valve, to_valve):
+    def transfer(self, pump_names, volume_in_ml, from_valve, to_valve, speed_in=None, speed_out=None):
 
         volume_transfered = 1000  # some big number 1L is more than any syringe
         for pump in self.get_pumps(pump_names):
             candidate_volume = min(volume_in_ml, pump.remaining_volume)
             volume_transfered = min(candidate_volume, volume_transfered)
 
-        self.pump(pump_names, volume_transfered, from_valve, wait=True)
-        self.deliver(pump_names, volume_transfered, to_valve, wait=True)
+        self.pump(pump_names, volume_transfered, from_valve, speed_in=speed_in, wait=True)
+        self.deliver(pump_names, volume_transfered, to_valve, speed_out=speed_out, wait=True)
 
         remaining_volume_to_transfer = volume_in_ml - volume_transfered
         if remaining_volume_to_transfer > 0:
-            self.transfer(pump_names, remaining_volume_to_transfer, from_valve, to_valve)
+            self.transfer(pump_names, remaining_volume_to_transfer, from_valve, to_valve, speed_in, speed_out)
