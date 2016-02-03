@@ -142,14 +142,14 @@ class C3000Controller(object):
 
         self.micro_step_mode = micro_step_mode
         if self.micro_step_mode == MICRO_STEP_MODE_0:
-            self.number_of_steps = float(N_STEP_MICRO_STEP_MODE_0)  # float
+            self.number_of_steps = int(N_STEP_MICRO_STEP_MODE_0)  # float
         elif self.micro_step_mode == MICRO_STEP_MODE_2:
-            self.number_of_steps = float(N_STEP_MICRO_STEP_MODE_2)  # float
+            self.number_of_steps = int(N_STEP_MICRO_STEP_MODE_2)  # float
         else:
             raise ValueError('Microstep mode {} is not handled'.format(self.micro_step_mode))
 
         self.total_volume = float(total_volume)  # in ml (float)
-        self.steps_per_ml = self.number_of_steps / self.total_volume
+        self.steps_per_ml = int(self.number_of_steps / self.total_volume)
 
         self.default_top_velocity = top_velocity
         self.current_top_velocity = -1
@@ -180,7 +180,7 @@ class C3000Controller(object):
         return int(round(volume_in_ml * self.steps_per_ml))
 
     def step_to_volume(self, step):
-        return step / self.steps_per_ml
+        return step / float(self.steps_per_ml)
 
     ##
     def is_idle(self):
@@ -300,6 +300,14 @@ class C3000Controller(object):
         (_, _, steps) = self.write_and_read_from_pump(plunger_position_packet)
         return int(steps)
 
+    @property
+    def current_steps(self):
+        return self.get_plunger_position()
+
+    @property
+    def remaining_steps(self):
+        return self.number_of_steps - self.current_steps
+
     def get_volume(self):
         return self.step_to_volume(self.get_plunger_position())  # in ml
 
@@ -313,7 +321,8 @@ class C3000Controller(object):
 
     ##
     def is_volume_pumpable(self, volume_in_ml):
-        return volume_in_ml <= self.remaining_volume
+        steps = self.volume_to_step(volume_in_ml)
+        return steps <= self.remaining_steps
 
     def pump(self, volume_in_ml, from_valve=None, speed_in=None, wait=False):
         """
@@ -342,7 +351,8 @@ class C3000Controller(object):
 
     ##
     def is_volume_deliverable(self, volume_in_ml):
-        return volume_in_ml <= self.current_volume
+        steps = self.volume_to_step(volume_in_ml)
+        return steps <= self.current_steps
 
     def deliver(self, volume_in_ml, to_valve=None, speed_out=None, wait=False):
         """
