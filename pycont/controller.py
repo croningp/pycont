@@ -463,15 +463,27 @@ class C3000Controller(object):
     def set_eeprom_config(self, operand_value):
         eeprom_config_packet = self._protocol.forge_eeprom_config_packet(operand_value)
         self.write_and_read_from_pump(eeprom_config_packet)
-        print("####################################################")
-        print("Unpower and repower the pump to make changes active!")
-        print("####################################################")
+        if operand_value==1:
+			print("####################################################")
+			print("3-Way Y-Valve: Connect jumper to pin 5 (bottom pin) below address switch at back of pump")
+			print("Unpower and repower the pump to activate changes!")
+			print("####################################################")
+		else:
+			print("####################################################")
+			print("Unpower and repower the pump to make changes active!")
+			print("####################################################")
 
-    def flash_eeprom_3_way_valve(self):
+    def flash_eeprom_3_way_y_valve(self):
         self.set_eeprom_config("1")
+        
+    def flash_eeprom_3_way_t_valve(self):
+        self.set_eeprom_config("5")
 
-    def flash_eeprom_4_way_valve(self):
+    def flash_eeprom_4_way_nondist_valve(self):
         self.set_eeprom_config("2")
+
+    def flash_eeprom_4_way_dist_valve(self):
+        self.set_eeprom_config("4")
 
     def get_eeprom_config(self):
         (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
