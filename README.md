@@ -11,6 +11,17 @@ pycont is a python library to control Tricontinent C3000 pumps. It is meant to b
 
 Some documents are available in the [docs folder](http://datalore.chem.gla.ac.uk/JOG/pycont/tree/master/docs).
 
+### Setting up the pumps
+
+Be sure which type of valve you are using (see [p28-31](http://datalore.chem.gla.ac.uk/JOG/pycont/blob/master/docs/pumps/tricont%20software%20man.pdf)) and that the pump is using the appropriate EEPROM setting (see example below).
+
+If you are using a 3-way valve (Y-shape) you will need to put a jumper on [J2 pin 5](http://datalore.chem.gla.ac.uk/JOG/pycont/blob/master/docs/pumps/pumps_wiring.pdf). This doesn't require change to EEPROM.
+
+Remove all other jumpers except [J2 pin 1](http://datalore.chem.gla.ac.uk/JOG/pycont/blob/master/docs/pumps/pumps_wiring.pdf), which is a spare.
+
+(RS485 termination jumpers not required since communication baudrate is only 9600.)
+
+
 ### Installing the library
 
 ```
@@ -190,4 +201,17 @@ print(controller.pumps['water'].is_volume_deliverable(1))  # can I deliver 1 ml?
 
 # Have fun!
 
+```
+
+### EEPROM settings
+
+The EEPROM flash memory on the pumps can be changed using the following commands:
+
+```python
+# There are 4 commands for the 4 types of valve
+
+#controller.pumps['water'].flash_eeprom_3_way_y_valve()         # Not strictly necessary since a jumper pin will do the same thing regardless of EEPROM setting
+#controller.pumps['water'].flash_eeprom_3_way_t_valve()
+#controller.pumps['water'].flash_eeprom_4_way_nondist_valve()
+controller.pumps['water'].flash_eeprom_4_way_dist_valve()
 ```
