@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import logging
-module_logger = logging.getLogger(__name__)
+from _logger import create_logger
 
 import dtprotocol
 
@@ -36,7 +35,7 @@ STATUS_BUSY_ERROR_FREE = '@'
 class C3000Protocol(object):
 
     def __init__(self, address):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = create_logger(self.__class__.__name__)
 
         self.address = address
 

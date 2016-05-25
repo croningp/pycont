@@ -2,9 +2,7 @@
 
 import itertools
 
-import logging
-module_logger = logging.getLogger(__name__)
-
+from _logger import create_logger
 
 DTStart = '/'
 DTStop = '\r'
@@ -77,7 +75,7 @@ class DTStatus(object):
         """
 
     def __init__(self, response):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = create_logger(self.__class__.__name__)
         self.logger.debug('Received {}'.format(response))
         try:
             self.response = response.decode()

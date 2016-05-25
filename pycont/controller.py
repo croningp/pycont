@@ -4,8 +4,7 @@ import time
 import json
 import serial
 
-import logging
-module_logger = logging.getLogger(__name__)
+from _logger import create_logger
 
 import qlock
 import pump_protocol
@@ -58,7 +57,7 @@ WAIT_SLEEP_TIME = 0.1
 class PumpIO(object):
 
     def __init__(self, port, baudrate=DEFAULT_IO_BAUDRATE, timeout=DEFAULT_IO_TIMEOUT):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = create_logger(self.__class__.__name__)
 
         self.port = port
         self.baudrate = baudrate
@@ -463,19 +462,19 @@ class C3000Controller(object):
     def set_eeprom_config(self, operand_value):
         eeprom_config_packet = self._protocol.forge_eeprom_config_packet(operand_value)
         self.write_and_read_from_pump(eeprom_config_packet)
-        if operand_value==1:
-			print("####################################################")
-			print("3-Way Y-Valve: Connect jumper to pin 5 (bottom pin) below address switch at back of pump")
-			print("Unpower and repower the pump to activate changes!")
-			print("####################################################")
-		else:
-			print("####################################################")
-			print("Unpower and repower the pump to make changes active!")
-			print("####################################################")
+        if operand_value == 1:
+            print("####################################################")
+            print("3-Way Y-Valve: Connect jumper to pin 5 (bottom pin) below address switch at back of pump")
+            print("Unpower and repower the pump to activate changes!")
+            print("####################################################")
+        else:
+            print("####################################################")
+            print("Unpower and repower the pump to make changes active!")
+            print("####################################################")
 
     def flash_eeprom_3_way_y_valve(self):
         self.set_eeprom_config("1")
-        
+
     def flash_eeprom_3_way_t_valve(self):
         self.set_eeprom_config("5")
 
@@ -493,7 +492,7 @@ class C3000Controller(object):
 class MultiPumpController(object):
 
     def __init__(self, setup_config):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = create_logger(self.__class__.__name__)
 
         self._io = PumpIO.from_config(setup_config['io'])
 
