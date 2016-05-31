@@ -3,10 +3,10 @@
 import time
 import json
 import serial
+import threading
 
 from _logger import create_logger
 
-import qlock
 import pump_protocol
 
 C3000Broadcast = '_'
@@ -58,6 +58,8 @@ class PumpIO(object):
 
     def __init__(self, port, baudrate=DEFAULT_IO_BAUDRATE, timeout=DEFAULT_IO_TIMEOUT):
         self.logger = create_logger(self.__class__.__name__)
+
+        self.lock = threading.Lock()
 
         self.port = port
         self.baudrate = baudrate
@@ -122,6 +124,19 @@ class PumpIO(object):
         else:
             raise PumpIOTimeOutError
 
+    ##
+    def write_and_readline(self, packet):
+        self.lock.acquire()
+        self.flushInput()
+        self.write(packet)
+        try:
+            response = self.readline()
+            self.lock.release()
+            return response
+        except PumpIOTimeOutError as err:
+            self.lock.release()
+            raise err
+
 
 class PumpIOTimeOutError(Exception):
     pass
@@ -131,7 +146,6 @@ class C3000Controller(object):
 
     def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000, initialize_mode=INITIALIZE_VALVE_RIGHT, initialize_operand=0):
         self._io = pump_io
-        self.qlock = qlock.QLock()
 
         self.name = name
 
@@ -168,15 +182,10 @@ class C3000Controller(object):
 
     ##
     def write_and_read_from_pump(self, packet):
-        self.qlock.acquire()
-        self._io.flushInput()
-        self._io.write(packet)
         try:
-            response = self._io.readline()
-            self.qlock.release()
+            response = self._io.write_and_readline(packet)
             return self._protocol.decode_packet(response)
         except PumpIOTimeOutError:
-            self.qlock.release()
             return False
 
     ##
