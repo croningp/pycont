@@ -8,7 +8,7 @@
     "volume": 5,
     "micro_step_mode": 2,
     "top_velocity": 24000,
-    "initialize_mode": "left"
+    "initialize_valve_position": "I",
   },
   "groups": {
     "chemicals": ["acetone", "water"]

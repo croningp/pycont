@@ -62,7 +62,7 @@ A config file looks like this:
     "volume": 5,
     "micro_step_mode": 2,
     "top_velocity": 24000,
-    "initialize_mode": "left"
+    "initialize_valve_position": "I",
   },
   "groups": {
     "chemicals": ["acetone", "water"]
@@ -96,10 +96,10 @@ SETUP_CONFIG_FILE = './pump_setup_config.json'
 # and load the config file in a MultiPumpController
 controller = pycont.controller.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
 
-# initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
+# initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they go back to zero position
 controller.smart_initialize()
 
-# idividual pumps can be accessed in two ways:
+# individual pumps can be accessed in two ways:
 # - in the dict ```controller.pumps['pump_name']```
 # - directly as an attribute ```controller.pump_name```
 # the two above method link to the same pump instance
@@ -127,21 +127,21 @@ else:
 
 # the pump and deliver function respectively have a from_valve and to_valve argument
 # if set, the valve position is set before the pump moves
-controller.pumps['water'].pump(0.5, from_valve=pycont.controller.VALVE_INPUT, wait=True)
-controller.pumps['water'].deliver(0.5, to_valve=pycont.controller.VALVE_OUTPUT, wait=True)
+controller.pumps['water'].pump(0.5, from_valve=pycont.controller.VALVE_INPUT, wait=True) # pycont.controller.VALVE_INPUT is 'I', idem for output 'O', bypass 'B', and extra 'E'
+controller.pumps['water'].deliver(0.5, to_valve='O', wait=True)
 
 # you can also transfer volume from valve to valve
-# the function is recusive so even of the volume is bigger than the syringe, it will iterate as many times as needed
-controller.pumps['acetone'].transfer(7, pycont.controller.VALVE_INPUT, pycont.controller.VALVE_OUTPUT)  # this function is blocking, no wait argument
+# the function is recursive so even of the volume is bigger than the syringe, it will iterate as many times as needed
+controller.pumps['acetone'].transfer(7, 'I', 'O')  # this function is blocking, no wait argument
 # note that it pump from and to the position it is currently set to, made it easy to leave a small volume in the pump if needed
 
 # you can also iterate on all the pumps
 for _, pump in controller.pumps.items():
-    pump.go_to_volume(0)  # here wait=False by default, all pumps move in parrallel
+    pump.go_to_volume(0)  # here wait=False by default, all pumps move in parallel
 # wait until all pumps are ready to operate again
 controller.wait_until_all_pumps_idle()
 
-# you can apply command to all pumps in parrallel, in one command!
+# you can apply command to all pumps in parallel, in one command!
 # this is the purpose of the controller.apply_command_to_all_pumps
 # let's have the pumps go to their max volume
 # the below function go through the list of pumps and run the 'go_to_max_volume' function without argument
