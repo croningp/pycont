@@ -563,6 +563,12 @@ class MultiPumpController(object):
         return self.apply_command_to_pumps(self.groups[group_name], command, *args, **kwargs)
 
     ##
+    def are_pumps_initialized(self):
+        for _, pump in self.pumps.items():
+            if not pump.is_initialized():
+                return False
+        return True
+
     def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
         for _, pump in self.pumps.items():
             if not pump.is_initialized():
