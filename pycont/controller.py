@@ -219,33 +219,31 @@ class C3000Controller(object):
             self.initialize(valve_position)
         self.init_all_pump_parameters()
 
-    def initialize(self, valve_position=None, wait=True):
+    def initialize(self, valve_position=None):
 
         if valve_position is None:
             valve_position = self.initialize_valve_position
 
         self.initialize_valve_only()
-        self.set_valve_position(valve_position)
-        self.initialize_no_valve()
+        self.wait_until_idle()
 
-        if wait:
-            self.wait_until_idle()
+        self.set_valve_position(valve_position)
+        self.wait_until_idle()
+
+        self.initialize_no_valve()
+        self.wait_until_idle()
 
     def initialize_valve_right(self, operand_value=0):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
-        self.wait_until_idle()
 
     def initialize_valve_left(self, operand_value=0):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
-        self.wait_until_idle()
 
     def initialize_no_valve(self, operand_value=0):
         self.write_and_read_from_pump(self._protocol.forge_initialize_no_valve_packet(operand_value))
-        self.wait_until_idle()
 
     def initialize_valve_only(self, operand_string='0,0'):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_only_packet(operand_string))
-        self.wait_until_idle()
 
     ##
     def init_all_pump_parameters(self):
@@ -477,16 +475,16 @@ class C3000Controller(object):
             print("####################################################")
 
     def flash_eeprom_3_way_y_valve(self):
-        self.set_eeprom_config("1")
+        self.set_eeprom_config(1)
 
     def flash_eeprom_3_way_t_valve(self):
-        self.set_eeprom_config("5")
+        self.set_eeprom_config(5)
 
     def flash_eeprom_4_way_nondist_valve(self):
-        self.set_eeprom_config("2")
+        self.set_eeprom_config(2)
 
     def flash_eeprom_4_way_dist_valve(self):
-        self.set_eeprom_config("4")
+        self.set_eeprom_config(4)
 
     def get_eeprom_config(self):
         (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
@@ -564,10 +562,20 @@ class MultiPumpController(object):
                 return False
         return True
 
-    def smart_initialize(self, valve_position=None):
+    def smart_initialize(self):
         for _, pump in self.pumps.items():
             if not pump.is_initialized():
-                pump.initialize(valve_position, wait=False)
+                pump.initialize_valve_only()
+        self.wait_until_all_pumps_idle()
+
+        for _, pump in self.pumps.items():
+            if not pump.is_initialized():
+                pump.set_valve_position(pump.initialize_valve_position)
+        self.wait_until_all_pumps_idle()
+
+        for _, pump in self.pumps.items():
+            if not pump.is_initialized():
+                pump.initialize_no_valve()
         self.wait_until_all_pumps_idle()
 
         self.apply_command_to_all_pumps('init_all_pump_parameters')
