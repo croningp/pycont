@@ -7,6 +7,7 @@ CMD_EXECUTE = 'R'
 CMD_INITIALIZE_VALVE_RIGHT = 'Z'
 CMD_INITIALIZE_VALVE_LEFT = 'Y'
 CMD_INITIALIZE_NO_VALVE = 'W'
+CMD_INITIALIZE_VALVE_ONLY = 'w'
 CMD_MICROSTEPMODE = 'N'
 CMD_MOVE_TO = 'A'
 CMD_PUMP = 'P'
@@ -63,7 +64,11 @@ class C3000Protocol(object):
         return self.forge_packet(dtcommand)
 
     def forge_initialize_no_valve_packet(self, operand_value=0):
-        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_LEFT, str(operand_value))
+        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_NO_VALVE, str(operand_value))
+        return self.forge_packet(dtcommand)
+
+    def forge_initialize_valve_only_packet(self, operand_string=None):
+        dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_ONLY, operand_string)
         return self.forge_packet(dtcommand)
 
     def forge_microstep_mode_packet(self, operand_value):

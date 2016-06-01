@@ -30,10 +30,6 @@ C3000SwitchToAddress = {
     'BROADCAST': C3000Broadcast,
 }
 
-INITIALIZE_VALVE_RIGHT = 'right'
-INITIALIZE_VALVE_LEFT = 'left'
-INITIALIZE_NO_VALVE = 'no_valve'
-
 VALVE_INPUT = 'I'
 VALVE_OUTPUT = 'O'
 VALVE_BYPASS = 'B'
@@ -144,7 +140,7 @@ class PumpIOTimeOutError(Exception):
 
 class C3000Controller(object):
 
-    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000, initialize_mode=INITIALIZE_VALVE_RIGHT, initialize_operand=0):
+    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000, initialize_valve_position=VALVE_INPUT):
         self._io = pump_io
 
         self.name = name
@@ -152,8 +148,7 @@ class C3000Controller(object):
         self.address = address
         self._protocol = pump_protocol.C3000Protocol(self.address)
 
-        self.initialize_mode = initialize_mode
-        self.initialize_operand = initialize_operand
+        self.initialize_valve_position = initialize_valve_position
 
         self.micro_step_mode = micro_step_mode
         if self.micro_step_mode == MICRO_STEP_MODE_0:
@@ -219,38 +214,38 @@ class C3000Controller(object):
         (_, _, init_status) = self.write_and_read_from_pump(initialized_packet)
         return bool(int(init_status))
 
-    def smart_initialize(self, valve_position=None, operand_value=None):
+    def smart_initialize(self, valve_position=None):
         if not self.is_initialized():
-            self.initialize(valve_position, operand_value)
+            self.initialize(valve_position)
         self.init_all_pump_parameters()
 
-    def initialize(self, valve_position=None, operand_value=None, wait=True):
+    def initialize(self, valve_position=None, wait=True):
 
         if valve_position is None:
-            valve_position = self.initialize_mode
+            valve_position = self.initialize_valve_position
 
-        if operand_value is None:
-            operand_value = self.initialize_operand
+        self.initialize_valve_only()
+        self.set_valve_position(valve_position)
+        self.initialize_no_valve()
 
-        if valve_position == INITIALIZE_VALVE_RIGHT:
-            self.initialize_valve_right(operand_value)
-        elif valve_position == INITIALIZE_VALVE_LEFT:
-            self.initialize_valve_left(operand_value)
-        elif valve_position == INITIALIZE_NO_VALVE:
-            self.initialize_no_valve(operand_value)
-        else:
-            raise ValueError('Initialization with valve {} not handled'.format(valve_position))
         if wait:
             self.wait_until_idle()
 
     def initialize_valve_right(self, operand_value=0):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
+        self.wait_until_idle()
 
     def initialize_valve_left(self, operand_value=0):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
+        self.wait_until_idle()
 
     def initialize_no_valve(self, operand_value=0):
         self.write_and_read_from_pump(self._protocol.forge_initialize_no_valve_packet(operand_value))
+        self.wait_until_idle()
+
+    def initialize_valve_only(self, operand_string='0,0'):
+        self.write_and_read_from_pump(self._protocol.forge_initialize_valve_only_packet(operand_string))
+        self.wait_until_idle()
 
     ##
     def init_all_pump_parameters(self):
@@ -569,10 +564,10 @@ class MultiPumpController(object):
                 return False
         return True
 
-    def smart_initialize(self, valve_position=INITIALIZE_VALVE_RIGHT, operand_value=0):
+    def smart_initialize(self, valve_position=None):
         for _, pump in self.pumps.items():
             if not pump.is_initialized():
-                pump.initialize(valve_position, operand_value, wait=False)
+                pump.initialize(valve_position, wait=False)
         self.wait_until_all_pumps_idle()
 
         self.apply_command_to_all_pumps('init_all_pump_parameters')
