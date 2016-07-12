@@ -45,9 +45,10 @@ MAX_TOP_VELOCITY_MICRO_STEP_MODE_0 = 6000
 MAX_TOP_VELOCITY_MICRO_STEP_MODE_2 = 48000
 
 DEFAULT_IO_BAUDRATE = 9600
-DEFAULT_IO_TIMEOUT = 1
+DEFAULT_IO_TIMEOUT = 0.1
 
 WAIT_SLEEP_TIME = 0.1
+MAX_REPEAT_WRITE_AND_READ = 10
 
 
 class PumpIO(object):
@@ -118,6 +119,7 @@ class PumpIO(object):
             self.logger.debug("Received {}".format(msg))
             return msg
         else:
+            self.logger.debug("Readline timeout!")
             raise PumpIOTimeOutError
 
     ##
@@ -137,10 +139,15 @@ class PumpIO(object):
 class PumpIOTimeOutError(Exception):
     pass
 
+class PumpIORepeatedError(Exception):
+    pass
+
 
 class C3000Controller(object):
 
     def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000, initialize_valve_position=VALVE_INPUT):
+        self.logger = create_logger(self.__class__.__name__)
+
         self._io = pump_io
 
         self.name = name
@@ -176,12 +183,20 @@ class C3000Controller(object):
         return cls(pump_io, pump_name, **pump_config)
 
     ##
-    def write_and_read_from_pump(self, packet):
-        try:
-            response = self._io.write_and_readline(packet)
-            return self._protocol.decode_packet(response)
-        except PumpIOTimeOutError:
-            return False
+    def write_and_read_from_pump(self, packet, max_repeat=MAX_REPEAT_WRITE_AND_READ):
+        for i in range(max_repeat):
+            self.logger.debug("Write and read {}/{}".format(i, max_repeat))
+            try:
+                response = self._io.write_and_readline(packet)
+                decoded_response = self._protocol.decode_packet(response)
+                if decoded_response is not None:
+                    return decoded_response
+                else:
+                    self.logger.debug("Decode error for {}, trying again!".format(response))
+            except PumpIOTimeOutError:
+                self.logger.debug("Timeout, trying again!")
+        self.logger.debug("Too many failed communication!")
+        raise PumpIORepeatedError
 
     ##
     def volume_to_step(self, volume_in_ml):

@@ -91,4 +91,4 @@ class DTStatus(object):
             data = info[2:]
             return (address, status, data)
         else:
-            return (None, None, None)
+            return None
