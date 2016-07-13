@@ -49,7 +49,7 @@ DEFAULT_IO_TIMEOUT = 0.1
 
 WAIT_SLEEP_TIME = 0.5
 MAX_REPEAT_WRITE_AND_READ = 10
-
+MAX_REPEAT_OPERATION = 10
 
 class PumpIO(object):
 
@@ -139,9 +139,11 @@ class PumpIO(object):
 class PumpIOTimeOutError(Exception):
     pass
 
-class PumpIORepeatedError(Exception):
+class ControllerRepeatedError(Exception):
     pass
 
+class ControllerInitError(Exception):
+    pass
 
 class C3000Controller(object):
 
@@ -195,7 +197,7 @@ class C3000Controller(object):
             except PumpIOTimeOutError:
                 self.logger.debug("Timeout, trying again!")
         self.logger.debug("Too many failed communication!")
-        raise PumpIORepeatedError
+        raise ControllerRepeatedError
 
     ##
     def volume_to_step(self, volume_in_ml):
@@ -233,44 +235,57 @@ class C3000Controller(object):
             self.initialize(valve_position)
         self.init_all_pump_parameters()
 
-    def initialize(self, valve_position=None):
+    def initialize(self, valve_position=None, max_repeat=MAX_REPEAT_OPERATION):
 
         if valve_position is None:
             valve_position = self.initialize_valve_position
 
-        self.initialize_valve_only()
-        self.wait_until_idle()
+        for _ in range(max_repeat):
 
-        self.set_valve_position(valve_position)
-        self.wait_until_idle()
+            self.initialize_valve_only()
+            self.set_valve_position(valve_position)
+            self.initialize_no_valve()
 
-        self.initialize_no_valve()
-        self.wait_until_idle()
+            if self.is_initialized():
+                return True
 
-    def initialize_valve_right(self, operand_value=0):
+        self.logger.debug("Too many failed attempts to initialize!")
+        raise ControllerRepeatedError
+
+    def initialize_valve_right(self, operand_value=0, wait=True):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
+        if wait:
+            self.wait_until_idle()
 
-    def initialize_valve_left(self, operand_value=0):
+    def initialize_valve_left(self, operand_value=0, wait=True):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
+        if wait:
+            self.wait_until_idle()
 
-    def initialize_no_valve(self, operand_value=0):
+    def initialize_no_valve(self, operand_value=0, wait=True):
         self.write_and_read_from_pump(self._protocol.forge_initialize_no_valve_packet(operand_value))
+        if wait:
+            self.wait_until_idle()
 
-    def initialize_valve_only(self, operand_string='0,0'):
+    def initialize_valve_only(self, operand_string='0,0', wait=True):
         self.write_and_read_from_pump(self._protocol.forge_initialize_valve_only_packet(operand_string))
+        if wait:
+            self.wait_until_idle()
 
     ##
     def init_all_pump_parameters(self):
         self.set_microstep_mode(self.micro_step_mode)
-        self.wait_until_idle()
+        self.wait_until_idle()  # just in case, but should not be needed
 
         self.set_top_velocity(self.default_top_velocity)
-        self.wait_until_idle()
+        self.wait_until_idle()  # just in case, but should not be needed
 
     ##
     def set_microstep_mode(self, micro_step_mode):
         if self.is_initialized():
             self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
+        else:
+            raise ControllerInitError('Pump should be initialized before set_microstep_mode')
 
     ##
     def check_top_velocity_within_range(self, top_velocity):
@@ -295,17 +310,19 @@ class C3000Controller(object):
         if self.get_top_velocity() != self.default_top_velocity:
             self.set_top_velocity(self.default_top_velocity)
 
-    def set_top_velocity(self, top_velocity, max_repeat=MAX_REPEAT_WRITE_AND_READ):
+    def set_top_velocity(self, top_velocity, max_repeat=MAX_REPEAT_OPERATION):
         if self.is_initialized():
-            for _ in range(max_repeat):
+            for i in range(max_repeat):
                 if self.get_top_velocity() == top_velocity:
                     return True
+                else:
+                    self.logger.debug("Top velocity not set, change attempt {}/{}".format(i + 1, max_repeat))
                 self.check_top_velocity_within_range(top_velocity)
                 self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
             self.logger.debug("Too many failed attempts in set_top_velocity!")
-            raise PumpIORepeatedError
+            raise ControllerRepeatedError
         else:
-            return False
+            raise ControllerInitError('Pump should be initialized before set_top_velocity')
 
     def get_top_velocity(self):
         top_velocity_packet = self._protocol.forge_report_peak_velocity_packet()
@@ -442,36 +459,48 @@ class C3000Controller(object):
         (_, _, raw_valve_position) = self.write_and_read_from_pump(valve_position_packet)
         return raw_valve_position
 
-    def get_valve_position(self):
-        raw_valve_position = self.get_raw_valve_postion()
-        if raw_valve_position == 'i':
-            return VALVE_INPUT
-        elif raw_valve_position == 'o':
-            return VALVE_OUTPUT
-        elif raw_valve_position == 'b':
-            return VALVE_BYPASS
-        elif raw_valve_position == 'e':
-            return VALVE_EXTRA
-        else:
-            raise ValueError('Valve position received was {}. It is unknown'.format(raw_valve_position))
+    def get_valve_position(self, max_repeat=MAX_REPEAT_OPERATION):
 
-    def set_valve_position(self, valve_position, wait=True):
+        for i in range(max_repeat):
+            raw_valve_position = self.get_raw_valve_postion()
+            if raw_valve_position == 'i':
+                return VALVE_INPUT
+            elif raw_valve_position == 'o':
+                return VALVE_OUTPUT
+            elif raw_valve_position == 'b':
+                return VALVE_BYPASS
+            elif raw_valve_position == 'e':
+                return VALVE_EXTRA
+            self.logger.debug("Valve position request failed attempt {}/{}, {} is unknown".format(i + 1, max_repeat, raw_valve_position))
+        raise ValueError('Valve position received was {}. It is unknown'.format(raw_valve_position))
 
-        if valve_position == VALVE_INPUT:
-            valve_position_packet = self._protocol.forge_valve_input_packet()
-        elif valve_position == VALVE_OUTPUT:
-            valve_position_packet = self._protocol.forge_valve_output_packet()
-        elif valve_position == VALVE_BYPASS:
-            valve_position_packet = self._protocol.forge_valve_bypass_packet()
-        elif valve_position == VALVE_EXTRA:
-            valve_position_packet = self._protocol.forge_valve_extra_packet()
-        else:
-            raise ValueError('Valve position {} unknown'.format(valve_position))
+    def set_valve_position(self, valve_position, wait=True, max_repeat=MAX_REPEAT_OPERATION):
 
-        self.write_and_read_from_pump(valve_position_packet)
+        for i in range(max_repeat):
 
-        if wait:
-            self.wait_until_idle()
+            if self.get_valve_position() == valve_position:
+                return True
+            else:
+                self.logger.debug("Valve not in position, change attempt {}/{}".format(i + 1, max_repeat))
+
+            if valve_position == VALVE_INPUT:
+                valve_position_packet = self._protocol.forge_valve_input_packet()
+            elif valve_position == VALVE_OUTPUT:
+                valve_position_packet = self._protocol.forge_valve_output_packet()
+            elif valve_position == VALVE_BYPASS:
+                valve_position_packet = self._protocol.forge_valve_bypass_packet()
+            elif valve_position == VALVE_EXTRA:
+                valve_position_packet = self._protocol.forge_valve_extra_packet()
+            else:
+                raise ValueError('Valve position {} unknown'.format(valve_position))
+
+            self.write_and_read_from_pump(valve_position_packet)
+
+            if wait:
+                self.wait_until_idle()
+
+        self.logger.debug("Too many failed attempts in set_top_velocity!")
+        raise ControllerRepeatedError
 
     def set_eeprom_config(self, operand_value):
         eeprom_config_packet = self._protocol.forge_eeprom_config_packet(operand_value)
