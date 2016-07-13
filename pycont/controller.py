@@ -185,7 +185,7 @@ class C3000Controller(object):
     ##
     def write_and_read_from_pump(self, packet, max_repeat=MAX_REPEAT_WRITE_AND_READ):
         for i in range(max_repeat):
-            self.logger.debug("Write and read {}/{}".format(i, max_repeat))
+            self.logger.debug("Write and read {}/{}".format(i + 1, max_repeat))
             try:
                 response = self._io.write_and_readline(packet)
                 decoded_response = self._protocol.decode_packet(response)
