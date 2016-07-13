@@ -474,7 +474,7 @@ class C3000Controller(object):
             self.logger.debug("Valve position request failed attempt {}/{}, {} is unknown".format(i + 1, max_repeat, raw_valve_position))
         raise ValueError('Valve position received was {}. It is unknown'.format(raw_valve_position))
 
-    def set_valve_position(self, valve_position, wait=True, max_repeat=MAX_REPEAT_OPERATION):
+    def set_valve_position(self, valve_position, max_repeat=MAX_REPEAT_OPERATION):
 
         for i in range(max_repeat):
 
@@ -495,9 +495,7 @@ class C3000Controller(object):
                 raise ValueError('Valve position {} unknown'.format(valve_position))
 
             self.write_and_read_from_pump(valve_position_packet)
-
-            if wait:
-                self.wait_until_idle()
+            self.wait_until_idle()
 
         self.logger.debug("Too many failed attempts in set_top_velocity!")
         raise ControllerRepeatedError
