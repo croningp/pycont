@@ -47,7 +47,7 @@ MAX_TOP_VELOCITY_MICRO_STEP_MODE_2 = 48000
 DEFAULT_IO_BAUDRATE = 9600
 DEFAULT_IO_TIMEOUT = 0.1
 
-WAIT_SLEEP_TIME = 0.1
+WAIT_SLEEP_TIME = 0.5
 MAX_REPEAT_WRITE_AND_READ = 10
 
 
@@ -169,7 +169,6 @@ class C3000Controller(object):
         self.steps_per_ml = int(self.number_of_steps / self.total_volume)
 
         self.default_top_velocity = top_velocity
-        self.current_top_velocity = -1
 
     @classmethod
     def from_config(cls, pump_io, pump_name, pump_config):
@@ -283,7 +282,7 @@ class C3000Controller(object):
         if top_velocity in range(1, max_range + 1):
             return True
         else:
-            raise ValueError('Top velocity {} is not in range'.format(self.micro_step_mode))
+            raise ValueError('Top velocity {} is not in range'.format(top_velocity))
 
     def set_default_top_velocity(self, top_velocity):
         self.check_top_velocity_within_range(top_velocity)
@@ -293,20 +292,18 @@ class C3000Controller(object):
         return self.default_top_velocity
 
     def ensure_default_top_velocity(self):
-        if self.current_top_velocity != self.default_top_velocity:
+        if self.get_top_velocity() != self.default_top_velocity:
             self.set_top_velocity(self.default_top_velocity)
 
-    def set_top_velocity(self, top_velocity, wait=True):
+    def set_top_velocity(self, top_velocity, max_repeat=MAX_REPEAT_WRITE_AND_READ):
         if self.is_initialized():
-            if self.current_top_velocity != top_velocity:
+            for _ in range(max_repeat):
+                if self.get_top_velocity() == top_velocity:
+                    return True
                 self.check_top_velocity_within_range(top_velocity)
                 self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
-                self.current_top_velocity = top_velocity
-
-                if wait:
-                    self.wait_until_idle()
-
-                return True
+            self.logger.debug("Too many failed attempts in set_top_velocity!")
+            raise PumpIORepeatedError
         else:
             return False
 
