@@ -310,7 +310,7 @@ class C3000Controller(object):
         if self.get_top_velocity() != self.default_top_velocity:
             self.set_top_velocity(self.default_top_velocity)
 
-    def set_top_velocity(self, top_velocity, max_repeat=MAX_REPEAT_OPERATION):
+    def set_top_velocity(self, top_velocity, max_repeat=MAX_REPEAT_OPERATION, wait=True):
         if self.is_initialized():
             for i in range(max_repeat):
                 if self.get_top_velocity() == top_velocity:
@@ -319,6 +319,10 @@ class C3000Controller(object):
                     self.logger.debug("Top velocity not set, change attempt {}/{}".format(i + 1, max_repeat))
                 self.check_top_velocity_within_range(top_velocity)
                 self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
+                # if do not want to wait and check things went well, return now
+                if wait == False:
+                    return True
+
             self.logger.debug("Too many failed attempts in set_top_velocity!")
             raise ControllerRepeatedError
         else:
@@ -495,6 +499,11 @@ class C3000Controller(object):
                 raise ValueError('Valve position {} unknown'.format(valve_position))
 
             self.write_and_read_from_pump(valve_position_packet)
+
+            # if do not want to wait and check things went well, return now
+            if wait == False:
+                return True
+
             self.wait_until_idle()
 
         self.logger.debug("Too many failed attempts in set_top_velocity!")
