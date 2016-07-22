@@ -235,7 +235,7 @@ class C3000Controller(object):
             self.initialize(valve_position)
         self.init_all_pump_parameters()
 
-    def initialize(self, valve_position=None, max_repeat=MAX_REPEAT_OPERATION):
+    def initialize(self, valve_position=None, max_repeat=MAX_REPEAT_OPERATION, secure=True):
 
         if valve_position is None:
             valve_position = self.initialize_valve_position
@@ -243,7 +243,7 @@ class C3000Controller(object):
         for _ in range(max_repeat):
 
             self.initialize_valve_only()
-            self.set_valve_position(valve_position)
+            self.set_valve_position(valve_position, secure=secure)
             self.initialize_no_valve()
 
             if self.is_initialized():
@@ -273,11 +273,11 @@ class C3000Controller(object):
             self.wait_until_idle()
 
     ##
-    def init_all_pump_parameters(self):
+    def init_all_pump_parameters(self, secure=True):
         self.set_microstep_mode(self.micro_step_mode)
         self.wait_until_idle()  # just in case, but should not be needed
 
-        self.set_top_velocity(self.default_top_velocity)
+        self.set_top_velocity(self.default_top_velocity, secure=secure)
         self.wait_until_idle()  # just in case, but should not be needed
 
     ##
@@ -306,11 +306,11 @@ class C3000Controller(object):
     def get_default_top_velocity(self):
         return self.default_top_velocity
 
-    def ensure_default_top_velocity(self):
+    def ensure_default_top_velocity(self, secure=True):
         if self.get_top_velocity() != self.default_top_velocity:
-            self.set_top_velocity(self.default_top_velocity)
+            self.set_top_velocity(self.default_top_velocity, secure=secure)
 
-    def set_top_velocity(self, top_velocity, max_repeat=MAX_REPEAT_OPERATION, wait=True):
+    def set_top_velocity(self, top_velocity, max_repeat=MAX_REPEAT_OPERATION, secure=True):
         if self.is_initialized():
             for i in range(max_repeat):
                 if self.get_top_velocity() == top_velocity:
@@ -320,7 +320,7 @@ class C3000Controller(object):
                 self.check_top_velocity_within_range(top_velocity)
                 self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
                 # if do not want to wait and check things went well, return now
-                if wait == False:
+                if secure == False:
                     return True
 
             self.logger.debug("Too many failed attempts in set_top_velocity!")
@@ -363,19 +363,19 @@ class C3000Controller(object):
         steps = self.volume_to_step(volume_in_ml)
         return steps <= self.remaining_steps
 
-    def pump(self, volume_in_ml, from_valve=None, speed_in=None, wait=False):
+    def pump(self, volume_in_ml, from_valve=None, speed_in=None, wait=False, secure=True):
         """
         warning change of speed will last after the scope of this function but will be reset to default each time speed_in != None
         """
         if self.is_volume_pumpable(volume_in_ml):
 
             if speed_in is not None:
-                self.set_top_velocity(speed_in)
+                self.set_top_velocity(speed_in, secure=secure)
             else:
-                self.ensure_default_top_velocity()
+                self.ensure_default_top_velocity(secure=secure)
 
             if from_valve is not None:
-                self.set_valve_position(from_valve)
+                self.set_valve_position(from_valve, secure=secure)
 
             steps_to_pump = self.volume_to_step(volume_in_ml)
             packet = self._protocol.forge_pump_packet(steps_to_pump)
@@ -393,19 +393,19 @@ class C3000Controller(object):
         steps = self.volume_to_step(volume_in_ml)
         return steps <= self.current_steps
 
-    def deliver(self, volume_in_ml, to_valve=None, speed_out=None, wait=False):
+    def deliver(self, volume_in_ml, to_valve=None, speed_out=None, wait=False, secure=True):
         """
         warning change of speed will last after the scope of this function but will be reset to default each time speed_out != None
         """
         if self.is_volume_deliverable(volume_in_ml):
 
             if speed_out is not None:
-                self.set_top_velocity(speed_out)
+                self.set_top_velocity(speed_out, secure=secure)
             else:
-                self.ensure_default_top_velocity()
+                self.ensure_default_top_velocity(secure=secure)
 
             if to_valve is not None:
-                self.set_valve_position(to_valve)
+                self.set_valve_position(to_valve, secure=secure)
 
             steps_to_deliver = self.volume_to_step(volume_in_ml)
             packet = self._protocol.forge_deliver_packet(steps_to_deliver)
@@ -432,16 +432,16 @@ class C3000Controller(object):
     def is_volume_valid(self, volume_in_ml):
         return 0 <= volume_in_ml <= self.total_volume
 
-    def go_to_volume(self, volume_in_ml, speed=None, wait=False):
+    def go_to_volume(self, volume_in_ml, speed=None, wait=False, secure=True):
         """
         warning change of speed will last after the scope of this function but will be reset to default each time speed != None
         """
         if self.is_volume_valid(volume_in_ml):
 
             if speed is not None:
-                self.set_top_velocity(speed)
+                self.set_top_velocity(speed, secure=secure)
             else:
-                self.ensure_default_top_velocity()
+                self.ensure_default_top_velocity(secure=secure)
 
             steps = self.volume_to_step(volume_in_ml)
             packet = self._protocol.forge_move_to_packet(steps)
@@ -478,7 +478,7 @@ class C3000Controller(object):
             self.logger.debug("Valve position request failed attempt {}/{}, {} is unknown".format(i + 1, max_repeat, raw_valve_position))
         raise ValueError('Valve position received was {}. It is unknown'.format(raw_valve_position))
 
-    def set_valve_position(self, valve_position, max_repeat=MAX_REPEAT_OPERATION):
+    def set_valve_position(self, valve_position, max_repeat=MAX_REPEAT_OPERATION, secure=True):
 
         for i in range(max_repeat):
 
@@ -501,7 +501,7 @@ class C3000Controller(object):
             self.write_and_read_from_pump(valve_position_packet)
 
             # if do not want to wait and check things went well, return now
-            if wait == False:
+            if secure == False:
                 return True
 
             self.wait_until_idle()
@@ -610,23 +610,23 @@ class MultiPumpController(object):
                 return False
         return True
 
-    def smart_initialize(self):
+    def smart_initialize(self, secure=True):
         for _, pump in self.pumps.items():
             if not pump.is_initialized():
-                pump.initialize_valve_only()
+                pump.initialize_valve_only(wait=False)
         self.wait_until_all_pumps_idle()
 
         for _, pump in self.pumps.items():
             if not pump.is_initialized():
-                pump.set_valve_position(pump.initialize_valve_position)
+                pump.set_valve_position(pump.initialize_valve_position, secure=secure)
         self.wait_until_all_pumps_idle()
 
         for _, pump in self.pumps.items():
             if not pump.is_initialized():
-                pump.initialize_no_valve()
+                pump.initialize_no_valve(wait=False)
         self.wait_until_all_pumps_idle()
 
-        self.apply_command_to_all_pumps('init_all_pump_parameters')
+        self.apply_command_to_all_pumps('init_all_pump_parameters', secure=secure)
         self.wait_until_all_pumps_idle()
 
     def wait_until_all_pumps_idle(self):
@@ -641,41 +641,41 @@ class MultiPumpController(object):
     def are_pumps_busy(self):
         return not self.are_pumps_idle()
 
-    def pump(self, pump_names, volume_in_ml, from_valve=None, speed_in=None, wait=False):
+    def pump(self, pump_names, volume_in_ml, from_valve=None, speed_in=None, wait=False, secure=True):
         """
         reimplemented as MultiPump so it is really synchronous
         """
         if speed_in is not None:
-            self.apply_command_to_pumps(pump_names, 'set_top_velocity', speed_in)
+            self.apply_command_to_pumps(pump_names, 'set_top_velocity', speed_in, secure=secure)
         else:
-            self.apply_command_to_pumps(pump_names, 'ensure_default_top_velocity')
+            self.apply_command_to_pumps(pump_names, 'ensure_default_top_velocity', secure=secure)
 
         if from_valve is not None:
-            self.apply_command_to_pumps(pump_names, 'set_valve_position', from_valve)
+            self.apply_command_to_pumps(pump_names, 'set_valve_position', from_valve, secure=secure)
 
         self.apply_command_to_pumps(pump_names, 'pump', volume_in_ml, speed_in=speed_in, wait=False)
 
         if wait:
             self.apply_command_to_pumps(pump_names, 'wait_until_idle')
 
-    def deliver(self, pump_names, volume_in_ml, to_valve=None, speed_out=None, wait=False):
+    def deliver(self, pump_names, volume_in_ml, to_valve=None, speed_out=None, wait=False, secure=True):
         """
         reimplemented as MultiPump so it is really synchronous
         """
         if speed_out is not None:
-            self.apply_command_to_pumps(pump_names, 'set_top_velocity', speed_out)
+            self.apply_command_to_pumps(pump_names, 'set_top_velocity', speed_out, secure=secure)
         else:
-            self.apply_command_to_pumps(pump_names, 'ensure_default_top_velocity')
+            self.apply_command_to_pumps(pump_names, 'ensure_default_top_velocity', secure=secure)
 
         if to_valve is not None:
-            self.apply_command_to_pumps(pump_names, 'set_valve_position', to_valve)
+            self.apply_command_to_pumps(pump_names, 'set_valve_position', to_valve, secure=secure)
 
         self.apply_command_to_pumps(pump_names, 'deliver', volume_in_ml, speed_out=speed_out, wait=False)
 
         if wait:
             self.apply_command_to_pumps(pump_names, 'wait_until_idle')
 
-    def transfer(self, pump_names, volume_in_ml, from_valve, to_valve, speed_in=None, speed_out=None):
+    def transfer(self, pump_names, volume_in_ml, from_valve, to_valve, speed_in=None, speed_out=None, secure=True):
         """
         reimplemented as MultiPump so it is really synchronous, needed
         """
@@ -684,8 +684,8 @@ class MultiPumpController(object):
             candidate_volume = min(volume_in_ml, pump.remaining_volume)
             volume_transfered = min(candidate_volume, volume_transfered)
 
-        self.pump(pump_names, volume_transfered, from_valve, speed_in=speed_in, wait=True)
-        self.deliver(pump_names, volume_transfered, to_valve, speed_out=speed_out, wait=True)
+        self.pump(pump_names, volume_transfered, from_valve, speed_in=speed_in, wait=True, secure=secure)
+        self.deliver(pump_names, volume_transfered, to_valve, speed_out=speed_out, wait=True, secure=secure)
 
         remaining_volume_to_transfer = volume_in_ml - volume_transfered
         if remaining_volume_to_transfer > 0:
