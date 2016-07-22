@@ -230,10 +230,10 @@ class C3000Controller(object):
         (_, _, init_status) = self.write_and_read_from_pump(initialized_packet)
         return bool(int(init_status))
 
-    def smart_initialize(self, valve_position=None):
+    def smart_initialize(self, valve_position=None, secure=True):
         if not self.is_initialized():
-            self.initialize(valve_position)
-        self.init_all_pump_parameters()
+            self.initialize(valve_position, secure=secure)
+        self.init_all_pump_parameters(secure=secure)
 
     def initialize(self, valve_position=None, max_repeat=MAX_REPEAT_OPERATION, secure=True):
 
