@@ -2,7 +2,7 @@
 
 import itertools
 
-from ._logger import create_logger
+from _logger import create_logger
 
 DTStart = '/'
 DTStop = '\r'

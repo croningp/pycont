@@ -14,9 +14,9 @@ import json
 import serial
 import threading
 
-from ._logger import create_logger
+from _logger import create_logger
 
-from . import pump_protocol
+import pump_protocol
 
 #: Represents the Broadcast of the C3000
 C3000Broadcast = '_'
@@ -106,7 +106,7 @@ class PumpIO(object):
         Sets details laid out in the configuration .json file
 
         Args:
-            cls (Class): The initialising class.
+            cls (Class): The initialising class. Maybe omit...
 
             io_config (Dict): Dictionary holding the configuration data.
 
@@ -134,7 +134,7 @@ class PumpIO(object):
         Opens the configuration file and parses the data to be used in the from_config method.
 
         Args:
-            cls (Class): The initialising class.
+            cls (Class): The initialising class. Maybe omit...
 
             io_configfile (File): File which contains the configuration data.
 
@@ -265,7 +265,7 @@ class PumpIOTimeOutError(Exception):
 
 class ControllerRepeatedError(Exception):
     """
-    Exception for when there has been too many repeat attempts.
+    .. todo:: Add documentation for this.
     """
     pass
 
@@ -330,7 +330,7 @@ class C3000Controller(object):
         Obtains the configuration data.
 
         Args:
-            cls (Class): The initialising class.
+            cls (Class): The initialising class. Maybe omit...
 
             pump_io (PumpIO): PumpIO object.
 
@@ -367,7 +367,7 @@ class C3000Controller(object):
             PumpIOTimeOutError: If the response itme is greater than the timeout threshold.
 
             ControllerRepeatedError: Error in decoding.
-
+            
         """
         for i in range(max_repeat):
             self.logger.debug("Write and read {}/{}".format(i + 1, max_repeat))
@@ -1153,7 +1153,7 @@ class MultiPumpController(object):
             self.groups = {}
 
         self.pumps = {}
-        for pump_name, pump_config in list(setup_config['pumps'].items()):
+        for pump_name, pump_config in setup_config['pumps'].items():
             defaulted_pump_config = self.default_pump_config(pump_config)
             self.pumps[pump_name] = C3000Controller.from_config(self._io, pump_name, defaulted_pump_config)
         self.set_pumps_as_attributes()
@@ -1188,7 +1188,7 @@ class MultiPumpController(object):
         """
         defaulted_pump_config = dict(self.default_config)  # make a copy
 
-        for k, v in list(pump_config.items()):
+        for k, v in pump_config.items():
             defaulted_pump_config[k] = v
 
         return defaulted_pump_config
@@ -1197,7 +1197,7 @@ class MultiPumpController(object):
         """
         Sets the pumps as attributes.
         """
-        for pump_name, pump in list(self.pumps.items()):
+        for pump_name, pump in self.pumps.items():
             if hasattr(self, pump_name):
                 self.logger.warning("Pump named {pump_name} is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[{pump_name}]".format(pump_name=pump_name))
             else:
@@ -1223,6 +1223,8 @@ class MultiPumpController(object):
         """
         Applies a given command to the pumps.
 
+        .. todo:: Clarify returns content.
+
         Args:
             pump_names (List): List containing the pump names.
 
@@ -1247,6 +1249,8 @@ class MultiPumpController(object):
         """
         Applies a given command to all of the pumps.
 
+        .. todo:: Clarify returns content.
+
         Args:
             command (str): The command to apply.
 
@@ -1258,11 +1262,13 @@ class MultiPumpController(object):
             returns (Dict): Dictionary of the functions.
 
         """
-        return self.apply_command_to_pumps(list(self.pumps.keys()), command, *args, **kwargs)
+        return self.apply_command_to_pumps(self.pumps.keys(), command, *args, **kwargs)
 
     def apply_command_to_group(self, group_name, command, *args, **kwargs):
         """
         Applies a given command to the group.
+
+        .. todo:: Clarify returns content.
 
         Args:
             group_name (str): Name of the group.
@@ -1290,7 +1296,7 @@ class MultiPumpController(object):
             False (bool): The pumps have not been initialised.
 
         """
-        for _, pump in list(self.pumps.items()):
+        for _, pump in self.pumps.items():
             if not pump.is_initialized():
                 return False
         return True
@@ -1303,17 +1309,17 @@ class MultiPumpController(object):
             secure (bool): Ensures everything is correct, default set to True.
 
         """
-        for _, pump in list(self.pumps.items()):
+        for _, pump in self.pumps.items():
             if not pump.is_initialized():
                 pump.initialize_valve_only(wait=False)
         self.wait_until_all_pumps_idle()
 
-        for _, pump in list(self.pumps.items()):
+        for _, pump in self.pumps.items():
             if not pump.is_initialized():
                 pump.set_valve_position(pump.initialize_valve_position, secure=secure)
         self.wait_until_all_pumps_idle()
 
-        for _, pump in list(self.pumps.items()):
+        for _, pump in self.pumps.items():
             if not pump.is_initialized():
                 pump.initialize_no_valve(wait=False)
         self.wait_until_all_pumps_idle()
@@ -1337,7 +1343,7 @@ class MultiPumpController(object):
             False (bool): The pumps are not idle.
 
         """
-        for _, pump in list(self.pumps.items()):
+        for _, pump in self.pumps.items():
             if not pump.is_idle():
                 return False
         return True
@@ -1423,6 +1429,8 @@ class MultiPumpController(object):
     def transfer(self, pump_names, volume_in_ml, from_valve, to_valve, speed_in=None, speed_out=None, secure=True):
         """
         Transfers the desired volume between pumps.
+
+        .. todo:: Clarify that this is what the method actually does...
 
         .. note:: Reimplemented as MultiPump so it is really synchronous, needed
 

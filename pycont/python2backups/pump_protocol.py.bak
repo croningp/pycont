@@ -7,9 +7,9 @@
 
 """
 # -*- coding: utf-8 -*-
-from ._logger import create_logger
+from _logger import create_logger
 
-from . import dtprotocol
+import dtprotocol
 
 #: Command to execute
 CMD_EXECUTE = 'R'
@@ -193,7 +193,7 @@ class C3000Protocol(object):
             DTInstructionPacket: The created packet for initialising microstep mode.
 
         """
-        if operand_value not in list(range(3)):
+        if operand_value not in range(3):
             raise ValueError('Microstep operand must be in [0-2], you entered {}'.format(operand_value))
         dtcommand = dtprotocol.DTCommand(CMD_MICROSTEPMODE, str(operand_value))
         return self.forge_packet(dtcommand)
