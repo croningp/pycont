@@ -2,7 +2,7 @@
 
 import itertools
 
-from ._logger import create_logger
+from _logger import create_logger
 
 DTStart = '/'
 DTStop = '\r'
@@ -13,7 +13,6 @@ class DTInstructionPacket(object):
 
         Args:
             address (str): The address to talk to
-
             dtcommands (list): List of DTCommand
 
         (for more details see http://www.tricontinent.com/products/cseries-syringe-pumps)
@@ -42,7 +41,6 @@ class DTCommand(object):
 
         Args:
             command (str): The command to be sent
-
             operand (str): The parameter of the command, None by default
 
         (for more details see http://www.tricontinent.com/products/cseries-syringe-pumps)
