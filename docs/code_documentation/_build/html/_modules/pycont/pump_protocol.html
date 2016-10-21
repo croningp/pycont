@@ -1,0 +1,494 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pycont.pump_protocol &#8212; Pycont 0.9.6 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.9.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="Pycont 0.9.6 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pycont 0.9.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pycont.pump_protocol</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: pump_protocol</span>
+<span class="sd">   :platform: Unix</span>
+<span class="sd">   :synopsis: A module which outlines the protocol for which the pumps will follow.</span>
+
+<span class="sd">.. moduleauthor:: Jonathan Grizou &lt;Jonathan.Grizou@gla.ac.uk&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">._logger</span> <span class="k">import</span> <span class="n">create_logger</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">dtprotocol</span>
+
+<span class="c1">#: Command to execute</span>
+<span class="n">CMD_EXECUTE</span> <span class="o">=</span> <span class="s1">&#39;R&#39;</span>
+<span class="c1">#: Command to initialise with the right valve</span>
+<span class="n">CMD_INITIALIZE_VALVE_RIGHT</span> <span class="o">=</span> <span class="s1">&#39;Z&#39;</span>
+<span class="c1">#: Command to initialise with the left valve</span>
+<span class="n">CMD_INITIALIZE_VALVE_LEFT</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>
+<span class="c1">#: Command to initialise with no valve</span>
+<span class="n">CMD_INITIALIZE_NO_VALVE</span> <span class="o">=</span> <span class="s1">&#39;W&#39;</span>
+<span class="c1">#: Command to initialise with valves only</span>
+<span class="n">CMD_INITIALIZE_VALVE_ONLY</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+<span class="c1">#: Command to invoke microstep mode</span>
+<span class="n">CMD_MICROSTEPMODE</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span>
+<span class="c1">#: Command to move the pump to a location</span>
+<span class="n">CMD_MOVE_TO</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+<span class="c1">#: Command to access a specific pump</span>
+<span class="n">CMD_PUMP</span> <span class="o">=</span> <span class="s1">&#39;P&#39;</span>
+<span class="c1">#: Command to deliver payload</span>
+<span class="n">CMD_DELIVER</span> <span class="o">=</span> <span class="s1">&#39;D&#39;</span>
+<span class="c1">#: Command to achieve top velocity</span>
+<span class="n">CMD_TOPVELOCITY</span> <span class="o">=</span> <span class="s1">&#39;V&#39;</span>
+<span class="c1">#: Command to access the EEPROM configuration</span>
+<span class="c1">#: .. warning:: Requires power restart to take effect</span>
+<span class="n">CMD_EEPROM_CONFIG</span> <span class="o">=</span> <span class="s1">&#39;U&#39;</span>      <span class="c1"># Requires power restart to take effect     [donk]</span>
+
+<span class="c1">#: Command for the valve init_all_pump_parameters</span>
+<span class="c1">#: .. note:: Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I&lt;n&gt;O&lt;n&gt;</span>
+<span class="n">CMD_VALVE_INPUT</span> <span class="o">=</span> <span class="s1">&#39;I&#39;</span>       <span class="c1"># Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I&lt;n&gt;O&lt;n&gt;     [donk]</span>
+<span class="c1">#: Command for the valve output</span>
+<span class="n">CMD_VALVE_OUTPUT</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
+<span class="c1">#: Command for the valve bypass</span>
+<span class="n">CMD_VALVE_BYPASS</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+<span class="c1">#: Command for the extra valve</span>
+<span class="n">CMD_VALVE_EXTRA</span> <span class="o">=</span> <span class="s1">&#39;E&#39;</span>
+
+<span class="c1">#: Command for the reporting the status</span>
+<span class="n">CMD_REPORT_STATUS</span> <span class="o">=</span> <span class="s1">&#39;Q&#39;</span>
+<span class="c1">#: Command for reporting hte plunger position</span>
+<span class="n">CMD_REPORT_PLUNGER_POSITION</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span>
+<span class="c1">#: Command for reporting the start velocity</span>
+<span class="n">CMD_REPORT_START_VELOCITY</span> <span class="o">=</span> <span class="s1">&#39;?1&#39;</span>
+<span class="c1">#: Command for reporting the peak velocity</span>
+<span class="n">CMD_REPORT_PEAK_VELOCITY</span> <span class="o">=</span> <span class="s1">&#39;?2&#39;</span>
+<span class="c1">#: Command for reporting the cutoff velocity</span>
+<span class="n">CMD_REPORT_CUTOFF_VELOCITY</span> <span class="o">=</span> <span class="s1">&#39;?3&#39;</span>
+<span class="c1">#: Command for reporting the valve position</span>
+<span class="n">CMD_REPORT_VALVE_POSITION</span> <span class="o">=</span> <span class="s1">&#39;?6&#39;</span>
+<span class="c1">#: Command for reporting initialisation</span>
+<span class="n">CMD_REPORT_INTIALIZED</span> <span class="o">=</span> <span class="s1">&#39;?19&#39;</span>
+<span class="c1">#: Command for reporting the EEPROM</span>
+<span class="n">CMD_REPORT_EEPROM</span> <span class="o">=</span> <span class="s1">&#39;?27&#39;</span>
+
+<span class="c1">#: Idle status when there are no errors</span>
+<span class="n">STATUS_IDLE_ERROR_FREE</span> <span class="o">=</span> <span class="s1">&#39;`&#39;</span>
+<span class="c1">#: Busy status when there are no errors</span>
+<span class="n">STATUS_BUSY_ERROR_FREE</span> <span class="o">=</span> <span class="s1">&#39;@&#39;</span>
+
+
+<div class="viewcode-block" id="C3000Protocol"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol">[docs]</a><span class="k">class</span> <span class="nc">C3000Protocol</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is used to represent the protocol which the pumps will follow when controlled.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        address (str): Address of the pump.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">create_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
+
+<div class="viewcode-block" id="C3000Protocol.forge_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtcommands</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet which will be sent to the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dtcommands (list): List of dtcommands.</span>
+
+<span class="sd">            execute (bool): Sets the execute value, True by default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Forging packet with </span><span class="si">{}</span><span class="s2"> and execute set to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtcommands</span><span class="p">,</span> <span class="n">execute</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">dtcommands</span><span class="p">)</span> <span class="o">==</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">:</span>
+            <span class="n">dtcommands</span> <span class="o">=</span> <span class="p">[</span><span class="n">dtcommands</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">execute</span><span class="p">:</span>
+            <span class="n">dtcommands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_EXECUTE</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTInstructionPacket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">dtcommands</span><span class="p">)</span></div>
+
+    <span class="c1"># handling answers</span>
+<div class="viewcode-block" id="C3000Protocol.decode_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.decode_packet">[docs]</a>    <span class="k">def</span> <span class="nf">decode_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtresponse</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decodes the response packet form the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dtresponse (str): The response from the device.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTStatus: The decoded status of the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Decoding </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtresponse</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTStatus</span><span class="p">(</span><span class="n">dtresponse</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span></div>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    .. note:: The following functions should be generated automatically but not necessary as of yet.</span>
+
+<span class="sd">    .. todo:: Generate these functions automatically.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># the functions below should be generated automatically but not really  needed for now</span>
+
+<div class="viewcode-block" id="C3000Protocol.forge_initialize_valve_right_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_right_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_initialize_valve_right_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for initialising the right valve.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand, 0 by default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for initialising the right valve.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_INITIALIZE_VALVE_RIGHT</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_initialize_valve_left_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_left_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_initialize_valve_left_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for initialising the left valve.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand, 0 by defualt.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for initialising the left valve.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_INITIALIZE_VALVE_LEFT</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_initialize_no_valve_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_initialize_no_valve_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_initialize_no_valve_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for initialising with no valves.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand, 0 by default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for initialising with no valves.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_INITIALIZE_NO_VALVE</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_initialize_valve_only_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_only_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_initialize_valve_only_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for initialising with valves only.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_string (str): String representing the operand, None by default</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for initialising with valves only</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_INITIALIZE_VALVE_ONLY</span><span class="p">,</span> <span class="n">operand_string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_microstep_mode_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_microstep_mode_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_microstep_mode_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for initialising microstep mode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for initialising microstep mode.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">operand_value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Microstep operand must be in [0-2], you entered </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_MICROSTEPMODE</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_move_to_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_move_to_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_move_to_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for moving the device to a location.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for moving the device to a location.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_MOVE_TO</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_pump_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_pump_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_pump_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for the pump action of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for the pump action of the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_PUMP</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_deliver_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_deliver_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_deliver_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for delivering the payload.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for delivering the payload.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_DELIVER</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_top_velocity_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_top_velocity_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_top_velocity_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for the top velocity of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for the top velocity of the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_TOPVELOCITY</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_eeprom_config_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_eeprom_config_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_eeprom_config_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for accessing the EEPROM configuration of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for accessing the EEPROM configuration of the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_EEPROM_CONFIG</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_valve_input_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_input_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_input_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for the input into a valve on the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand, None by default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for the input into a valve on the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">operand_value</span><span class="p">:</span>
+            <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_VALVE_INPUT</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_VALVE_INPUT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_valve_output_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_output_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_output_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for the output from a valve on the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            operand_value (int): The value of the supplied operand, None by default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for the output from a valve on the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">operand_value</span><span class="p">:</span>
+            <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_VALVE_OUTPUT</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_VALVE_OUTPUT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_valve_bypass_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_bypass_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_bypass_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for bypassing a valve on the device.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for bypassing a valve on the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_VALVE_BYPASS</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_valve_extra_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_extra_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_extra_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for an extra valve.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for an extra valve.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_VALVE_EXTRA</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_status_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_status_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_status_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the device status.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for reporting the device status.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_STATUS</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_plunger_position_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_plunger_position_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_plunger_position_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the device&#39;s plunger position.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for reporting the device&#39;s plunger position.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_PLUNGER_POSITION</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_start_velocity_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_start_velocity_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_start_velocity_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the device&#39;s start velocity.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for reporting the device&#39;s starting velocity.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_START_VELOCITY</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_peak_velocity_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_peak_velocity_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_peak_velocity_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the device&#39;s peak velocity.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for reporting the device&#39;s peak velocity.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_PEAK_VELOCITY</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_cutoff_velocity_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_cutoff_velocity_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_cutoff_velocity_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the device&#39;s cutoff velocity.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for reporting the device&#39;s cutoff velocity.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_CUTOFF_VELOCITY</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_valve_position_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_valve_position_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_valve_position_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the device&#39;s valve position.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for reporting the device&#39;s valve position.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_VALVE_POSITION</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_initialized_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_initialized_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_initialized_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the initialisation of the device.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DTInstructionPacket: The created packet for reporting the initialisation of the device.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_INTIALIZED</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="C3000Protocol.forge_report_eeprom_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_report_eeprom_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_report_eeprom_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a packet for reporting the EEPROM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The created packet for reporting the EEPROM.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_REPORT_EEPROM</span><span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pycont 0.9.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Jonathan Grizou.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>
