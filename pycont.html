@@ -1,0 +1,1672 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pycont Package &#8212; Pycont 0.9.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Pycont 0.9.6 documentation" href="index.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Welcome to Pycont’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Pycont’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Pycont 0.9.6 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pycont-package">
+<h1>Pycont Package<a class="headerlink" href="#pycont-package" title="Permalink to this headline">¶</a></h1>
+<p>This is the documentation for the Pycont library.
+Here, you will find all the methods associated with communicating/controlling the pumps.
+Please see the <a class="reference internal" href="examples.html#examples-label"><span class="std std-ref">Examples</span></a> page for more coverage!</p>
+<div class="section" id="module-pycont">
+<span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-pycont" title="Permalink to this headline">¶</a></h2>
+<p>Custom library designed to control Tricontinent C-series syringe pumps.</p>
+<p>List of all modules:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#controller"><span class="std std-ref">Controller Module</span></a></li>
+<li><a class="reference internal" href="#pump-protocol"><span class="std std-ref">Pump Protocol Module</span></a></li>
+<li><a class="reference internal" href="#dt-protocol"><span class="std std-ref">DTProtocol Module</span></a></li>
+</ul>
+</div>
+<div class="section" id="module-pycont.controller">
+<span id="controller-module"></span><span id="controller"></span><h2>Controller Module<a class="headerlink" href="#module-pycont.controller" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-controller"></span><dl class="data">
+<dt id="pycont.controller.C3000Broadcast">
+<code class="descclassname">pycont.controller.</code><code class="descname">C3000Broadcast</code><em class="property"> = '_'</em><a class="headerlink" href="#pycont.controller.C3000Broadcast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the Broadcast of the C3000</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycont.controller.C3000Controller">
+<em class="property">class </em><code class="descclassname">pycont.controller.</code><code class="descname">C3000Controller</code><span class="sig-paren">(</span><em>pump_io</em>, <em>name</em>, <em>address</em>, <em>total_volume</em>, <em>micro_step_mode=2</em>, <em>top_velocity=6000</em>, <em>initialize_valve_position='I'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class represents thhe main controller for the C3000.
+The controller is what controls the pumps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">pump_io (PumpIO): PumpIO object for communication.</p>
+<p>name (str): The name of the controller.</p>
+<p>address (str): Address of the controller.</p>
+<p>total_volume (int): Total volume of the pump.</p>
+<p>micro_step_mode (int): The mode which the microstep will use, default set to MICRO_STEP_MODE_2 (2)</p>
+<p>top_velocity (int): The top velocity of the pump, default set to 6000</p>
+<p class="last">initialize_valve_position (chr): Sets the valve position, default set to VALVE_INPUT (&#8216;I&#8217;)</p>
+</dd>
+<dt>Raises:</dt>
+<dd>ValueError: Invalid microstep mode.</dd>
+</dl>
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.check_top_velocity_within_range">
+<code class="descname">check_top_velocity_within_range</code><span class="sig-paren">(</span><em>top_velocity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.check_top_velocity_within_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.check_top_velocity_within_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that the top velocity is within a maximum range.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>top_velocity (int): The top velocity for the pump.</dd>
+<dt>Returns:</dt>
+<dd>True (bool): Top velocity is within range.</dd>
+<dt>Raises:</dt>
+<dd>ValueError: Top velocity is out of range.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycont.controller.C3000Controller.current_steps">
+<code class="descname">current_steps</code><a class="headerlink" href="#pycont.controller.C3000Controller.current_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>See get_plunger_position()</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycont.controller.C3000Controller.current_volume">
+<code class="descname">current_volume</code><a class="headerlink" href="#pycont.controller.C3000Controller.current_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>See get_volume()</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>(float): self.get_volume()</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.deliver">
+<code class="descname">deliver</code><span class="sig-paren">(</span><em>volume_in_ml</em>, <em>to_valve=None</em>, <em>speed_out=None</em>, <em>wait=False</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.deliver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.deliver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers the volume payload.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed_out == None</p>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">volume_in_ml (float): The supplied volume to deliver.</p>
+<p>to_valve (chr): The valve to deliver the payload to, default set to None.</p>
+<p>speed_out (int): The speed of delivery, default set to None.</p>
+<p>wait (bool): Waits for the pump to be idle, default set to False.</p>
+<p class="last">secure (bool): Ensures that everything is correct, default set to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.ensure_default_top_velocity">
+<code class="descname">ensure_default_top_velocity</code><span class="sig-paren">(</span><em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.ensure_default_top_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.ensure_default_top_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures that the top velocity is the default top velocity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>secure (bool): Ensures that everything is correct, default set to True.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.flash_eeprom_3_way_t_valve">
+<code class="descname">flash_eeprom_3_way_t_valve</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.flash_eeprom_3_way_t_valve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.flash_eeprom_3_way_t_valve" title="Permalink to this definition">¶</a></dt>
+<dd><p>See set_eeprom_config()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.flash_eeprom_3_way_y_valve">
+<code class="descname">flash_eeprom_3_way_y_valve</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.flash_eeprom_3_way_y_valve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.flash_eeprom_3_way_y_valve" title="Permalink to this definition">¶</a></dt>
+<dd><p>See set_eeprom_config()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.flash_eeprom_4_way_dist_valve">
+<code class="descname">flash_eeprom_4_way_dist_valve</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.flash_eeprom_4_way_dist_valve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.flash_eeprom_4_way_dist_valve" title="Permalink to this definition">¶</a></dt>
+<dd><p>See set_eeprom_config()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.flash_eeprom_4_way_nondist_valve">
+<code class="descname">flash_eeprom_4_way_nondist_valve</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.flash_eeprom_4_way_nondist_valve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.flash_eeprom_4_way_nondist_valve" title="Permalink to this definition">¶</a></dt>
+<dd><p>See set_eeprom_config()</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pycont.controller.C3000Controller.from_config">
+<em class="property">classmethod </em><code class="descname">from_config</code><span class="sig-paren">(</span><em>pump_io</em>, <em>pump_name</em>, <em>pump_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains the configuration data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cls (Class): The initialising class.</p>
+<p>pump_io (PumpIO): PumpIO object.</p>
+<p>pump_name (str): Name of the pump.</p>
+<p class="last">pump_config (Dict): Dictionary containg the pump configurattion data.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>C3000Controller: New C3000Controller object with the data set from the configuration.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.get_default_top_velocity">
+<code class="descname">get_default_top_velocity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.get_default_top_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.get_default_top_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the default top velocity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>self.default_top_velocity (int): The default top velocity.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.get_eeprom_config">
+<code class="descname">get_eeprom_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.get_eeprom_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.get_eeprom_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the EEPROM configuration.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>eeprom_config (int): The configuration of the EEPROM.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.get_plunger_position">
+<code class="descname">get_plunger_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.get_plunger_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.get_plunger_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the current position of the plunger.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>steps (int): The position of the plunger.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.get_raw_valve_postion">
+<code class="descname">get_raw_valve_postion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.get_raw_valve_postion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.get_raw_valve_postion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the raw value of the valve&#8217;s position.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>raw_valve_position (str): The raw position of the valve.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.get_top_velocity">
+<code class="descname">get_top_velocity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.get_top_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.get_top_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the current top velocity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>top_velocity (int): The current top velocity.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.get_valve_position">
+<code class="descname">get_valve_position</code><span class="sig-paren">(</span><em>max_repeat=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.get_valve_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.get_valve_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the position of the valve.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>max_repeat (int): The maximum number of times to repeat an operation, default set to MAX_REPEAT_OPERATION (10).</dd>
+<dt>Returns:</dt>
+<dd>(chr): The position of the valve.</dd>
+<dt>Raises:</dt>
+<dd>ValueError: The valve position is not valid/unknown.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.get_volume">
+<code class="descname">get_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.get_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.get_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>See step_to_volume()</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>(float): self.step_to_volume(self.get_plunger_position())</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.go_to_max_volume">
+<code class="descname">go_to_max_volume</code><span class="sig-paren">(</span><em>speed=None</em>, <em>wait=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.go_to_max_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.go_to_max_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the pump to the maximum volume.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">speed (int): The speed of movement, default set to None.</p>
+<p class="last">wait (bool): Waits until the pump is idle, default set to False.</p>
+</dd>
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The maximum volume is valid.</p>
+<p class="last">False (bool): The maximum volume is not valid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.go_to_volume">
+<code class="descname">go_to_volume</code><span class="sig-paren">(</span><em>volume_in_ml</em>, <em>speed=None</em>, <em>wait=False</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.go_to_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.go_to_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the pump to the desired volume.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed == None</p>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">volume_in_ml (float): The supplied volume.</p>
+<p>speed (int): The speed of movement, default set to None.</p>
+<p>wait (bool): Waits for the pump to be idle, defualt set to False.</p>
+<p class="last">secure (bool): Ensures that everything is corect, default set to True.</p>
+</dd>
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The supplied volume is valid.</p>
+<p class="last">False (bool): THe supplied volume is not valid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.init_all_pump_parameters">
+<code class="descname">init_all_pump_parameters</code><span class="sig-paren">(</span><em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.init_all_pump_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.init_all_pump_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the pump parameters, Microstep Mode, and Top Velocity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>secure (bool): Ensures that everything is correct, default set to True.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>valve_position=None</em>, <em>max_repeat=10</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the pump.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">valve_position (int): Position of the valve, default set to None.</p>
+<p>max_repeat (int): Maximum number of times to repeat the operation, default set to MAX_REPEAT_OPERATION (10).</p>
+<p class="last">secure (bool): Ensures that everything is correct.</p>
+</dd>
+<dt>Raises:</dt>
+<dd>ControllerRepeatedError: Too many failed attempts to initialise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.initialize_no_valve">
+<code class="descname">initialize_no_valve</code><span class="sig-paren">(</span><em>operand_value=0</em>, <em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.initialize_no_valve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.initialize_no_valve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise with no valves.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">operand_value (int): Value of the supplied operand.</p>
+<p class="last">wait (bool): Whether or not to wait until the pump is idle, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.initialize_valve_left">
+<code class="descname">initialize_valve_left</code><span class="sig-paren">(</span><em>operand_value=0</em>, <em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.initialize_valve_left"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.initialize_valve_left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the left valve.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">operand_value (int): Value of the supplied operand, default set to 0.</p>
+<p class="last">wait (bool): Whether or not to wait until the pump is idle, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.initialize_valve_only">
+<code class="descname">initialize_valve_only</code><span class="sig-paren">(</span><em>operand_string='0</em>, <em>0'</em>, <em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.initialize_valve_only"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.initialize_valve_only" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise with valves only.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">operand_string (str): Value of the supplied operand.</p>
+<p class="last">wait (bool): Whether or not to wait until the pump is idle, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.initialize_valve_right">
+<code class="descname">initialize_valve_right</code><span class="sig-paren">(</span><em>operand_value=0</em>, <em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.initialize_valve_right"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.initialize_valve_right" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the right valve.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">operand_value (int): Value of the supplied operand.</p>
+<p class="last">wait (bool): Whether or not to wait until the pump is idle, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.is_busy">
+<code class="descname">is_busy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.is_busy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.is_busy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the pump is busy.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): Pump is busy.</p>
+<p class="last">False (bool): Pump is idle.</p>
+</dd>
+<dt>Raises:</dt>
+<dd>ValueError: Value returned from the pump is not valid.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.is_idle">
+<code class="descname">is_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.is_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.is_idle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the pump is idle or Busy</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The pump is idle.</p>
+<p class="last">False (bool): The pump is not idle.</p>
+</dd>
+<dt>Raises:</dt>
+<dd>ValueError: Value returned from the pump is not valid.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.is_initialized">
+<code class="descname">is_initialized</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.is_initialized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.is_initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the pump has been initialised.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The pump is initialised.</p>
+<p class="last">False (bool): The pump is not initialised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.is_volume_deliverable">
+<code class="descname">is_volume_deliverable</code><span class="sig-paren">(</span><em>volume_in_ml</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.is_volume_deliverable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.is_volume_deliverable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the supplied volume is deliverable.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>volume_in_ml (float): The supplied volume in mL.</dd>
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The number of steps is &lt;= the current steps.</p>
+<p class="last">False (bool): The number of steps is &gt; the current steps.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.is_volume_pumpable">
+<code class="descname">is_volume_pumpable</code><span class="sig-paren">(</span><em>volume_in_ml</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.is_volume_pumpable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.is_volume_pumpable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the volume is pumpable.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>volume_in_ml (float): The supplied volume.</dd>
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): If the number of steps is &lt;= to the remaining steps.</p>
+<p class="last">False (bool): The number of steps is &gt; than the remaining steps.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.is_volume_valid">
+<code class="descname">is_volume_valid</code><span class="sig-paren">(</span><em>volume_in_ml</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.is_volume_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.is_volume_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the supplied volume is valid.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>volume_in_ml (float): The supplied volume.</dd>
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The supplied volume is &lt;= the total volume and &gt;= 0</p>
+<p class="last">False (bool): The supplied volume is &gt; total volume or &lt; 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.pump">
+<code class="descname">pump</code><span class="sig-paren">(</span><em>volume_in_ml</em>, <em>from_valve=None</em>, <em>speed_in=None</em>, <em>wait=False</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.pump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.pump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the signal to initiate the pump sequence.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed_in == None</p>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">volume_in_ml (float): Volume to pump (in mL).</p>
+<p>from_valve (chr): Pump using the valve, default set to None.</p>
+<p>speed_in (int): Speed to pump, default set to None.</p>
+<p>wait (bool): Waits for the pump to be idle, default set to False.</p>
+<p class="last">secure (bool): Ensures everything is correct, default set to True.</p>
+</dd>
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The supplied volume is pumpable.</p>
+<p class="last">False (bool): Supplied volume is not pumpable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycont.controller.C3000Controller.remaining_steps">
+<code class="descname">remaining_steps</code><a class="headerlink" href="#pycont.controller.C3000Controller.remaining_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the remaining number of steps.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>(int): self.number_of_steps - self.current_steps</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycont.controller.C3000Controller.remaining_volume">
+<code class="descname">remaining_volume</code><a class="headerlink" href="#pycont.controller.C3000Controller.remaining_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the remaining volume.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>(float): self.total_volume - self.current_volume</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.set_default_top_velocity">
+<code class="descname">set_default_top_velocity</code><span class="sig-paren">(</span><em>top_velocity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.set_default_top_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.set_default_top_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the default top velocity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>top_velocity (int): The top velocity for the pump.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.set_eeprom_config">
+<code class="descname">set_eeprom_config</code><span class="sig-paren">(</span><em>operand_value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.set_eeprom_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.set_eeprom_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the configuration of the EEPROM on the pumps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.set_microstep_mode">
+<code class="descname">set_microstep_mode</code><span class="sig-paren">(</span><em>micro_step_mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.set_microstep_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.set_microstep_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the Microstep Mode to use.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>micro_step_mode (int): Mode to use.</dd>
+<dt>Raises:</dt>
+<dd>ControllerInitError: Attempting to set microstep mode before pump initialisation.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.set_top_velocity">
+<code class="descname">set_top_velocity</code><span class="sig-paren">(</span><em>top_velocity</em>, <em>max_repeat=10</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.set_top_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.set_top_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the top velocity for the pump.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">top_velocity (int): The top velocity.</p>
+<p>max_repeat (int): Maximum number of times to repeat an operation, default set to MAX_REPEAT_OPERATION (10).</p>
+<p class="last">secure (bool): Ensures that everything is correct.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>True (bool): Top velocity has been set.</dd>
+<dt>Raises:</dt>
+<dd><p class="first">ControllerRepeatedError: Too many failed attempts at setting the top velocity.</p>
+<p class="last">ControllerInitError: Attempting to set the top velocity befire the pump has been initialised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.set_valve_position">
+<code class="descname">set_valve_position</code><span class="sig-paren">(</span><em>valve_position</em>, <em>max_repeat=10</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.set_valve_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.set_valve_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the position of the valve.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">valve_position (str): Position of the valve.</p>
+<p>max_repeat (int): maximum number of times to repeat an operation, default set to MAX_REPEAT_OPERATION (10).</p>
+<p class="last">secure (bool): Ensures that everything is correct, default set to True.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>True (bool): The valve position has been set.</dd>
+<dt>Raises:</dt>
+<dd><p class="first">ValueError: The valve posiiton is invalid/unknown.</p>
+<p class="last">ControllerRepeatedError: Too many failed attempts in set_top_velocity.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.smart_initialize">
+<code class="descname">smart_initialize</code><span class="sig-paren">(</span><em>valve_position=None</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.smart_initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.smart_initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the pump and sets all pump parammeters.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">valve_position (int): Position of the valve, default set None.</p>
+<p class="last">secure (bool): Ensures that everything is correct, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.step_to_volume">
+<code class="descname">step_to_volume</code><span class="sig-paren">(</span><em>step</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.step_to_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.step_to_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the volume in a specific step.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>step (int): Step number.</dd>
+<dt>Returns:</dt>
+<dd>step / float(self.steps_per_ml</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.transfer">
+<code class="descname">transfer</code><span class="sig-paren">(</span><em>volume_in_ml</em>, <em>from_valve</em>, <em>to_valve</em>, <em>speed_in=None</em>, <em>speed_out=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.transfer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers the desired volume in mL.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">volume_in_ml (float): The volume to transfer.</p>
+<p>from_valve (chr): The valve to transfer from.</p>
+<p>to_valve (chr): The valve to transfer to.</p>
+<p>speed_in (int): The speed of transfer to valve, default set to None.</p>
+<p class="last">speed_out (int): The speed of transfer from the valve, default set to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.volume_to_step">
+<code class="descname">volume_to_step</code><span class="sig-paren">(</span><em>volume_in_ml</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.volume_to_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.volume_to_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the number of steps for a given volume.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>volume_in_ml (float): Volume in millilitres.</dd>
+<dt>Returns:</dt>
+<dd>int(round(volume_in_ml * self.steps_per_ml))</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.wait_until_idle">
+<code class="descname">wait_until_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.wait_until_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.wait_until_idle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits until the pump is not busy for WAIT_SLEEP_TIME, default set to 0.1</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.C3000Controller.write_and_read_from_pump">
+<code class="descname">write_and_read_from_pump</code><span class="sig-paren">(</span><em>packet</em>, <em>max_repeat=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#C3000Controller.write_and_read_from_pump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.C3000Controller.write_and_read_from_pump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes packets to and reads the response from the pump.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">packet (DTInstructionPacket): The packet to be written.</p>
+<p class="last">max_repeat (int): The maximum time to repeat the read/write operation.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>decoded_response (str): The decoded response.</dd>
+<dt>Raises:</dt>
+<dd><p class="first">PumpIOTimeOutError: If the response itme is greater than the timeout threshold.</p>
+<p class="last">ControllerRepeatedError: Error in decoding.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.C3000SwitchToAddress">
+<code class="descclassname">pycont.controller.</code><code class="descname">C3000SwitchToAddress</code><em class="property"> = {'A': ';', 'BROADCAST': '_', 'C': '=', 'B': '&lt;', 'E': '?', 'D': '&gt;', '1': '2', '0': '1', '3': '4', '2': '3', '5': '6', '4': '5', '7': '8', '6': '7', '9': ':', '8': '9'}</em><a class="headerlink" href="#pycont.controller.C3000SwitchToAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Switches the C3000 to a certain address</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pycont.controller.ControllerInitError">
+<em class="property">exception </em><code class="descclassname">pycont.controller.</code><code class="descname">ControllerInitError</code><a class="reference internal" href="_modules/pycont/controller.html#ControllerInitError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.ControllerInitError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for when there is a failure in initialising the Controller.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pycont.controller.ControllerRepeatedError">
+<em class="property">exception </em><code class="descclassname">pycont.controller.</code><code class="descname">ControllerRepeatedError</code><a class="reference internal" href="_modules/pycont/controller.html#ControllerRepeatedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.ControllerRepeatedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for when there has been too many repeat attempts.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.DEFAULT_IO_BAUDRATE">
+<code class="descclassname">pycont.controller.</code><code class="descname">DEFAULT_IO_BAUDRATE</code><em class="property"> = 9600</em><a class="headerlink" href="#pycont.controller.DEFAULT_IO_BAUDRATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>default Input/Output (I/O) Baudrate</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.DEFAULT_IO_TIMEOUT">
+<code class="descclassname">pycont.controller.</code><code class="descname">DEFAULT_IO_TIMEOUT</code><em class="property"> = 1</em><a class="headerlink" href="#pycont.controller.DEFAULT_IO_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default timeout for I/O operations</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.MAX_REPEAT_OPERATION">
+<code class="descclassname">pycont.controller.</code><code class="descname">MAX_REPEAT_OPERATION</code><em class="property"> = 10</em><a class="headerlink" href="#pycont.controller.MAX_REPEAT_OPERATION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the maximum time to repeat a specific operation</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.MAX_REPEAT_WRITE_AND_READ">
+<code class="descclassname">pycont.controller.</code><code class="descname">MAX_REPEAT_WRITE_AND_READ</code><em class="property"> = 10</em><a class="headerlink" href="#pycont.controller.MAX_REPEAT_WRITE_AND_READ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the maximum number of attempts to Write and Read</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.MAX_TOP_VELOCITY_MICRO_STEP_MODE_0">
+<code class="descclassname">pycont.controller.</code><code class="descname">MAX_TOP_VELOCITY_MICRO_STEP_MODE_0</code><em class="property"> = 6000</em><a class="headerlink" href="#pycont.controller.MAX_TOP_VELOCITY_MICRO_STEP_MODE_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum top velocity for Microstep Mode 0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.MAX_TOP_VELOCITY_MICRO_STEP_MODE_2">
+<code class="descclassname">pycont.controller.</code><code class="descname">MAX_TOP_VELOCITY_MICRO_STEP_MODE_2</code><em class="property"> = 48000</em><a class="headerlink" href="#pycont.controller.MAX_TOP_VELOCITY_MICRO_STEP_MODE_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum top velocity for Microstep Mode 2</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.MICRO_STEP_MODE_0">
+<code class="descclassname">pycont.controller.</code><code class="descname">MICRO_STEP_MODE_0</code><em class="property"> = 0</em><a class="headerlink" href="#pycont.controller.MICRO_STEP_MODE_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Microstep Mode 0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.MICRO_STEP_MODE_2">
+<code class="descclassname">pycont.controller.</code><code class="descname">MICRO_STEP_MODE_2</code><em class="property"> = 2</em><a class="headerlink" href="#pycont.controller.MICRO_STEP_MODE_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Microstep Mode 2</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycont.controller.MultiPumpController">
+<em class="property">class </em><code class="descclassname">pycont.controller.</code><code class="descname">MultiPumpController</code><span class="sig-paren">(</span><em>setup_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class deals with controlling multiple pumps at a time.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>setup_config (Dict): The configuration of the setup.</dd>
+</dl>
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.apply_command_to_all_pumps">
+<code class="descname">apply_command_to_all_pumps</code><span class="sig-paren">(</span><em>command</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.apply_command_to_all_pumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.apply_command_to_all_pumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a given command to all of the pumps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">command (str): The command to apply.</p>
+<p><a href="#id1"><span class="problematic" id="id2">*</span></a>args: Variable length argument list.</p>
+<p class="last"><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs: Arbitrary keyword arguments.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>returns (Dict): Dictionary of the functions.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.apply_command_to_group">
+<code class="descname">apply_command_to_group</code><span class="sig-paren">(</span><em>group_name</em>, <em>command</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.apply_command_to_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.apply_command_to_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a given command to the group.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">group_name (str): Name of the group.</p>
+<p>command (str): The command to apply.</p>
+<p><a href="#id5"><span class="problematic" id="id6">*</span></a>args: Variable length argument list.</p>
+<p class="last"><a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs: Arbitrary keyword arguements.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>returns (Dict) Dictionary of the functions.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.apply_command_to_pumps">
+<code class="descname">apply_command_to_pumps</code><span class="sig-paren">(</span><em>pump_names</em>, <em>command</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.apply_command_to_pumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.apply_command_to_pumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a given command to the pumps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">pump_names (List): List containing the pump names.</p>
+<p>command (str): The command to apply.</p>
+<p><a href="#id9"><span class="problematic" id="id10">*</span></a>args: Variable length argument list.</p>
+<p class="last"><a href="#id11"><span class="problematic" id="id12">**</span></a>kwargs: Arbitrary keyword arguements.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>returns (Dict): Dictionary of the functions.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.are_pumps_busy">
+<code class="descname">are_pumps_busy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.are_pumps_busy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.are_pumps_busy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the pumps are busy.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The pumps are busy.</p>
+<p class="last">False (bool): The pumps are not busy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.are_pumps_idle">
+<code class="descname">are_pumps_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.are_pumps_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.are_pumps_idle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the pumps are idle.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The pumps are idle.</p>
+<p class="last">False (bool): The pumps are not idle.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.are_pumps_initialized">
+<code class="descname">are_pumps_initialized</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.are_pumps_initialized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.are_pumps_initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the pumps have been initialised.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The pumps have been initialised.</p>
+<p class="last">False (bool): The pumps have not been initialised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.default_pump_config">
+<code class="descname">default_pump_config</code><span class="sig-paren">(</span><em>pump_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.default_pump_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.default_pump_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a default pump configuration.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pump_config (Dict): Dictionary containing the pump configuration.</dd>
+<dt>Returns:</dt>
+<dd>defaulted_pump_config (Dict): A new defualt pump configuration mirroring that of pump_config.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.deliver">
+<code class="descname">deliver</code><span class="sig-paren">(</span><em>pump_names</em>, <em>volume_in_ml</em>, <em>to_valve=None</em>, <em>speed_out=None</em>, <em>wait=False</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.deliver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.deliver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers the desired volume.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Reimplemented as MultiPump so it is really synchronous</p>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">pump_names (List): The name of the pumps.</p>
+<p>volume_in_ml (float): The volume to be delivered.</p>
+<p>to_valve (chr): The valve to deliver to.</p>
+<p>speed_out (int): The speed at which to deliver.</p>
+<p>wait (bool): Wait for the pumps to be idle ,default set to False.</p>
+<p class="last">secure (bool): Ensures everything is correct, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pycont.controller.MultiPumpController.from_configfile">
+<em class="property">classmethod </em><code class="descname">from_configfile</code><span class="sig-paren">(</span><em>setup_configfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.from_configfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.from_configfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains the configuration data from the supplied configuration file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cls (Class): The initialising class.</p>
+<p class="last">setup_configfile (File): The configuration file.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>MultiPumpController: A new MultiPumpController object with the configuration set from the config file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.get_pumps">
+<code class="descname">get_pumps</code><span class="sig-paren">(</span><em>pump_names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.get_pumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.get_pumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains a list of all pumps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pump_names (List): A list of the pump names</dd>
+<dt>Returns:</dt>
+<dd>pumps (List): A list of the pump names.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.pump">
+<code class="descname">pump</code><span class="sig-paren">(</span><em>pump_names</em>, <em>volume_in_ml</em>, <em>from_valve=None</em>, <em>speed_in=None</em>, <em>wait=False</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.pump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.pump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pumps the desired volume.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Reimplemented as MultiPump so it is really synchronous</p>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">pump_names (List): The name of the pumps.</p>
+<p>volume_in_ml (float): The volume to be pumped.</p>
+<p>from_valve (chr): The valve to pump from.</p>
+<p>speed_in (int): The speed at which to pump, default set to None.</p>
+<p>wait (bool): Waits for the pumps to be idle, default set to False.</p>
+<p class="last">secure (bool): Ensures everything is correct, default set to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.set_pumps_as_attributes">
+<code class="descname">set_pumps_as_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.set_pumps_as_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.set_pumps_as_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the pumps as attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.smart_initialize">
+<code class="descname">smart_initialize</code><span class="sig-paren">(</span><em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.smart_initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.smart_initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the pumps, setting all parameters.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>secure (bool): Ensures everything is correct, default set to True.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.transfer">
+<code class="descname">transfer</code><span class="sig-paren">(</span><em>pump_names</em>, <em>volume_in_ml</em>, <em>from_valve</em>, <em>to_valve</em>, <em>speed_in=None</em>, <em>speed_out=None</em>, <em>secure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.transfer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfers the desired volume between pumps.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Reimplemented as MultiPump so it is really synchronous, needed</p>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">pump_names (List): The name of the pumps.</p>
+<p>volume_in_ml (float): The volume to be transfered.</p>
+<p>from_valve (chr): The valve to transfer from.</p>
+<p>to_valve (chr): the valve to transfer to.</p>
+<p>speed_in (int): The speed at which to receive transfer, default set to None.</p>
+<p>speed_out (int): The speed at which to transfer, default set to None</p>
+<p class="last">secure (bool): Ensures that everything is correct, default set to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.MultiPumpController.wait_until_all_pumps_idle">
+<code class="descname">wait_until_all_pumps_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#MultiPumpController.wait_until_all_pumps_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.MultiPumpController.wait_until_all_pumps_idle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the command &#8216;wait_until_idle&#8217; to the pumps.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.N_STEP_MICRO_STEP_MODE_0">
+<code class="descclassname">pycont.controller.</code><code class="descname">N_STEP_MICRO_STEP_MODE_0</code><em class="property"> = 3000</em><a class="headerlink" href="#pycont.controller.N_STEP_MICRO_STEP_MODE_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of steps in Microstep Mode 0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.N_STEP_MICRO_STEP_MODE_2">
+<code class="descclassname">pycont.controller.</code><code class="descname">N_STEP_MICRO_STEP_MODE_2</code><em class="property"> = 24000</em><a class="headerlink" href="#pycont.controller.N_STEP_MICRO_STEP_MODE_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of steps in Microstep Mode 2</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycont.controller.PumpIO">
+<em class="property">class </em><code class="descclassname">pycont.controller.</code><code class="descname">PumpIO</code><span class="sig-paren">(</span><em>port</em>, <em>baudrate=9600</em>, <em>timeout=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class deals with the pump I/O instructions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">port (int): The port number</p>
+<p>baudrate (int): Baudrate of the communication, default set to DEFAULT_IO_BAUDRATE(9600)</p>
+<p class="last">timeout (int): The timeout of communication, default set to DEFAULT_IO_TIMEOUT(1)</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pycont.controller.PumpIO.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the communication with the hardware.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.PumpIO.flushInput">
+<code class="descname">flushInput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.flushInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.flushInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flushes the input buffer of the serial communication.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pycont.controller.PumpIO.from_config">
+<em class="property">classmethod </em><code class="descname">from_config</code><span class="sig-paren">(</span><em>io_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets details laid out in the configuration .json file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cls (Class): The initialising class.</p>
+<p class="last">io_config (Dict): Dictionary holding the configuration data.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>PumpIO: New PumpIO object with the variables set from the configuration file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pycont.controller.PumpIO.from_configfile">
+<em class="property">classmethod </em><code class="descname">from_configfile</code><span class="sig-paren">(</span><em>io_configfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.from_configfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.from_configfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the configuration file and parses the data to be used in the from_config method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cls (Class): The initialising class.</p>
+<p class="last">io_configfile (File): File which contains the configuration data.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>PumpIO: New PumpIO object with the variables set form the configuration file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.PumpIO.open">
+<code class="descname">open</code><span class="sig-paren">(</span><em>port</em>, <em>baudrate=9600</em>, <em>timeout=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a communication with the hardware.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">port (int): The port number on which the communication will take place.</p>
+<p>baudrate (int): The baudrate of the communication, default set to DEFAULT_IO_BAUDRATE(9600).</p>
+<p class="last">timeout (int): The timeout of the communication, default set to DEFAULT_IO_TIMEOUT(1).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.PumpIO.readline">
+<code class="descname">readline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.readline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.readline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a line from the serial communication.</p>
+<dl class="docutils">
+<dt>Raises:</dt>
+<dd>PumpIOTimeOutError: If the response time is greater than the timeout threshold.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.PumpIO.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>packet</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a packet along the serial communication.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>packet (DTInstructionPacket): The packet to send along the serial communication.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Unsure if this is the correct packet type (GAK).</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.controller.PumpIO.write_and_readline">
+<code class="descname">write_and_readline</code><span class="sig-paren">(</span><em>packet</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/controller.html#PumpIO.write_and_readline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIO.write_and_readline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a packet along the serial communication and waits for a response.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>packet (DTInstructionPacket): The packet to be written.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Unsure if this is the correct packet type (GAK).</p>
+</div>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>reponse (str): The received response.</dd>
+<dt>Raises:</dt>
+<dd>PumpIOTimeOutError: If the response time is greater than the timeout threshold.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pycont.controller.PumpIOTimeOutError">
+<em class="property">exception </em><code class="descclassname">pycont.controller.</code><code class="descname">PumpIOTimeOutError</code><a class="reference internal" href="_modules/pycont/controller.html#PumpIOTimeOutError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.controller.PumpIOTimeOutError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for when the response time is grerater than the timeout threshold.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.VALVE_BYPASS">
+<code class="descclassname">pycont.controller.</code><code class="descname">VALVE_BYPASS</code><em class="property"> = 'B'</em><a class="headerlink" href="#pycont.controller.VALVE_BYPASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bypass for the valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.VALVE_EXTRA">
+<code class="descclassname">pycont.controller.</code><code class="descname">VALVE_EXTRA</code><em class="property"> = 'E'</em><a class="headerlink" href="#pycont.controller.VALVE_EXTRA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extra for the valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.VALVE_INPUT">
+<code class="descclassname">pycont.controller.</code><code class="descname">VALVE_INPUT</code><em class="property"> = 'I'</em><a class="headerlink" href="#pycont.controller.VALVE_INPUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input for the valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.VALVE_OUTPUT">
+<code class="descclassname">pycont.controller.</code><code class="descname">VALVE_OUTPUT</code><em class="property"> = 'O'</em><a class="headerlink" href="#pycont.controller.VALVE_OUTPUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output for the valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.controller.WAIT_SLEEP_TIME">
+<code class="descclassname">pycont.controller.</code><code class="descname">WAIT_SLEEP_TIME</code><em class="property"> = 0.1</em><a class="headerlink" href="#pycont.controller.WAIT_SLEEP_TIME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies a time to wait</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycont.pump_protocol">
+<span id="pump-protocol-module"></span><span id="pump-protocol"></span><h2>Pump Protocol Module<a class="headerlink" href="#module-pycont.pump_protocol" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pump_protocol"></span><dl class="class">
+<dt id="pycont.pump_protocol.C3000Protocol">
+<em class="property">class </em><code class="descclassname">pycont.pump_protocol.</code><code class="descname">C3000Protocol</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is used to represent the protocol which the pumps will follow when controlled.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>address (str): Address of the pump.</dd>
+</dl>
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.decode_packet">
+<code class="descname">decode_packet</code><span class="sig-paren">(</span><em>dtresponse</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.decode_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.decode_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes the response packet form the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>dtresponse (str): The response from the device.</dd>
+<dt>Returns:</dt>
+<dd>DTStatus: The decoded status of the device.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_deliver_packet">
+<code class="descname">forge_deliver_packet</code><span class="sig-paren">(</span><em>operand_value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_deliver_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_deliver_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for delivering the payload.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for delivering the payload.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_eeprom_config_packet">
+<code class="descname">forge_eeprom_config_packet</code><span class="sig-paren">(</span><em>operand_value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_eeprom_config_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_eeprom_config_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for accessing the EEPROM configuration of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for accessing the EEPROM configuration of the device.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_initialize_no_valve_packet">
+<code class="descname">forge_initialize_no_valve_packet</code><span class="sig-paren">(</span><em>operand_value=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_initialize_no_valve_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_initialize_no_valve_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for initialising with no valves.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand, 0 by default.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for initialising with no valves.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_initialize_valve_left_packet">
+<code class="descname">forge_initialize_valve_left_packet</code><span class="sig-paren">(</span><em>operand_value=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_initialize_valve_left_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_left_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for initialising the left valve.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand, 0 by defualt.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for initialising the left valve.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_initialize_valve_only_packet">
+<code class="descname">forge_initialize_valve_only_packet</code><span class="sig-paren">(</span><em>operand_string=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_initialize_valve_only_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_only_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for initialising with valves only.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_string (str): String representing the operand, None by default</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for initialising with valves only</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_initialize_valve_right_packet">
+<code class="descname">forge_initialize_valve_right_packet</code><span class="sig-paren">(</span><em>operand_value=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_initialize_valve_right_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_right_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for initialising the right valve.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand, 0 by default.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for initialising the right valve.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_microstep_mode_packet">
+<code class="descname">forge_microstep_mode_packet</code><span class="sig-paren">(</span><em>operand_value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_microstep_mode_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_microstep_mode_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for initialising microstep mode.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for initialising microstep mode.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_move_to_packet">
+<code class="descname">forge_move_to_packet</code><span class="sig-paren">(</span><em>operand_value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_move_to_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_move_to_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for moving the device to a location.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for moving the device to a location.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_packet">
+<code class="descname">forge_packet</code><span class="sig-paren">(</span><em>dtcommands</em>, <em>execute=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet which will be sent to the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">dtcommands (list): List of dtcommands.</p>
+<p class="last">execute (bool): Sets the execute value, True by default.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_pump_packet">
+<code class="descname">forge_pump_packet</code><span class="sig-paren">(</span><em>operand_value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_pump_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_pump_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for the pump action of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for the pump action of the device.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_cutoff_velocity_packet">
+<code class="descname">forge_report_cutoff_velocity_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_cutoff_velocity_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_cutoff_velocity_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the device&#8217;s cutoff velocity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for reporting the device&#8217;s cutoff velocity.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_eeprom_packet">
+<code class="descname">forge_report_eeprom_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_eeprom_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_eeprom_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the EEPROM.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>The created packet for reporting the EEPROM.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_initialized_packet">
+<code class="descname">forge_report_initialized_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_initialized_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_initialized_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the initialisation of the device.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for reporting the initialisation of the device.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_peak_velocity_packet">
+<code class="descname">forge_report_peak_velocity_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_peak_velocity_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_peak_velocity_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the device&#8217;s peak velocity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for reporting the device&#8217;s peak velocity.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_plunger_position_packet">
+<code class="descname">forge_report_plunger_position_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_plunger_position_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_plunger_position_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the device&#8217;s plunger position.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for reporting the device&#8217;s plunger position.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_start_velocity_packet">
+<code class="descname">forge_report_start_velocity_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_start_velocity_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_start_velocity_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the device&#8217;s start velocity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for reporting the device&#8217;s starting velocity.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_status_packet">
+<code class="descname">forge_report_status_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_status_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_status_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the device status.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for reporting the device status.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_report_valve_position_packet">
+<code class="descname">forge_report_valve_position_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_report_valve_position_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_report_valve_position_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for reporting the device&#8217;s valve position.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for reporting the device&#8217;s valve position.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_top_velocity_packet">
+<code class="descname">forge_top_velocity_packet</code><span class="sig-paren">(</span><em>operand_value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_top_velocity_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_top_velocity_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for the top velocity of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for the top velocity of the device.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_valve_bypass_packet">
+<code class="descname">forge_valve_bypass_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_valve_bypass_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_valve_bypass_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for bypassing a valve on the device.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for bypassing a valve on the device.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_valve_extra_packet">
+<code class="descname">forge_valve_extra_packet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_valve_extra_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_valve_extra_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for an extra valve.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for an extra valve.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_valve_input_packet">
+<code class="descname">forge_valve_input_packet</code><span class="sig-paren">(</span><em>operand_value=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_valve_input_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_valve_input_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for the input into a valve on the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand, None by default.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for the input into a valve on the device.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycont.pump_protocol.C3000Protocol.forge_valve_output_packet">
+<code class="descname">forge_valve_output_packet</code><span class="sig-paren">(</span><em>operand_value=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/pump_protocol.html#C3000Protocol.forge_valve_output_packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.pump_protocol.C3000Protocol.forge_valve_output_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a packet for the output from a valve on the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>operand_value (int): The value of the supplied operand, None by default.</dd>
+<dt>Returns:</dt>
+<dd>DTInstructionPacket: The created packet for the output from a valve on the device.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_DELIVER">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_DELIVER</code><em class="property"> = 'D'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_DELIVER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to deliver payload</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_EEPROM_CONFIG">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_EEPROM_CONFIG</code><em class="property"> = 'U'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_EEPROM_CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to access the EEPROM configuration
+.. warning:: Requires power restart to take effect</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_EXECUTE">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_EXECUTE</code><em class="property"> = 'R'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_EXECUTE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to execute</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_INITIALIZE_NO_VALVE">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_INITIALIZE_NO_VALVE</code><em class="property"> = 'W'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_INITIALIZE_NO_VALVE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to initialise with no valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_INITIALIZE_VALVE_LEFT">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_INITIALIZE_VALVE_LEFT</code><em class="property"> = 'Y'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_INITIALIZE_VALVE_LEFT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to initialise with the left valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_INITIALIZE_VALVE_ONLY">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_INITIALIZE_VALVE_ONLY</code><em class="property"> = 'w'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_INITIALIZE_VALVE_ONLY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to initialise with valves only</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_INITIALIZE_VALVE_RIGHT">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_INITIALIZE_VALVE_RIGHT</code><em class="property"> = 'Z'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_INITIALIZE_VALVE_RIGHT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to initialise with the right valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_MICROSTEPMODE">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_MICROSTEPMODE</code><em class="property"> = 'N'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_MICROSTEPMODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to invoke microstep mode</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_MOVE_TO">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_MOVE_TO</code><em class="property"> = 'A'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_MOVE_TO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to move the pump to a location</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_PUMP">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_PUMP</code><em class="property"> = 'P'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_PUMP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to access a specific pump</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_CUTOFF_VELOCITY">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_CUTOFF_VELOCITY</code><em class="property"> = '?3'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_CUTOFF_VELOCITY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for reporting the cutoff velocity</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_EEPROM">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_EEPROM</code><em class="property"> = '?27'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_EEPROM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for reporting the EEPROM</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_INTIALIZED">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_INTIALIZED</code><em class="property"> = '?19'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_INTIALIZED" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for reporting initialisation</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_PEAK_VELOCITY">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_PEAK_VELOCITY</code><em class="property"> = '?2'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_PEAK_VELOCITY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for reporting the peak velocity</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_PLUNGER_POSITION">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_PLUNGER_POSITION</code><em class="property"> = '?'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_PLUNGER_POSITION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for reporting hte plunger position</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_START_VELOCITY">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_START_VELOCITY</code><em class="property"> = '?1'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_START_VELOCITY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for reporting the start velocity</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_STATUS">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_STATUS</code><em class="property"> = 'Q'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for the reporting the status</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_REPORT_VALVE_POSITION">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_REPORT_VALVE_POSITION</code><em class="property"> = '?6'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_REPORT_VALVE_POSITION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for reporting the valve position</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_TOPVELOCITY">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_TOPVELOCITY</code><em class="property"> = 'V'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_TOPVELOCITY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command to achieve top velocity</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_VALVE_BYPASS">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_VALVE_BYPASS</code><em class="property"> = 'B'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_VALVE_BYPASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for the valve bypass</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_VALVE_EXTRA">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_VALVE_EXTRA</code><em class="property"> = 'E'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_VALVE_EXTRA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for the extra valve</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_VALVE_INPUT">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_VALVE_INPUT</code><em class="property"> = 'I'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_VALVE_INPUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for the valve init_all_pump_parameters
+.. note:: Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I&lt;n&gt;O&lt;n&gt;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.CMD_VALVE_OUTPUT">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">CMD_VALVE_OUTPUT</code><em class="property"> = 'O'</em><a class="headerlink" href="#pycont.pump_protocol.CMD_VALVE_OUTPUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command for the valve output</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.STATUS_BUSY_ERROR_FREE">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">STATUS_BUSY_ERROR_FREE</code><em class="property"> = '&#64;'</em><a class="headerlink" href="#pycont.pump_protocol.STATUS_BUSY_ERROR_FREE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Busy status when there are no errors</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pycont.pump_protocol.STATUS_IDLE_ERROR_FREE">
+<code class="descclassname">pycont.pump_protocol.</code><code class="descname">STATUS_IDLE_ERROR_FREE</code><em class="property"> = '`'</em><a class="headerlink" href="#pycont.pump_protocol.STATUS_IDLE_ERROR_FREE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Idle status when there are no errors</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycont.dtprotocol">
+<span id="dtprotocol-module"></span><span id="dt-protocol"></span><h2>DTProtocol Module<a class="headerlink" href="#module-pycont.dtprotocol" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pycont.dtprotocol.DTCommand">
+<em class="property">class </em><code class="descclassname">pycont.dtprotocol.</code><code class="descname">DTCommand</code><span class="sig-paren">(</span><em>command</em>, <em>operand=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is used to represent a DTcommand.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">command (str): The command to be sent</p>
+<p class="last">operand (str): The parameter of the command, None by default</p>
+</dd>
+</dl>
+<p>(for more details see <a class="reference external" href="http://www.tricontinent.com/products/cseries-syringe-pumps">http://www.tricontinent.com/products/cseries-syringe-pumps</a>)</p>
+<dl class="method">
+<dt id="pycont.dtprotocol.DTCommand.to_array">
+<code class="descname">to_array</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTCommand.to_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTCommand.to_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pycont.dtprotocol.DTCommand.to_string">
+<code class="descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTCommand.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTCommand.to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycont.dtprotocol.DTInstructionPacket">
+<em class="property">class </em><code class="descclassname">pycont.dtprotocol.</code><code class="descname">DTInstructionPacket</code><span class="sig-paren">(</span><em>address</em>, <em>dtcommands</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTInstructionPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTInstructionPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is used to represent a DT instruction packet.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">address (str): The address to talk to</p>
+<p class="last">dtcommands (list): List of DTCommand</p>
+</dd>
+</dl>
+<p>(for more details see <a class="reference external" href="http://www.tricontinent.com/products/cseries-syringe-pumps">http://www.tricontinent.com/products/cseries-syringe-pumps</a>)</p>
+<dl class="method">
+<dt id="pycont.dtprotocol.DTInstructionPacket.to_array">
+<code class="descname">to_array</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTInstructionPacket.to_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTInstructionPacket.to_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pycont.dtprotocol.DTInstructionPacket.to_string">
+<code class="descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTInstructionPacket.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTInstructionPacket.to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycont.dtprotocol.DTStatus">
+<em class="property">class </em><code class="descclassname">pycont.dtprotocol.</code><code class="descname">DTStatus</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is used to represent a DTstatus, the response of the device from a command.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>response (str): The response from the device</dd>
+</dl>
+<p>(for more details see <a class="reference external" href="http://www.tricontinent.com/products/cseries-syringe-pumps">http://www.tricontinent.com/products/cseries-syringe-pumps</a>)</p>
+<dl class="method">
+<dt id="pycont.dtprotocol.DTStatus.decode">
+<code class="descname">decode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pycont/dtprotocol.html#DTStatus.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pycont.dtprotocol.DTStatus.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Pycont Package</a><ul>
+<li><a class="reference internal" href="#module-pycont">Module Contents</a></li>
+<li><a class="reference internal" href="#module-pycont.controller">Controller Module</a></li>
+<li><a class="reference internal" href="#module-pycont.pump_protocol">Pump Protocol Module</a></li>
+<li><a class="reference internal" href="#module-pycont.dtprotocol">DTProtocol Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Pycont&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="next chapter">Examples</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pycont.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Pycont’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Pycont 0.9.6 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Jonathan Grizou.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>
