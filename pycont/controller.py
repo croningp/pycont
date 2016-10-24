@@ -791,7 +791,7 @@ class C3000Controller(object):
         """
         Sends the signal to initiate the pump sequence.
 
-        .. warning:: Change of speed will last after the scope of this function but will be reset to default each time speed_in != None
+        .. warning:: Change of speed will last after the scope of this function but will be reset to default each time speed_in == None
 
         Args:
             volume_in_ml (float): Volume to pump (in mL).
@@ -852,7 +852,7 @@ class C3000Controller(object):
         """
         Delivers the volume payload.
 
-        .. warning:: Change of speed will last after the scope of this function but will be reset to default each time speed_out != None
+        .. warning:: Change of speed will last after the scope of this function but will be reset to default each time speed_out == None
 
         Args:
             volume_in_ml (float): The supplied volume to deliver.
@@ -932,7 +932,7 @@ class C3000Controller(object):
         """
         Moves the pump to the desired volume.
 
-        .. warning:: Change of speed will last after the scope of this function but will be reset to default each time speed != None
+        .. warning:: Change of speed will last after the scope of this function but will be reset to default each time speed == None
 
         Args:
             volume_in_ml (float): The supplied volume.
