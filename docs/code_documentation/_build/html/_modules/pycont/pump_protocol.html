@@ -49,7 +49,7 @@
           <div class="body" role="main">
             
   <h1>Source code for pycont.pump_protocol</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: pump_protocol</span>
 <span class="sd">   :platform: Unix</span>
 <span class="sd">   :synopsis: A module which outlines the protocol for which the pumps will follow.</span>
@@ -57,66 +57,66 @@
 <span class="sd">.. moduleauthor:: Jonathan Grizou &lt;Jonathan.Grizou@gla.ac.uk&gt;</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
 <span class="kn">from</span> <span class="nn">._logger</span> <span class="k">import</span> <span class="n">create_logger</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">dtprotocol</span>
 
-<span class="c1">#: Command to execute</span>
-<span class="n">CMD_EXECUTE</span> <span class="o">=</span> <span class="s1">&#39;R&#39;</span>
-<span class="c1">#: Command to initialise with the right valve</span>
-<span class="n">CMD_INITIALIZE_VALVE_RIGHT</span> <span class="o">=</span> <span class="s1">&#39;Z&#39;</span>
-<span class="c1">#: Command to initialise with the left valve</span>
-<span class="n">CMD_INITIALIZE_VALVE_LEFT</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>
-<span class="c1">#: Command to initialise with no valve</span>
-<span class="n">CMD_INITIALIZE_NO_VALVE</span> <span class="o">=</span> <span class="s1">&#39;W&#39;</span>
-<span class="c1">#: Command to initialise with valves only</span>
-<span class="n">CMD_INITIALIZE_VALVE_ONLY</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
-<span class="c1">#: Command to invoke microstep mode</span>
-<span class="n">CMD_MICROSTEPMODE</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span>
-<span class="c1">#: Command to move the pump to a location</span>
-<span class="n">CMD_MOVE_TO</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
-<span class="c1">#: Command to access a specific pump</span>
-<span class="n">CMD_PUMP</span> <span class="o">=</span> <span class="s1">&#39;P&#39;</span>
-<span class="c1">#: Command to deliver payload</span>
-<span class="n">CMD_DELIVER</span> <span class="o">=</span> <span class="s1">&#39;D&#39;</span>
-<span class="c1">#: Command to achieve top velocity</span>
-<span class="n">CMD_TOPVELOCITY</span> <span class="o">=</span> <span class="s1">&#39;V&#39;</span>
-<span class="c1">#: Command to access the EEPROM configuration</span>
-<span class="c1">#: .. warning:: Requires power restart to take effect</span>
-<span class="n">CMD_EEPROM_CONFIG</span> <span class="o">=</span> <span class="s1">&#39;U&#39;</span>      <span class="c1"># Requires power restart to take effect     [donk]</span>
+<span class="c">#: Command to execute</span>
+<span class="n">CMD_EXECUTE</span> <span class="o">=</span> <span class="s">&#39;R&#39;</span>
+<span class="c">#: Command to initialise with the right valve</span>
+<span class="n">CMD_INITIALIZE_VALVE_RIGHT</span> <span class="o">=</span> <span class="s">&#39;Z&#39;</span>
+<span class="c">#: Command to initialise with the left valve</span>
+<span class="n">CMD_INITIALIZE_VALVE_LEFT</span> <span class="o">=</span> <span class="s">&#39;Y&#39;</span>
+<span class="c">#: Command to initialise with no valve</span>
+<span class="n">CMD_INITIALIZE_NO_VALVE</span> <span class="o">=</span> <span class="s">&#39;W&#39;</span>
+<span class="c">#: Command to initialise with valves only</span>
+<span class="n">CMD_INITIALIZE_VALVE_ONLY</span> <span class="o">=</span> <span class="s">&#39;w&#39;</span>
+<span class="c">#: Command to invoke microstep mode</span>
+<span class="n">CMD_MICROSTEPMODE</span> <span class="o">=</span> <span class="s">&#39;N&#39;</span>
+<span class="c">#: Command to move the pump to a location</span>
+<span class="n">CMD_MOVE_TO</span> <span class="o">=</span> <span class="s">&#39;A&#39;</span>
+<span class="c">#: Command to access a specific pump</span>
+<span class="n">CMD_PUMP</span> <span class="o">=</span> <span class="s">&#39;P&#39;</span>
+<span class="c">#: Command to deliver payload</span>
+<span class="n">CMD_DELIVER</span> <span class="o">=</span> <span class="s">&#39;D&#39;</span>
+<span class="c">#: Command to achieve top velocity</span>
+<span class="n">CMD_TOPVELOCITY</span> <span class="o">=</span> <span class="s">&#39;V&#39;</span>
+<span class="c">#: Command to access the EEPROM configuration</span>
+<span class="c">#: .. warning:: Requires power restart to take effect</span>
+<span class="n">CMD_EEPROM_CONFIG</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span>      <span class="c"># Requires power restart to take effect     [donk]</span>
 
-<span class="c1">#: Command for the valve init_all_pump_parameters</span>
-<span class="c1">#: .. note:: Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I&lt;n&gt;O&lt;n&gt;</span>
-<span class="n">CMD_VALVE_INPUT</span> <span class="o">=</span> <span class="s1">&#39;I&#39;</span>       <span class="c1"># Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I&lt;n&gt;O&lt;n&gt;     [donk]</span>
-<span class="c1">#: Command for the valve output</span>
-<span class="n">CMD_VALVE_OUTPUT</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
-<span class="c1">#: Command for the valve bypass</span>
-<span class="n">CMD_VALVE_BYPASS</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
-<span class="c1">#: Command for the extra valve</span>
-<span class="n">CMD_VALVE_EXTRA</span> <span class="o">=</span> <span class="s1">&#39;E&#39;</span>
+<span class="c">#: Command for the valve init_all_pump_parameters</span>
+<span class="c">#: .. note:: Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I&lt;n&gt;O&lt;n&gt;</span>
+<span class="n">CMD_VALVE_INPUT</span> <span class="o">=</span> <span class="s">&#39;I&#39;</span>       <span class="c"># Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I&lt;n&gt;O&lt;n&gt;     [donk]</span>
+<span class="c">#: Command for the valve output</span>
+<span class="n">CMD_VALVE_OUTPUT</span> <span class="o">=</span> <span class="s">&#39;O&#39;</span>
+<span class="c">#: Command for the valve bypass</span>
+<span class="n">CMD_VALVE_BYPASS</span> <span class="o">=</span> <span class="s">&#39;B&#39;</span>
+<span class="c">#: Command for the extra valve</span>
+<span class="n">CMD_VALVE_EXTRA</span> <span class="o">=</span> <span class="s">&#39;E&#39;</span>
 
-<span class="c1">#: Command for the reporting the status</span>
-<span class="n">CMD_REPORT_STATUS</span> <span class="o">=</span> <span class="s1">&#39;Q&#39;</span>
-<span class="c1">#: Command for reporting hte plunger position</span>
-<span class="n">CMD_REPORT_PLUNGER_POSITION</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span>
-<span class="c1">#: Command for reporting the start velocity</span>
-<span class="n">CMD_REPORT_START_VELOCITY</span> <span class="o">=</span> <span class="s1">&#39;?1&#39;</span>
-<span class="c1">#: Command for reporting the peak velocity</span>
-<span class="n">CMD_REPORT_PEAK_VELOCITY</span> <span class="o">=</span> <span class="s1">&#39;?2&#39;</span>
-<span class="c1">#: Command for reporting the cutoff velocity</span>
-<span class="n">CMD_REPORT_CUTOFF_VELOCITY</span> <span class="o">=</span> <span class="s1">&#39;?3&#39;</span>
-<span class="c1">#: Command for reporting the valve position</span>
-<span class="n">CMD_REPORT_VALVE_POSITION</span> <span class="o">=</span> <span class="s1">&#39;?6&#39;</span>
-<span class="c1">#: Command for reporting initialisation</span>
-<span class="n">CMD_REPORT_INTIALIZED</span> <span class="o">=</span> <span class="s1">&#39;?19&#39;</span>
-<span class="c1">#: Command for reporting the EEPROM</span>
-<span class="n">CMD_REPORT_EEPROM</span> <span class="o">=</span> <span class="s1">&#39;?27&#39;</span>
+<span class="c">#: Command for the reporting the status</span>
+<span class="n">CMD_REPORT_STATUS</span> <span class="o">=</span> <span class="s">&#39;Q&#39;</span>
+<span class="c">#: Command for reporting hte plunger position</span>
+<span class="n">CMD_REPORT_PLUNGER_POSITION</span> <span class="o">=</span> <span class="s">&#39;?&#39;</span>
+<span class="c">#: Command for reporting the start velocity</span>
+<span class="n">CMD_REPORT_START_VELOCITY</span> <span class="o">=</span> <span class="s">&#39;?1&#39;</span>
+<span class="c">#: Command for reporting the peak velocity</span>
+<span class="n">CMD_REPORT_PEAK_VELOCITY</span> <span class="o">=</span> <span class="s">&#39;?2&#39;</span>
+<span class="c">#: Command for reporting the cutoff velocity</span>
+<span class="n">CMD_REPORT_CUTOFF_VELOCITY</span> <span class="o">=</span> <span class="s">&#39;?3&#39;</span>
+<span class="c">#: Command for reporting the valve position</span>
+<span class="n">CMD_REPORT_VALVE_POSITION</span> <span class="o">=</span> <span class="s">&#39;?6&#39;</span>
+<span class="c">#: Command for reporting initialisation</span>
+<span class="n">CMD_REPORT_INTIALIZED</span> <span class="o">=</span> <span class="s">&#39;?19&#39;</span>
+<span class="c">#: Command for reporting the EEPROM</span>
+<span class="n">CMD_REPORT_EEPROM</span> <span class="o">=</span> <span class="s">&#39;?27&#39;</span>
 
-<span class="c1">#: Idle status when there are no errors</span>
-<span class="n">STATUS_IDLE_ERROR_FREE</span> <span class="o">=</span> <span class="s1">&#39;`&#39;</span>
-<span class="c1">#: Busy status when there are no errors</span>
-<span class="n">STATUS_BUSY_ERROR_FREE</span> <span class="o">=</span> <span class="s1">&#39;@&#39;</span>
+<span class="c">#: Idle status when there are no errors</span>
+<span class="n">STATUS_IDLE_ERROR_FREE</span> <span class="o">=</span> <span class="s">&#39;`&#39;</span>
+<span class="c">#: Busy status when there are no errors</span>
+<span class="n">STATUS_BUSY_ERROR_FREE</span> <span class="o">=</span> <span class="s">&#39;@&#39;</span>
 
 
 <div class="viewcode-block" id="C3000Protocol"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol">[docs]</a><span class="k">class</span> <span class="nc">C3000Protocol</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -132,7 +132,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
 
-<div class="viewcode-block" id="C3000Protocol.forge_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtcommands</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="C3000Protocol.forge_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtcommands</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="k">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a packet which will be sent to the device.</span>
 
@@ -145,14 +145,14 @@
 <span class="sd">            DTInstructionPacket: The created packet.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Forging packet with </span><span class="si">{}</span><span class="s2"> and execute set to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtcommands</span><span class="p">,</span> <span class="n">execute</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Forging packet with {} and execute set to {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtcommands</span><span class="p">,</span> <span class="n">execute</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">dtcommands</span><span class="p">)</span> <span class="o">==</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">:</span>
             <span class="n">dtcommands</span> <span class="o">=</span> <span class="p">[</span><span class="n">dtcommands</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">execute</span><span class="p">:</span>
             <span class="n">dtcommands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_EXECUTE</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTInstructionPacket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">dtcommands</span><span class="p">)</span></div>
 
-    <span class="c1"># handling answers</span>
+    <span class="c"># handling answers</span>
 <div class="viewcode-block" id="C3000Protocol.decode_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.decode_packet">[docs]</a>    <span class="k">def</span> <span class="nf">decode_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtresponse</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decodes the response packet form the device.</span>
@@ -164,7 +164,7 @@
 <span class="sd">            DTStatus: The decoded status of the device.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Decoding </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtresponse</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Decoding {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtresponse</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTStatus</span><span class="p">(</span><span class="n">dtresponse</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span></div>
 
     <span class="sd">&quot;&quot;&quot;</span>
@@ -175,7 +175,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># the functions below should be generated automatically but not really  needed for now</span>
+    <span class="c"># the functions below should be generated automatically but not really  needed for now</span>
 
 <div class="viewcode-block" id="C3000Protocol.forge_initialize_valve_right_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_right_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_initialize_valve_right_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -219,7 +219,7 @@
         <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_INITIALIZE_NO_VALVE</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="C3000Protocol.forge_initialize_valve_only_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_only_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_initialize_valve_only_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="C3000Protocol.forge_initialize_valve_only_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_initialize_valve_only_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_initialize_valve_only_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_string</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a packet for initialising with valves only.</span>
 
@@ -245,7 +245,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">operand_value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Microstep operand must be in [0-2], you entered </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Microstep operand must be in [0-2], you entered {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
         <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_MICROSTEPMODE</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
 
@@ -317,9 +317,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_EEPROM_CONFIG</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">operand_value</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="k">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="C3000Protocol.forge_valve_input_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_input_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_input_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="C3000Protocol.forge_valve_input_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_input_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_input_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a packet for the input into a valve on the device.</span>
 
@@ -336,7 +336,7 @@
             <span class="n">dtcommand</span> <span class="o">=</span> <span class="n">dtprotocol</span><span class="o">.</span><span class="n">DTCommand</span><span class="p">(</span><span class="n">CMD_VALVE_INPUT</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forge_packet</span><span class="p">(</span><span class="n">dtcommand</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="C3000Protocol.forge_valve_output_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_output_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_output_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="C3000Protocol.forge_valve_output_packet"><a class="viewcode-back" href="../../pycont.html#pycont.pump_protocol.C3000Protocol.forge_valve_output_packet">[docs]</a>    <span class="k">def</span> <span class="nf">forge_valve_output_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand_value</span><span class="o">=</span><span class="k">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a packet for the output from a valve on the device.</span>
 

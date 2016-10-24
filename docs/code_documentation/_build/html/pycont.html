@@ -132,7 +132,7 @@ The controller is what controls the pumps.</p>
 <dd><p>Delivers the volume payload.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed_out != None</p>
+<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed_out == None</p>
 </div>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -291,7 +291,7 @@ The controller is what controls the pumps.</p>
 <dd><p>Moves the pump to the desired volume.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed != None</p>
+<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed == None</p>
 </div>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -468,7 +468,7 @@ The controller is what controls the pumps.</p>
 <dd><p>Sends the signal to initiate the pump sequence.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed_in != None</p>
+<p class="last">Change of speed will last after the scope of this function but will be reset to default each time speed_in == None</p>
 </div>
 <dl class="docutils">
 <dt>Args:</dt>
