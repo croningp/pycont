@@ -220,6 +220,6 @@ controller.pumps['water'].flash_eeprom_4_way_dist_valve()
 ## Dialout Issues
 On initial use, there may be an issue with permissions when trying to communicate over the USB connection on Unix-based OS'. This can be solved by adding the main user to the 'dialout' group on the computer:
 ```
-sudo adduser <username> <group name>
+sudo adduser <username> dialout
 ```
 As this library was develop for Unix-based OS', this issue may not be encountered on Windows.
