@@ -38,6 +38,14 @@ python setup.py develop
 ```
 which make a direct link to the folder you are working on
 
+
+### Dialout Issues
+On initial use, there may be an issue with permissions when trying to communicate over the USB connection on Unix-based OS'. This can be solved by adding the main user to the 'dialout' group on the computer:
+```
+sudo adduser <username> dialout
+```
+As this library was develop for Unix-based OS', this issue may not be encountered on Windows.
+
 ### Using the library
 
 An example is availbale in the [tests folder](tests).
@@ -216,10 +224,3 @@ The EEPROM flash memory on the pumps can be changed using the following commands
 #controller.pumps['water'].flash_eeprom_4_way_nondist_valve()
 controller.pumps['water'].flash_eeprom_4_way_dist_valve()
 ```
-
-## Dialout Issues
-On initial use, there may be an issue with permissions when trying to communicate over the USB connection on Unix-based OS'. This can be solved by adding the main user to the 'dialout' group on the computer:
-```
-sudo adduser <username> dialout
-```
-As this library was develop for Unix-based OS', this issue may not be encountered on Windows.
