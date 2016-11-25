@@ -14,6 +14,7 @@ You want to select the following cables:
 * Purple
 * Brown
 * Yellow
+
 You can cut the rest of the cables to make room:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624174/480d0b60-b303-11e6-97c9-bade09989111.jpg)
 
@@ -116,8 +117,8 @@ This plug will have the following connections:
 * Female "Daisy Chain" connection
 
 First, start off with the bare essentials of the plug:
-[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624309/0cd02fe0-b304-11e6-87fd-5d700ea70707.jpg)
-[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624316/12da0514-b304-11e6-86da-c3017c2e1116.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624309/0cd02fe0-b304-11e6-87fd-5d700ea70707.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624316/12da0514-b304-11e6-86da-c3017c2e1116.jpg)
 
 Next, obtain the appropriate wires:
 * 2x Red Wires
