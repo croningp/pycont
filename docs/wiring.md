@@ -14,6 +14,7 @@ You want to select the following cables:
 * Purple
 * Brown
 * Yellow
+
 You can cut the rest of the cables to make room:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624174/480d0b60-b303-11e6-97c9-bade09989111.jpg)
 
