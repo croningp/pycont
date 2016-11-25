@@ -64,6 +64,10 @@ Next, you want to put the wires in the appropriate slot in the connector:
 Solder these wires in place:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624426/d2ef74d8-b304-11e6-94df-a13af09f7c85.jpg)
 
+Add shrink tubing:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632463/a3ed723a-b335-11e6-9d45-9c2d50c1df89.jpg)
+
+
 The next step is to add the relevant connectors to the ends of the wire:
 * Power Connection:
 	* 1x Red (Slot 1)
@@ -80,6 +84,7 @@ The next step is to add the relevant connectors to the ends of the wire:
 	* 1x Black (Slot 9)
 	* 1x Green (Slot 11)
 	* 1x Blue (Slot 12)
+
 Power Connection example:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624570/9176d392-b305-11e6-9824-803e5b6774ef.jpg)
 
@@ -89,16 +94,11 @@ Next, add the appropriate connector covers:
 The end product should look like this:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624623/daac7e7c-b305-11e6-997c-00012513319a.jpg)
 
-
 Next, secure the cables in the plug frame:
-[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624641/f811d2dc-b305-11e6-869f-64f2df741181.jpg)
-
-Next, secure the cables in the plug:
-![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624641/f811d2dc-b305-11e6-869f-64f2df741181.jpg)
-
+[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20632479/b39b31fe-b335-11e6-9d85-532090cb0844.jpg)
 
 Add the screws:
-![Alt text]](https://cloud.githubusercontent.com/assets/13821621/20624653/04b009d2-b306-11e6-845b-1e2941d9bf4c.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632484/c0d4aec2-b335-11e6-83cc-362c92a24cfd.jpg)
 
 
 Add the top of the plug frame and screw in place:
@@ -139,6 +139,9 @@ Next you want to place the wires in the relevant slots in the plug:
 Solder these in place:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20626956/e8d88f7c-b314-11e6-95cc-4b1ce90644ee.jpg)
 
+Add shrink tubing:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632492/d8865f7a-b335-11e6-8b5a-f43714cc67b1.jpg)
+
 Now add the connectors to the ends of the wires:
 * Female Connector:
 	* 1x Red Wire
@@ -157,11 +160,12 @@ To the male connectors, add a relevant cover:
 Do the same for the female connectors:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627027/5d0861e2-b315-11e6-9528-32df76033d80.jpg)
 
+
 Secure the wires in the plug frame:
-![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627032/666b4902-b315-11e6-9cc3-2e9cae75de82.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632505/eb89b9b4-b335-11e6-92bd-0d522069fcdf.jpg)
 
 Add the screws:
-![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627038/7a919c74-b315-11e6-99f5-3e21e1189549.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632514/f80e751c-b335-11e6-9444-aeec9a4f4eca.jpg
 
 Finally, add the top of the plug frame and screw in place:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627064/91341984-b315-11e6-9c69-e9f72557d489.jpg)
