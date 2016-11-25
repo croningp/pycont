@@ -89,16 +89,71 @@ Next, add the appropriate connector covers:
 The end product should look like this:
 [!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624623/daac7e7c-b305-11e6-997c-00012513319a.jpg)
 
-Next, secure the cables in the plug:
+Next, secure the cables in the plug frame:
 [!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624641/f811d2dc-b305-11e6-869f-64f2df741181.jpg)
 
 Add the screws:
 [!Alt text]](https://cloud.githubusercontent.com/assets/13821621/20624653/04b009d2-b306-11e6-845b-1e2941d9bf4c.jpg)
 
-Add the top of the plug and screw in place:
+Add the top of the plug frame and screw in place:
 [!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624673/20d1768c-b306-11e6-8a02-7ea1f0d7de85.jpg)
 
 You're done!
 
 ##Daisy Chain Plug Creation:
-Need more plug parts...
+This plug will have the following connections:
+* Male "Daisy Chain" connection
+* Female "Daisy Chain" connection
+
+First, start off with the bare essentials of the plug:
+[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624309/0cd02fe0-b304-11e6-87fd-5d700ea70707.jpg)
+[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624316/12da0514-b304-11e6-86da-c3017c2e1116.jpg)
+
+Next, obtain the appropriate wires:
+* 2x Red Wires
+* 2x Black Wires
+* 2x Green Wires
+* 2x Blue Wires
+
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20626897/8e64493c-b314-11e6-829b-dcdb1e6703a5.jpg)
+
+Strip both ends of the wires like so:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20626902/95c7165a-b314-11e6-957b-7af67719cf40.jpg)
+
+Next you want to place the wires in the relevant slots in the plug:
+* 2x Red Wires in Slot 1
+* 2x Black Wires in Slot 9
+* 2x Green Wires in Slot 11
+* 2x Blue Wires in Slot 12
+
+Solder these in place:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20626956/e8d88f7c-b314-11e6-95cc-4b1ce90644ee.jpg)
+
+Now add the connectors to the ends of the wires:
+* Female Connector:
+	* 1x Red Wire
+	* 1x Black Wire
+	* 1x Green Wire
+	* 1x Blue Wire
+
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20626960/eede17d4-b314-11e6-90f3-8964fe796e7a.jpg)
+
+Do the same for the other 4 wires using male connectors:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627003/2f6c6cce-b315-11e6-91a0-2519b2e5c93b.jpg)
+
+To the male connectors, add a relevant cover:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627014/3f83d8b8-b315-11e6-8a45-d569ce421184.jpg)
+
+Do the same for the female connectors:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627027/5d0861e2-b315-11e6-9528-32df76033d80.jpg)
+
+Secure the wires in the plug frame:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627032/666b4902-b315-11e6-9cc3-2e9cae75de82.jpg)
+
+Add the screws:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627038/7a919c74-b315-11e6-99f5-3e21e1189549.jpg)
+
+Finally, add the top of the plug frame and screw in place:
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627064/91341984-b315-11e6-9c69-e9f72557d489.jpg)
+
+That's it!
