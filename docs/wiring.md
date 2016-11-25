@@ -80,6 +80,7 @@ The next step is to add the relevant connectors to the ends of the wire:
 	* 1x Black (Slot 9)
 	* 1x Green (Slot 11)
 	* 1x Blue (Slot 12)
+
 Power Connection example:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624570/9176d392-b305-11e6-9824-803e5b6774ef.jpg)
 
@@ -116,8 +117,8 @@ This plug will have the following connections:
 * Female "Daisy Chain" connection
 
 First, start off with the bare essentials of the plug:
-[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624309/0cd02fe0-b304-11e6-87fd-5d700ea70707.jpg)
-[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20624316/12da0514-b304-11e6-86da-c3017c2e1116.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624309/0cd02fe0-b304-11e6-87fd-5d700ea70707.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624316/12da0514-b304-11e6-86da-c3017c2e1116.jpg)
 
 Next, obtain the appropriate wires:
 * 2x Red Wires
