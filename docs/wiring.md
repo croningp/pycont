@@ -89,6 +89,7 @@ The next step is to add the relevant connectors to the ends of the wire:
 	* 1x Black (Slot 9)
 	* 1x Green (Slot 11)
 	* 1x Blue (Slot 12)
+	* Male connectors
 
 Power Connection example:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624570/9176d392-b305-11e6-9824-803e5b6774ef.jpg)
