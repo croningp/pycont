@@ -65,6 +65,7 @@ Next, you want to put the wires in the appropriate slot in the connector:
 * 1x Black Wire in Slot 10
 * 1x Green Wire in Port 11
 * 1x Blue WIre in Port 12
+
 Solder these wires in place:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624426/d2ef74d8-b304-11e6-94df-a13af09f7c85.jpg)
 
