@@ -1,5 +1,8 @@
-#Creating Wires for Tricont Pumps
+# Creating Wires for Tricont Pumps
 This tutorial will guide you in creating the necessary wires for Tricontinent pumps.
+
+## Necessary Componenets and Where To Buy
+For all the necessary componenets and where to purchase them, please see the [Useful Links](https://github.com/croningp/pycont/blob/doc/docs/useful_links.md) page.
 
 ## Creating the USB serial cable
 First, start off with the serial cable:
@@ -96,7 +99,7 @@ The end product should look like this:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20624623/daac7e7c-b305-11e6-997c-00012513319a.jpg)
 
 Next, secure the cables in the plug frame:
-[!Alt text](https://cloud.githubusercontent.com/assets/13821621/20632479/b39b31fe-b335-11e6-9d85-532090cb0844.jpg)
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632479/b39b31fe-b335-11e6-9d85-532090cb0844.jpg)
 
 Add the screws:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632484/c0d4aec2-b335-11e6-83cc-362c92a24cfd.jpg)
@@ -166,7 +169,7 @@ Secure the wires in the plug frame:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632505/eb89b9b4-b335-11e6-92bd-0d522069fcdf.jpg)
 
 Add the screws:
-![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632514/f80e751c-b335-11e6-9444-aeec9a4f4eca.jpg
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20632514/f80e751c-b335-11e6-9444-aeec9a4f4eca.jpg)
 
 Finally, add the top of the plug frame and screw in place:
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20627064/91341984-b315-11e6-9c69-e9f72557d489.jpg)
