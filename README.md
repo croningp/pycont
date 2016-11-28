@@ -226,4 +226,5 @@ controller.pumps['water'].flash_eeprom_4_way_dist_valve()
 ```
 
 ## Authors
-[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/) and [Graham Keenan](https://github.com/ShinRa26). [Cronin Group 2016](http://www.chem.gla.ac.uk/cronin/)
+[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/) and [Graham Keenan](https://github.com/ShinRa26).
+Members of the [Cronin Group](http://www.chem.gla.ac.uk/cronin/) 2016
