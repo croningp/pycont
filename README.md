@@ -224,3 +224,6 @@ The EEPROM flash memory on the pumps can be changed using the following commands
 #controller.pumps['water'].flash_eeprom_4_way_nondist_valve()
 controller.pumps['water'].flash_eeprom_4_way_dist_valve()
 ```
+
+## Authors
+[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/) and [Graham Keenan](https://github.com/ShinRa26). [Cronin Group 2016](http://www.chem.gla.ac.uk/cronin/)
