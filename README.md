@@ -11,7 +11,9 @@ For documentation on using this library and it's associated methods, please see 
 
 [Components to buy](docs/useful_links.md)
 
-Some documents are available in the [docs folder](docs).
+[Tutorial for making cables](docs/wiring.md)
+
+Additional documents are available in the [docs folder](docs).
 
 ### Setting up the pumps
 
