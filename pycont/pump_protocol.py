@@ -272,35 +272,21 @@ class C3000Protocol(object):
         """
         Creates a packet for the input into a valve on the device.
 
-        Args:
-            operand_value (int): The value of the supplied operand, None by default.
-
         Returns:
             DTInstructionPacket: The created packet for the input into a valve on the device.
 
         """
-        if operand_value:
-            dtcommand = dtprotocol.DTCommand(CMD_VALVE_INPUT, str(operand_value))
-        else:
-            dtcommand = dtprotocol.DTCommand(CMD_VALVE_INPUT)
-        return self.forge_packet(dtcommand)
+        return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_INPUT))
 
-    def forge_valve_output_packet(self, operand_value=None):
+    def forge_valve_output_packet(self):
         """
         Creates a packet for the output from a valve on the device.
-
-        Args:
-            operand_value (int): The value of the supplied operand, None by default.
 
         Returns:
             DTInstructionPacket: The created packet for the output from a valve on the device.
 
         """
-        if operand_value:
-            dtcommand = dtprotocol.DTCommand(CMD_VALVE_OUTPUT, str(operand_value))
-        else:
-            dtcommand = dtprotocol.DTCommand(CMD_VALVE_OUTPUT)
-        return self.forge_packet(dtcommand)
+        return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_OUTPUT))
 
     def forge_valve_bypass_packet(self):
         """
@@ -321,6 +307,19 @@ class C3000Protocol(object):
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_EXTRA))
+
+    def forge_valve_6way_packet(self, valve_position, operand_value=None):
+        """
+        Creates a packet for the 6way valve on the device.
+
+        Args:
+            operand_value (int): The value of the supplied operand, None by default.
+
+        Returns:
+            DTInstructionPacket: The created packet for the input into a valve on the device.
+
+        """
+        return self.forge_packet(dtprotocol.DTCommand('{}{}'.format(CMD_VALVE_INPUT, valve_position)))
 
     def forge_report_status_packet(self):
         """

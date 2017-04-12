@@ -49,6 +49,8 @@ VALVE_OUTPUT = 'O'
 VALVE_BYPASS = 'B'
 #: Extra for the valve
 VALVE_EXTRA = 'E'
+#: 6 way valve
+VALVE_6WAY_LIST = ['1', '2', '3', '4', '5', '6']
 
 #: Microstep Mode 0
 MICRO_STEP_MODE_0 = 0
@@ -1021,6 +1023,8 @@ class C3000Controller(object):
                 return VALVE_BYPASS
             elif raw_valve_position == 'e':
                 return VALVE_EXTRA
+            elif raw_valve_position in VALVE_6WAY_LIST:
+                return raw_valve_position
             self.logger.debug("Valve position request failed attempt {}/{}, {} is unknown".format(i + 1, max_repeat, raw_valve_position))
         raise ValueError('Valve position received was {}. It is unknown'.format(raw_valve_position))
 
@@ -1059,6 +1063,8 @@ class C3000Controller(object):
                 valve_position_packet = self._protocol.forge_valve_bypass_packet()
             elif valve_position == VALVE_EXTRA:
                 valve_position_packet = self._protocol.forge_valve_extra_packet()
+            elif valve_position in VALVE_6WAY_LIST:
+                valve_position_packet = self._protocol.forge_valve_6way_packet(valve_position)
             else:
                 raise ValueError('Valve position {} unknown'.format(valve_position))
 
