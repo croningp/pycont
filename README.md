@@ -180,7 +180,7 @@ controller.wait_until_all_pumps_idle()
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change valve position
-# for this you should use the command set_valve_position(valve_position) using for valvle position the global variable define in pycont. They are 'I', 'O', 'E'
+# for this you should use the command set_valve_position(valve_position) using for valvle position the global variable define in pycont. They are 'I', 'O', 'E', 'B'
 controller.pumps['acetone'].set_valve_position('O')
 controller.pumps['water'].set_valve_position('O')
 
