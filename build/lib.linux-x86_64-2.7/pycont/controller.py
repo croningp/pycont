@@ -1101,28 +1101,25 @@ class C3000Controller(object):
 
     def flash_eeprom_3_way_y_valve(self):
         """
-        Sets the EEPROM config of the pump to use a 3-way Y valve (I/O operations)
-        Requires switching of the jumper pin on the back of the pump from the top set of pins to the bottom.
+        See set_eeprom_config()
         """
         self.set_eeprom_config(1)
 
     def flash_eeprom_3_way_t_valve(self):
         """
-        Sets the EEPROM config of the pump to use a 3-way T valve (I/O operations)
+        See set_eeprom_config()
         """
         self.set_eeprom_config(5)
 
     def flash_eeprom_4_way_nondist_valve(self):
         """
-        Sets the EEPROM config of the pump to use a 4-way Non-Dist valve (I/O/E operations)
-        .. todo:: Get difference of non-dist and dist valves
+        See set_eeprom_config()
         """
         self.set_eeprom_config(2)
 
     def flash_eeprom_4_way_dist_valve(self):
         """
-        Sets the EEPROM config of the pump to use a 4-way Dist Valve (I/O/E operations)
-        .. todo:: Get difference of non-dist and dist valves
+        See set_eeprom_config()
         """
         self.set_eeprom_config(4)
 
