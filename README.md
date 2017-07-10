@@ -180,22 +180,22 @@ controller.wait_until_all_pumps_idle()
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change valve position
-# for this you should use the command set_valve_position(valve_position) using for valvle position the global variable define in pycont. They are VALVE_INPUT, VALVE_OUTPUT, VALVE_BYPASS, VALVE_EXTRA
-controller.pumps['acetone'].set_valve_position(pycont.controller.VALVE_OUTPUT)
-controller.pumps['water'].set_valve_position(pycont.controller.VALVE_OUTPUT)
+# for this you should use the command set_valve_position(valve_position) using for valvle position the global variable define in pycont. They are 'I', 'O', 'E', 'B'
+controller.pumps['acetone'].set_valve_position('O')
+controller.pumps['water'].set_valve_position('O')
 
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change all the valve position at once
 # apply_command_to_all_pumps will forward all additional argument
-controller.apply_command_to_all_pumps('set_valve_position', pycont.controller.VALVE_INPUT)
+controller.apply_command_to_all_pumps('set_valve_position', 'I')
 
 # get valve position
 print(controller.pumps['water'].get_valve_position())
 print(controller.apply_command_to_all_pumps('get_valve_position'))
 
 # and compare it with global defined variable
-if controller.pumps['water'].get_valve_position() == pycont.controller.VALVE_INPUT:
+if controller.pumps['water'].get_valve_position() == 'I':
     print('The valve for water is indeed in input position')
 else:
     print('Something went wrong when setting the valve position')
