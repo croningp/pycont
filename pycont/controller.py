@@ -279,24 +279,31 @@ class PumpHWError(Exception):
     Exception for when the pump encounters an hardware error.
     """
 
-    def __init__(self, error_code):
+    def __init__(self, error_code='x', pump='unknown'):
+
+        self.pump_name = pump
         self.error_code = error_code.lower()
+
+        print("*** ERROR on pump {} ***".format(self.pump_name))
+
         if self.error_code == 'a':
-            print("** ERROR ** Initialization failure!")
+            print("Initialization failure!")
         elif self.error_code == 'b':
-            print("** ERROR ** Invalid command!")
+            print("Invalid command!")
         elif self.error_code == 'c':
-            print("** ERROR ** Invalid operand!")
+            print("Invalid operand!")
         elif self.error_code == 'f':
-            print("** ERROR ** EEPROM failure!")
+            print("EEPROM failure!")
         elif self.error_code == 'g':
-            print("** ERROR ** Pump not initialized!")
+            print("Pump not initialized!")
         elif self.error_code == 'i':
-            print("** ERROR ** Plunger overload!")
+            print("Plunger overload!")
         elif self.error_code == 'j':
-            print("** ERROR ** Valve overload!")
+            print("Valve overload!")
         elif self.error_code == 'k':
-            print("** ERROR ** Plunger stuck!")
+            print("Plunger stuck!")
+        else:
+            print("** ERROR ** Unknown error")
 
 
 class C3000Controller(object):
@@ -405,7 +412,7 @@ class C3000Controller(object):
             except PumpIOTimeOutError:
                 self.logger.debug("Timeout, trying again!")
         self.logger.debug("Too many failed communication!")
-        raise ControllerRepeatedError
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     ##
     def volume_to_step(self, volume_in_ml):
@@ -455,9 +462,9 @@ class C3000Controller(object):
         elif status == pump_protocol.STATUS_BUSY_ERROR_FREE:
             return False
         elif status in pump_protocol.ERROR_STATUSES_BUSY:
-            raise PumpHWError(error_code=status)
+            raise PumpHWError(error_code=status, pump=self.name)
         elif status in pump_protocol.ERROR_STATUSES_IDLE:
-            raise PumpHWError(error_code=status)
+            raise PumpHWError(error_code=status, pump=self.name)
         else:
             raise ValueError('The pump replied status {}, Not handled'.format(status))
 
@@ -540,7 +547,7 @@ class C3000Controller(object):
                 return True
 
         self.logger.debug("Too many failed attempts to initialize!")
-        raise ControllerRepeatedError
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def initialize_valve_right(self, operand_value=0, wait=True):
         """
@@ -711,8 +718,8 @@ class C3000Controller(object):
             if secure is False:
                 return True
 
-        self.logger.debug("Too many failed attempts in set_top_velocity!")
-        raise ControllerRepeatedError
+        self.logger.debug("[PUMP {}] Too many failed attempts in set_top_velocity!".format(self.name))
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def get_top_velocity(self):
         """
@@ -726,7 +733,6 @@ class C3000Controller(object):
         (_, _, top_velocity) = self.write_and_read_from_pump(top_velocity_packet)
         return int(top_velocity)
 
-    ##
     def get_plunger_position(self):
         """
         Gets the current position of the plunger.
@@ -1095,8 +1101,8 @@ class C3000Controller(object):
 
             self.wait_until_idle()
 
-        self.logger.debug("Too many failed attempts in set_valve_position!")
-        raise ControllerRepeatedError
+        self.logger.debug("[PUMP {}] Too many failed attempts in set_valve_position!".format(self.name))
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def set_eeprom_config(self, operand_value):
         """
