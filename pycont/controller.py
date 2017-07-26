@@ -383,7 +383,7 @@ class C3000Controller(object):
             except PumpIOTimeOutError:
                 self.logger.debug("Timeout, trying again!")
         self.logger.debug("Too many failed communication!")
-        raise ControllerRepeatedError
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     ##
     def volume_to_step(self, volume_in_ml):
@@ -514,7 +514,7 @@ class C3000Controller(object):
                 return True
 
         self.logger.debug("Too many failed attempts to initialize!")
-        raise ControllerRepeatedError
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def initialize_valve_right(self, operand_value=0, wait=True):
         """
@@ -694,7 +694,7 @@ class C3000Controller(object):
                     return True
 
             self.logger.debug("Too many failed attempts in set_top_velocity!")
-            raise ControllerRepeatedError
+            raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
         else:
             raise ControllerInitError('Pump should be initialized before set_top_velocity')
 
@@ -1077,7 +1077,7 @@ class C3000Controller(object):
             self.wait_until_idle()
 
         self.logger.debug("Too many failed attempts in set_top_velocity!")
-        raise ControllerRepeatedError
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def set_eeprom_config(self, operand_value):
         """
