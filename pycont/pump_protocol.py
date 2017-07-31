@@ -34,6 +34,8 @@ CMD_TOPVELOCITY = 'V'
 #: Command to access the EEPROM configuration
 #: .. warning:: Requires power restart to take effect
 CMD_EEPROM_CONFIG = 'U'      # Requires power restart to take effect     [donk]
+#: Command to terminate current operation
+CMD_TERMINATE = 'T'
 
 #: Command for the valve init_all_pump_parameters
 #: .. note:: Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>
@@ -400,3 +402,15 @@ class C3000Protocol(object):
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_EEPROM))
+
+
+    ### NEW ###
+    def forge_terminate_packet(self):
+        """
+        Creates the data packet for terminating the current command
+
+        Returns:
+            The created packet for terminating movement
+
+        """
+        return self.forge_packet(dtprotocol.DTCommand(CMD_TERMINATE))

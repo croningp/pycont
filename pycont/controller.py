@@ -1137,6 +1137,12 @@ class C3000Controller(object):
         (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
         return eeprom_config
 
+    def terminate(self):
+        """
+        Sends the command to terminate the current action.
+        """
+        self.write_and_read_from_pump(self._protocol.forge_terminate_packet())
+
 
 class MultiPumpController(object):
     """
