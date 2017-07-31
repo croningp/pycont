@@ -1183,6 +1183,12 @@ class C3000Controller(object):
 
         return current_valve_config
 
+    def terminate(self):
+        """
+        Sends the command to terminate the current action.
+        """
+        self.write_and_read_from_pump(self._protocol.forge_terminate_packet())
+
 
 class MultiPumpController(object):
     """
