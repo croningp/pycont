@@ -29,7 +29,7 @@ Remove all other jumpers except [J2 pin 1](docs/pumps/pumps_wiring.pdf), which i
 ### Installing the library
 
 ```
-git clone http://datalore.chem.gla.ac.uk/JOG/pycont.git
+git clone https://github.com/croningp/pycont
 cd pycont
 python setup.py install  # with the appropriate rights, might need to use sudo
 ```
