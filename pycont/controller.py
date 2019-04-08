@@ -79,6 +79,7 @@ MAX_REPEAT_WRITE_AND_READ = 10
 #: Sets the maximum time to repeat a specific operation
 MAX_REPEAT_OPERATION = 10
 
+
 class PumpIO(object):
     """
     This class deals with the pump I/O instructions.
@@ -242,7 +243,7 @@ class PumpIO(object):
         .. note:: Unsure if this is the correct packet type (GAK).
 
         Returns:
-            reponse (str): The received response.
+            response (str): The received response.
 
         Raises:
             PumpIOTimeOutError: If the response time is greater than the timeout threshold.
@@ -265,17 +266,20 @@ class PumpIOTimeOutError(Exception):
     """
     pass
 
+
 class ControllerRepeatedError(Exception):
     """
     Exception for when there has been too many repeat attempts.
     """
     pass
 
+
 class ControllerInitError(Exception):
     """
     Exception for when there is a failure in initialising the Controller.
     """
     pass
+
 
 class C3000Controller(object):
     """
@@ -678,7 +682,7 @@ class C3000Controller(object):
         Raises:
             ControllerRepeatedError: Too many failed attempts at setting the top velocity.
 
-            ControllerInitError: Attempting to set the top velocity befire the pump has been initialised.
+            ControllerInitError: Attempting to set the top velocity before the pump has been initialised.
 
         """
         if self.is_initialized():
@@ -1071,7 +1075,7 @@ class C3000Controller(object):
             self.write_and_read_from_pump(valve_position_packet)
 
             # if do not want to wait and check things went well, return now
-            if secure == False:
+            if secure is False:
                 return True
 
             self.wait_until_idle()
