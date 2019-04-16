@@ -283,7 +283,7 @@ class ControllerInitError(Exception):
 
 class C3000Controller(object):
     """
-    This class represents thhe main controller for the C3000.
+    This class represents the main controller for the C3000.
     The controller is what controls the pumps.
 
     Args:
@@ -1140,6 +1140,26 @@ class C3000Controller(object):
         """
         (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
         return eeprom_config
+
+    def get_current_valve_config(self):
+        """
+        Infers the current valve configuration based on the EEPROM data.
+        """
+        current_eeprom_config = self.get_eeprom_config()
+
+        if current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2013100,0,0,0,0,0,25,20,15,0000000":
+            # flash_eeprom_3_way_t_valve() AND flash_eeprom_3_way_y_valve()
+            current_valve_config = "3-WAY"
+        elif current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2033110,0,0,0,0,0,25,20,15,0000000":
+            # flash_eeprom_4_way_dist_valve()
+            current_valve_config = "4-WAY dist"
+        elif current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2130001,0,0,0,0,0,25,20,15,0000000":
+            # flash_eeprom_4_way_nondist_valve()
+            current_valve_config = "4-WAY nondist"
+        else:
+            current_valve_config = "Unknown"
+
+        return current_valve_config
 
 
 class MultiPumpController(object):
