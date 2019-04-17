@@ -79,6 +79,7 @@ MAX_REPEAT_WRITE_AND_READ = 10
 #: Sets the maximum time to repeat a specific operation
 MAX_REPEAT_OPERATION = 10
 
+
 class PumpIO(object):
     """
     This class deals with the pump I/O instructions.
@@ -242,7 +243,7 @@ class PumpIO(object):
         .. note:: Unsure if this is the correct packet type (GAK).
 
         Returns:
-            reponse (str): The received response.
+            response (str): The received response.
 
         Raises:
             PumpIOTimeOutError: If the response time is greater than the timeout threshold.
@@ -265,11 +266,13 @@ class PumpIOTimeOutError(Exception):
     """
     pass
 
+
 class ControllerRepeatedError(Exception):
     """
     Exception for when there has been too many repeat attempts.
     """
     pass
+
 
 class ControllerInitError(Exception):
     """
@@ -277,9 +280,10 @@ class ControllerInitError(Exception):
     """
     pass
 
+
 class C3000Controller(object):
     """
-    This class represents thhe main controller for the C3000.
+    This class represents the main controller for the C3000.
     The controller is what controls the pumps.
 
     Args:
@@ -678,7 +682,7 @@ class C3000Controller(object):
         Raises:
             ControllerRepeatedError: Too many failed attempts at setting the top velocity.
 
-            ControllerInitError: Attempting to set the top velocity befire the pump has been initialised.
+            ControllerInitError: Attempting to set the top velocity before the pump has been initialised.
 
         """
         if self.is_initialized():
@@ -1071,7 +1075,7 @@ class C3000Controller(object):
             self.write_and_read_from_pump(valve_position_packet)
 
             # if do not want to wait and check things went well, return now
-            if secure == False:
+            if secure is False:
                 return True
 
             self.wait_until_idle()
@@ -1136,6 +1140,26 @@ class C3000Controller(object):
         """
         (_, _, eeprom_config) = self.write_and_read_from_pump(self._protocol.forge_report_eeprom_packet())
         return eeprom_config
+
+    def get_current_valve_config(self):
+        """
+        Infers the current valve configuration based on the EEPROM data.
+        """
+        current_eeprom_config = self.get_eeprom_config()
+
+        if current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2013100,0,0,0,0,0,25,20,15,0000000":
+            # flash_eeprom_3_way_t_valve() AND flash_eeprom_3_way_y_valve()
+            current_valve_config = "3-WAY"
+        elif current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2033110,0,0,0,0,0,25,20,15,0000000":
+            # flash_eeprom_4_way_dist_valve()
+            current_valve_config = "4-WAY dist"
+        elif current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2130001,0,0,0,0,0,25,20,15,0000000":
+            # flash_eeprom_4_way_nondist_valve()
+            current_valve_config = "4-WAY nondist"
+        else:
+            current_valve_config = "Unknown"
+
+        return current_valve_config
 
 
 class MultiPumpController(object):

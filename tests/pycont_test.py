@@ -17,11 +17,11 @@ controller = pycont.controller.MultiPumpController.from_configfile(SETUP_CONFIG_
 # initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
 controller.smart_initialize()
 
-# idividual pumps can be accessed in two ways:
+# individual pumps can be accessed in two ways:
 # - in the dict ```controller.pumps['pump_name']```
 # - directly as an attribute ```controller.pump_name```
 # the two above method link to the same pump instance
-# we use the first convention becuase it highlight well the name of the pumps
+# we use the first convention because it highlight well the name of the pumps
 # the second convention is certainly more convenient for online testing using ipython
 
 # ask a pump to go to a specific position, calling it by its name
@@ -49,17 +49,17 @@ controller.pumps['water'].pump(0.5, from_valve=pycont.controller.VALVE_INPUT, wa
 controller.pumps['water'].deliver(0.5, to_valve=pycont.controller.VALVE_OUTPUT, wait=True)
 
 # you can also transfer volume from valve to valve
-# the function is recusive so even of the volume is bigger than the syringe, it will iterate as many times as needed
+# the function is recursive so even of the volume is bigger than the syringe, it will iterate as many times as needed
 controller.pumps['acetone'].transfer(7, pycont.controller.VALVE_INPUT, pycont.controller.VALVE_OUTPUT)  # this function is blocking, no wait argument
 # note that it pump from and to the position it is currently set to, made it easy to leave a small volume in the pump if needed
 
 # you can also iterate on all the pumps
 for _, pump in controller.pumps.items():
-    pump.go_to_volume(0)  # here wait=False by default, all pumps move in parrallel
+    pump.go_to_volume(0)  # here wait=False by default, all pumps move in parallel
 # wait until all pumps are ready to operate again
 controller.wait_until_all_pumps_idle()
 
-# you can apply command to all pumps in parrallel, in one command!
+# you can apply command to all pumps in parallel, in one command!
 # this is the purpose of the controller.apply_command_to_all_pumps
 # let's have the pumps go to their max volume
 # the below function go through the list of pumps and run the 'go_to_max_volume' function without argument
@@ -85,7 +85,8 @@ controller.wait_until_all_pumps_idle()
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change valve position
-# for this you should use the command set_valve_position(valve_position) using for valvle position the global variable define in pycont. They are VALVE_INPUT, VALVE_OUTPUT, VALVE_BYPASS, VALVE_EXTRA
+# for this you should use the command set_valve_position(valve_position) using for valve position the global variable
+# defined in pycont.controller. They are: VALVE_INPUT, VALVE_OUTPUT, VALVE_BYPASS, VALVE_EXTRA
 controller.pumps['acetone'].set_valve_position(pycont.controller.VALVE_OUTPUT)
 controller.pumps['water'].set_valve_position(pycont.controller.VALVE_OUTPUT)
 
