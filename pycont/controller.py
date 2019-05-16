@@ -694,7 +694,7 @@ class C3000Controller(object):
                 self.check_top_velocity_within_range(top_velocity)
                 self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
                 # if do not want to wait and check things went well, return now
-                if secure == False:
+                if secure is False:
                     return True
 
             self.logger.debug("Too many failed attempts in set_top_velocity!")
@@ -1050,7 +1050,7 @@ class C3000Controller(object):
             True (bool): The valve position has been set.
 
         Raises:
-            ValueError: The valve posiiton is invalid/unknown.
+            ValueError: The valve position is invalid/unknown.
 
             ControllerRepeatedError: Too many failed attempts in set_top_velocity.
 
@@ -1083,7 +1083,7 @@ class C3000Controller(object):
 
             self.wait_until_idle()
 
-        self.logger.debug("Too many failed attempts in set_top_velocity!")
+        self.logger.debug("Too many failed attempts in set_valve_position!")
         raise ControllerRepeatedError
 
     def set_eeprom_config(self, operand_value):
@@ -1122,14 +1122,14 @@ class C3000Controller(object):
     def flash_eeprom_4_way_nondist_valve(self):
         """
         Sets the EEPROM config of the pump to use a 4-way Non-Dist valve (I/O/E operations)
-        .. todo:: Get difference of non-dist and dist valves
+        Note in this configuration it is not possible to pump to E!
+        valve position E connects E with O while B connects E and I (90-degrees)
         """
         self.set_eeprom_config(2)
 
     def flash_eeprom_4_way_dist_valve(self):
         """
         Sets the EEPROM config of the pump to use a 4-way Dist Valve (I/O/E operations)
-        .. todo:: Get difference of non-dist and dist valves
         """
         self.set_eeprom_config(4)
 
@@ -1160,6 +1160,7 @@ class C3000Controller(object):
             # flash_eeprom_4_way_nondist_valve()
             current_valve_config = "4-WAY nondist"
         else:
+            # e.g. DEBUG:pycont.DTStatus:Received /0`10,75,14,62,1,1,20,10,48,210,2013010,0,0,0,0,0,25,20,15,0000000
             current_valve_config = "Unknown"
 
         return current_valve_config
