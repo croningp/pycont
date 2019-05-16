@@ -1052,7 +1052,7 @@ class C3000Controller(object):
         Raises:
             ValueError: The valve position is invalid/unknown.
 
-            ControllerRepeatedError: Too many failed attempts in set_top_velocity.
+            ControllerRepeatedError: Too many failed attempts in set_valve_position.
 
         """
         for i in range(max_repeat):
