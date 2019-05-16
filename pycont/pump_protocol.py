@@ -67,6 +67,47 @@ STATUS_IDLE_ERROR_FREE = '`'
 #: Busy status when there are no errors
 STATUS_BUSY_ERROR_FREE = '@'
 
+# ERROR STATUSES
+#: Idle status for initialization failure
+STATUS_IDLE_INIT_FAILURE = 'a'
+#: Busy status for initialization failure
+STATUS_BUSY_INIT_FAILURE = 'A'
+#: Idle status for invalid command
+STATUS_IDLE_INVALID_COMMAND = 'b'
+#: Busy status for invalid command
+STATUS_BUSY_INVALID_COMMAND = 'B'
+#: Idle status for invalid operand
+STATUS_IDLE_INVALID_OPERAND = 'c'
+#: Busy status for invalid operand
+STATUS_BUSY_INVALID_OPERAND = 'C'
+#: Idle status for EEPROM failure
+STATUS_IDLE_EEPROM_FAILURE = 'f'
+#: Busy status for EEPROM failure
+STATUS_BUSY_EEPROM_FAILURE = 'F'
+#: Idle status for pump not initialized
+STATUS_IDLE_NOT_INITIALIZED = 'g'
+#: Busy status for pump not initialized
+STATUS_BUSY_NOT_INITIALIZED = 'G'
+#: Idle status for plunger overload error
+STATUS_IDLE_PLUNGER_OVERLOAD = 'i'
+#: Busy status for plunger overload error
+STATUS_BUSY_PLUNGER_OVERLOAD = 'I'
+#: Idle status for valve overload error
+STATUS_IDLE_VALVE_OVERLOAD = 'j'
+#: Busy status for plunger overload error
+STATUS_BUSY_VALVE_OVERLOAD = 'J'
+#: Idle status for plunger not allowed to move
+STATUS_IDLE_PLUNGER_STUCK = 'k'
+#: Busy status for plunger not allowed to move
+STATUS_BUSY_PLUNGER_STUCK = 'K'
+
+ERROR_STATUSES_IDLE = (STATUS_IDLE_INIT_FAILURE, STATUS_IDLE_INVALID_COMMAND, STATUS_IDLE_INVALID_OPERAND,
+                       STATUS_IDLE_EEPROM_FAILURE, STATUS_IDLE_NOT_INITIALIZED, STATUS_IDLE_PLUNGER_OVERLOAD,
+                       STATUS_IDLE_VALVE_OVERLOAD, STATUS_IDLE_PLUNGER_STUCK)
+ERROR_STATUSES_BUSY = (STATUS_BUSY_INIT_FAILURE, STATUS_BUSY_INVALID_COMMAND, STATUS_BUSY_INVALID_OPERAND,
+                       STATUS_BUSY_EEPROM_FAILURE, STATUS_BUSY_NOT_INITIALIZED, STATUS_BUSY_PLUNGER_OVERLOAD,
+                       STATUS_BUSY_VALVE_OVERLOAD, STATUS_BUSY_PLUNGER_STUCK)
+
 
 class C3000Protocol(object):
     """

@@ -262,7 +262,7 @@ class PumpIO(object):
 
 class PumpIOTimeOutError(Exception):
     """
-    Exception for when the response time is grerater than the timeout threshold.
+    Exception for when the response time is greater than the timeout threshold.
     """
     pass
 
@@ -274,11 +274,29 @@ class ControllerRepeatedError(Exception):
     pass
 
 
-class ControllerInitError(Exception):
+class PumpHWError(Exception):
     """
-    Exception for when there is a failure in initialising the Controller.
+    Exception for when the pump encounters an hardware error.
     """
-    pass
+
+    def __init__(self, error_code):
+        self.error_code = error_code.lower()
+        if self.error_code == 'a':
+            print("** ERROR ** Initialization failure!")
+        elif self.error_code == 'b':
+            print("** ERROR ** Invalid command!")
+        elif self.error_code == 'c':
+            print("** ERROR ** Invalid operand!")
+        elif self.error_code == 'f':
+            print("** ERROR ** EEPROM failure!")
+        elif self.error_code == 'g':
+            print("** ERROR ** Pump not initialized!")
+        elif self.error_code == 'i':
+            print("** ERROR ** Plunger overload!")
+        elif self.error_code == 'j':
+            print("** ERROR ** Valve overload!")
+        elif self.error_code == 'k':
+            print("** ERROR ** Plunger stuck!")
 
 
 class C3000Controller(object):
@@ -436,6 +454,10 @@ class C3000Controller(object):
             return True
         elif status == pump_protocol.STATUS_BUSY_ERROR_FREE:
             return False
+        elif status in pump_protocol.ERROR_STATUSES_BUSY:
+            raise PumpHWError(error_code=status)
+        elif status in pump_protocol.ERROR_STATUSES_IDLE:
+            raise PumpHWError(error_code=status)
         else:
             raise ValueError('The pump replied status {}, Not handled'.format(status))
 
@@ -599,14 +621,8 @@ class C3000Controller(object):
         Args:
             micro_step_mode (int): Mode to use.
 
-        Raises:
-            ControllerInitError: Attempting to set microstep mode before pump initialisation.
-
         """
-        if self.is_initialized():
-            self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
-        else:
-            raise ControllerInitError('Pump should be initialized before set_microstep_mode')
+        self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
 
     ##
     def check_top_velocity_within_range(self, top_velocity):
@@ -682,25 +698,21 @@ class C3000Controller(object):
         Raises:
             ControllerRepeatedError: Too many failed attempts at setting the top velocity.
 
-            ControllerInitError: Attempting to set the top velocity before the pump has been initialised.
 
         """
-        if self.is_initialized():
-            for i in range(max_repeat):
-                if self.get_top_velocity() == top_velocity:
-                    return True
-                else:
-                    self.logger.debug("Top velocity not set, change attempt {}/{}".format(i + 1, max_repeat))
-                self.check_top_velocity_within_range(top_velocity)
-                self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
-                # if do not want to wait and check things went well, return now
-                if secure is False:
-                    return True
+        for i in range(max_repeat):
+            if self.get_top_velocity() == top_velocity:
+                return True
+            else:
+                self.logger.debug("Top velocity not set, change attempt {}/{}".format(i + 1, max_repeat))
+            self.check_top_velocity_within_range(top_velocity)
+            self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
+            # if do not want to wait and check things went well, return now
+            if secure is False:
+                return True
 
-            self.logger.debug("Too many failed attempts in set_top_velocity!")
-            raise ControllerRepeatedError
-        else:
-            raise ControllerInitError('Pump should be initialized before set_top_velocity')
+        self.logger.debug("Too many failed attempts in set_top_velocity!")
+        raise ControllerRepeatedError
 
     def get_top_velocity(self):
         """
@@ -1236,7 +1248,8 @@ class MultiPumpController(object):
         """
         for pump_name, pump in list(self.pumps.items()):
             if hasattr(self, pump_name):
-                self.logger.warning("Pump named {pump_name} is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[{pump_name}]".format(pump_name=pump_name))
+                self.logger.warning("Pump named {pump_name} is already a reserved attribute, please change name or do not use"
+                                    "this pump in attribute mode, rather use pumps[{pump_name}]".format(pump_name=pump_name))
             else:
                 setattr(self, pump_name, pump)
 
