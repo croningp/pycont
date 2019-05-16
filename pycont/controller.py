@@ -1341,7 +1341,6 @@ class MultiPumpController(object):
         """
         return self.apply_command_to_pumps(self.groups[group_name], command, *args, **kwargs)
 
-    ##
     def are_pumps_initialized(self):
         """
         Determines if the pumps have been initialised.
@@ -1388,6 +1387,12 @@ class MultiPumpController(object):
         Sends the command 'wait_until_idle' to the pumps.
         """
         self.apply_command_to_all_pumps('wait_until_idle')
+
+    def terminate_all_pumps(self):
+        """
+        Sends the command 'terminate' to all the pumps.
+        """
+        self.apply_command_to_all_pumps('terminate')
 
     def are_pumps_idle(self):
         """
