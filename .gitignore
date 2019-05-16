@@ -1,3 +1,6 @@
 Thumbs.db
 *.pyc
 pycont.egg-info
+.idea
+build/
+dist/
