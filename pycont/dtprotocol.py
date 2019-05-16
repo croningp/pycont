@@ -65,6 +65,9 @@ class DTCommand(object):
     def to_string(self):
         return bytes(self.to_array())
 
+    def __str__(self):
+        return "command: " + str(self.command.decode()) + " operand: " + str(self.operand)
+
 
 class DTStatus(object):
 
@@ -78,7 +81,6 @@ class DTStatus(object):
 
     def __init__(self, response):
         self.logger = create_logger(self.__class__.__name__)
-        self.logger.debug('Received {}'.format(response))
         try:
             self.response = response.decode()
         except UnicodeDecodeError:
