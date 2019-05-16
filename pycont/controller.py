@@ -544,7 +544,7 @@ class C3000Controller(object):
             wait (bool): Whether or not to wait until the pump is idle, default set to True.
 
         """
-        self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
+        self.write_and_read_from_pump(self._protocol.forge_initialize_valve_left_packet(operand_value))
         if wait:
             self.wait_until_idle()
 
