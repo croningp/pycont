@@ -251,7 +251,7 @@ class C3000Protocol(object):
             DTInstructionPacket: The created packet for the top velocity of the device.
 
         """
-        dtcommand = dtprotocol.DTCommand(CMD_TOPVELOCITY, str(operand_value))
+        dtcommand = dtprotocol.DTCommand(CMD_TOPVELOCITY, str(int(operand_value)))
         return self.forge_packet(dtcommand)
 
     def forge_eeprom_config_packet(self, operand_value):

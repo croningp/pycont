@@ -874,6 +874,9 @@ class C3000Controller(object):
         """
         if self.is_volume_deliverable(volume_in_ml):
 
+            if volume_in_ml == 0:
+                return True
+
             if speed_out is not None:
                 self.set_top_velocity(speed_out, secure=secure)
             else:
