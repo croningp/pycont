@@ -13,9 +13,9 @@ from . import dtprotocol
 
 #: Command to execute
 CMD_EXECUTE = 'R'
-#: Command to initialise with the right valve
+#: Command to initialise with the right valve position as output
 CMD_INITIALIZE_VALVE_RIGHT = 'Z'
-#: Command to initialise with the left valve
+#: Command to initialise with the left valve position as output
 CMD_INITIALIZE_VALVE_LEFT = 'Y'
 #: Command to initialise with no valve
 CMD_INITIALIZE_NO_VALVE = 'W'
@@ -33,11 +33,14 @@ CMD_DELIVER = 'D'
 CMD_TOPVELOCITY = 'V'
 #: Command to access the EEPROM configuration
 #: .. warning:: Requires power restart to take effect
-CMD_EEPROM_CONFIG = 'U'      # Requires power restart to take effect     [donk]
+
+CMD_EEPROM_CONFIG = 'U'      # Requires power restart to take effect
+#: Command to terminate current operation
+CMD_TERMINATE = 'T'
 
 #: Command for the valve init_all_pump_parameters
 #: .. note:: Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>
-CMD_VALVE_INPUT = 'I'       # Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>     [donk]
+CMD_VALVE_INPUT = 'I'       # Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>
 #: Command for the valve output
 CMD_VALVE_OUTPUT = 'O'
 #: Command for the valve bypass
@@ -66,6 +69,47 @@ CMD_REPORT_EEPROM = '?27'
 STATUS_IDLE_ERROR_FREE = '`'
 #: Busy status when there are no errors
 STATUS_BUSY_ERROR_FREE = '@'
+
+# ERROR STATUSES
+#: Idle status for initialization failure
+STATUS_IDLE_INIT_FAILURE = 'a'
+#: Busy status for initialization failure
+STATUS_BUSY_INIT_FAILURE = 'A'
+#: Idle status for invalid command
+STATUS_IDLE_INVALID_COMMAND = 'b'
+#: Busy status for invalid command
+STATUS_BUSY_INVALID_COMMAND = 'B'
+#: Idle status for invalid operand
+STATUS_IDLE_INVALID_OPERAND = 'c'
+#: Busy status for invalid operand
+STATUS_BUSY_INVALID_OPERAND = 'C'
+#: Idle status for EEPROM failure
+STATUS_IDLE_EEPROM_FAILURE = 'f'
+#: Busy status for EEPROM failure
+STATUS_BUSY_EEPROM_FAILURE = 'F'
+#: Idle status for pump not initialized
+STATUS_IDLE_NOT_INITIALIZED = 'g'
+#: Busy status for pump not initialized
+STATUS_BUSY_NOT_INITIALIZED = 'G'
+#: Idle status for plunger overload error
+STATUS_IDLE_PLUNGER_OVERLOAD = 'i'
+#: Busy status for plunger overload error
+STATUS_BUSY_PLUNGER_OVERLOAD = 'I'
+#: Idle status for valve overload error
+STATUS_IDLE_VALVE_OVERLOAD = 'j'
+#: Busy status for plunger overload error
+STATUS_BUSY_VALVE_OVERLOAD = 'J'
+#: Idle status for plunger not allowed to move
+STATUS_IDLE_PLUNGER_STUCK = 'k'
+#: Busy status for plunger not allowed to move
+STATUS_BUSY_PLUNGER_STUCK = 'K'
+
+ERROR_STATUSES_IDLE = (STATUS_IDLE_INIT_FAILURE, STATUS_IDLE_INVALID_COMMAND, STATUS_IDLE_INVALID_OPERAND,
+                       STATUS_IDLE_EEPROM_FAILURE, STATUS_IDLE_NOT_INITIALIZED, STATUS_IDLE_PLUNGER_OVERLOAD,
+                       STATUS_IDLE_VALVE_OVERLOAD, STATUS_IDLE_PLUNGER_STUCK)
+ERROR_STATUSES_BUSY = (STATUS_BUSY_INIT_FAILURE, STATUS_BUSY_INVALID_COMMAND, STATUS_BUSY_INVALID_OPERAND,
+                       STATUS_BUSY_EEPROM_FAILURE, STATUS_BUSY_NOT_INITIALIZED, STATUS_BUSY_PLUNGER_OVERLOAD,
+                       STATUS_BUSY_VALVE_OVERLOAD, STATUS_BUSY_PLUNGER_STUCK)
 
 
 class C3000Protocol(object):
@@ -113,7 +157,6 @@ class C3000Protocol(object):
             DTStatus: The decoded status of the device.
 
         """
-        self.logger.debug("Decoding {}".format(dtresponse))
         return dtprotocol.DTStatus(dtresponse).decode()
 
     """
@@ -400,3 +443,13 @@ class C3000Protocol(object):
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_EEPROM))
+
+    def forge_terminate_packet(self):
+        """
+        Creates the data packet for terminating the current command
+
+        Returns:
+            The created packet for terminating movement
+
+        """
+        return self.forge_packet(dtprotocol.DTCommand(CMD_TERMINATE))

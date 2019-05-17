@@ -262,7 +262,7 @@ class PumpIO(object):
 
 class PumpIOTimeOutError(Exception):
     """
-    Exception for when the response time is grerater than the timeout threshold.
+    Exception for when the response time is greater than the timeout threshold.
     """
     pass
 
@@ -274,11 +274,36 @@ class ControllerRepeatedError(Exception):
     pass
 
 
-class ControllerInitError(Exception):
+class PumpHWError(Exception):
     """
-    Exception for when there is a failure in initialising the Controller.
+    Exception for when the pump encounters an hardware error.
     """
-    pass
+
+    def __init__(self, error_code='x', pump='unknown'):
+
+        self.pump_name = pump
+        self.error_code = error_code.lower()
+
+        print("*** ERROR on pump {} ***".format(self.pump_name))
+
+        if self.error_code == 'a':
+            print("Initialization failure!")
+        elif self.error_code == 'b':
+            print("Invalid command!")
+        elif self.error_code == 'c':
+            print("Invalid operand!")
+        elif self.error_code == 'f':
+            print("EEPROM failure!")
+        elif self.error_code == 'g':
+            print("Pump not initialized!")
+        elif self.error_code == 'i':
+            print("Plunger overload!")
+        elif self.error_code == 'j':
+            print("Valve overload!")
+        elif self.error_code == 'k':
+            print("Plunger stuck!")
+        else:
+            print("** ERROR ** Unknown error")
 
 
 class C3000Controller(object):
@@ -387,7 +412,7 @@ class C3000Controller(object):
             except PumpIOTimeOutError:
                 self.logger.debug("Timeout, trying again!")
         self.logger.debug("Too many failed communication!")
-        raise ControllerRepeatedError
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     ##
     def volume_to_step(self, volume_in_ml):
@@ -436,6 +461,10 @@ class C3000Controller(object):
             return True
         elif status == pump_protocol.STATUS_BUSY_ERROR_FREE:
             return False
+        elif status in pump_protocol.ERROR_STATUSES_BUSY:
+            raise PumpHWError(error_code=status, pump=self.name)
+        elif status in pump_protocol.ERROR_STATUSES_IDLE:
+            raise PumpHWError(error_code=status, pump=self.name)
         else:
             raise ValueError('The pump replied status {}, Not handled'.format(status))
 
@@ -518,7 +547,7 @@ class C3000Controller(object):
                 return True
 
         self.logger.debug("Too many failed attempts to initialize!")
-        raise ControllerRepeatedError
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def initialize_valve_right(self, operand_value=0, wait=True):
         """
@@ -544,7 +573,7 @@ class C3000Controller(object):
             wait (bool): Whether or not to wait until the pump is idle, default set to True.
 
         """
-        self.write_and_read_from_pump(self._protocol.forge_initialize_valve_right_packet(operand_value))
+        self.write_and_read_from_pump(self._protocol.forge_initialize_valve_left_packet(operand_value))
         if wait:
             self.wait_until_idle()
 
@@ -599,14 +628,8 @@ class C3000Controller(object):
         Args:
             micro_step_mode (int): Mode to use.
 
-        Raises:
-            ControllerInitError: Attempting to set microstep mode before pump initialisation.
-
         """
-        if self.is_initialized():
-            self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
-        else:
-            raise ControllerInitError('Pump should be initialized before set_microstep_mode')
+        self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
 
     ##
     def check_top_velocity_within_range(self, top_velocity):
@@ -682,25 +705,21 @@ class C3000Controller(object):
         Raises:
             ControllerRepeatedError: Too many failed attempts at setting the top velocity.
 
-            ControllerInitError: Attempting to set the top velocity before the pump has been initialised.
 
         """
-        if self.is_initialized():
-            for i in range(max_repeat):
-                if self.get_top_velocity() == top_velocity:
-                    return True
-                else:
-                    self.logger.debug("Top velocity not set, change attempt {}/{}".format(i + 1, max_repeat))
-                self.check_top_velocity_within_range(top_velocity)
-                self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
-                # if do not want to wait and check things went well, return now
-                if secure == False:
-                    return True
+        for i in range(max_repeat):
+            if self.get_top_velocity() == top_velocity:
+                return True
+            else:
+                self.logger.debug("Top velocity not set, change attempt {}/{}".format(i + 1, max_repeat))
+            self.check_top_velocity_within_range(top_velocity)
+            self.write_and_read_from_pump(self._protocol.forge_top_velocity_packet(top_velocity))
+            # if do not want to wait and check things went well, return now
+            if secure is False:
+                return True
 
-            self.logger.debug("Too many failed attempts in set_top_velocity!")
-            raise ControllerRepeatedError
-        else:
-            raise ControllerInitError('Pump should be initialized before set_top_velocity')
+        self.logger.debug("[PUMP {}] Too many failed attempts in set_top_velocity!".format(self.name))
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def get_top_velocity(self):
         """
@@ -714,7 +733,6 @@ class C3000Controller(object):
         (_, _, top_velocity) = self.write_and_read_from_pump(top_velocity_packet)
         return int(top_velocity)
 
-    ##
     def get_plunger_position(self):
         """
         Gets the current position of the plunger.
@@ -1050,9 +1068,9 @@ class C3000Controller(object):
             True (bool): The valve position has been set.
 
         Raises:
-            ValueError: The valve posiiton is invalid/unknown.
+            ValueError: The valve position is invalid/unknown.
 
-            ControllerRepeatedError: Too many failed attempts in set_top_velocity.
+            ControllerRepeatedError: Too many failed attempts in set_valve_position.
 
         """
         for i in range(max_repeat):
@@ -1083,8 +1101,8 @@ class C3000Controller(object):
 
             self.wait_until_idle()
 
-        self.logger.debug("Too many failed attempts in set_top_velocity!")
-        raise ControllerRepeatedError
+        self.logger.debug("[PUMP {}] Too many failed attempts in set_valve_position!".format(self.name))
+        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
     def set_eeprom_config(self, operand_value):
         """
@@ -1122,14 +1140,14 @@ class C3000Controller(object):
     def flash_eeprom_4_way_nondist_valve(self):
         """
         Sets the EEPROM config of the pump to use a 4-way Non-Dist valve (I/O/E operations)
-        .. todo:: Get difference of non-dist and dist valves
+        Note in this configuration it is not possible to pump to E!
+        valve position E connects E with O while B connects E and I (90-degrees)
         """
         self.set_eeprom_config(2)
 
     def flash_eeprom_4_way_dist_valve(self):
         """
         Sets the EEPROM config of the pump to use a 4-way Dist Valve (I/O/E operations)
-        .. todo:: Get difference of non-dist and dist valves
         """
         self.set_eeprom_config(4)
 
@@ -1160,9 +1178,16 @@ class C3000Controller(object):
             # flash_eeprom_4_way_nondist_valve()
             current_valve_config = "4-WAY nondist"
         else:
+            # e.g. DEBUG:pycont.DTStatus:Received /0`10,75,14,62,1,1,20,10,48,210,2013010,0,0,0,0,0,25,20,15,0000000
             current_valve_config = "Unknown"
 
         return current_valve_config
+
+    def terminate(self):
+        """
+        Sends the command to terminate the current action.
+        """
+        self.write_and_read_from_pump(self._protocol.forge_terminate_packet())
 
 
 class MultiPumpController(object):
@@ -1235,7 +1260,8 @@ class MultiPumpController(object):
         """
         for pump_name, pump in list(self.pumps.items()):
             if hasattr(self, pump_name):
-                self.logger.warning("Pump named {pump_name} is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[{pump_name}]".format(pump_name=pump_name))
+                self.logger.warning("Pump named {pump_name} is already a reserved attribute, please change name or do not use"
+                                    "this pump in attribute mode, rather use pumps[{pump_name}]".format(pump_name=pump_name))
             else:
                 setattr(self, pump_name, pump)
 
@@ -1315,7 +1341,6 @@ class MultiPumpController(object):
         """
         return self.apply_command_to_pumps(self.groups[group_name], command, *args, **kwargs)
 
-    ##
     def are_pumps_initialized(self):
         """
         Determines if the pumps have been initialised.
@@ -1362,6 +1387,12 @@ class MultiPumpController(object):
         Sends the command 'wait_until_idle' to the pumps.
         """
         self.apply_command_to_all_pumps('wait_until_idle')
+
+    def terminate_all_pumps(self):
+        """
+        Sends the command 'terminate' to all the pumps.
+        """
+        self.apply_command_to_all_pumps('terminate')
 
     def are_pumps_idle(self):
         """
