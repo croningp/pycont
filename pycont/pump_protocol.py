@@ -312,6 +312,22 @@ class C3000Protocol(object):
         dtcommand = dtprotocol.DTCommand(CMD_EEPROM_CONFIG, str(operand_value))
         return self.forge_packet(dtcommand, execute=False)
 
+    def forge_eeprom_lowlevel_config_packet(self, sub_command=20, operand_value="pycont1"):
+        """
+        Creates a packet for accessing the EEPROM configuration of the device.
+
+        Args:
+            sub_command (int):  Sub-command value (0-20)
+            operand_value (str): The value of the supplied operand.
+
+        Returns:
+            DTInstructionPacket: The packet created for accessing the EEPROM configuration of the device.
+
+        """
+
+        dtcommand = dtprotocol.DTCommand(CMD_EEPROM_LOWLEVEL_CONFIG, str(sub_command) + "_" + str(operand_value))
+        return self.forge_packet(dtcommand, execute=False)
+
     def forge_valve_input_packet(self, operand_value=None):
         """
         Creates a packet for the input into a valve on the device.

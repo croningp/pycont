@@ -368,7 +368,7 @@ class C3000Controller(object):
 
             pump_name (str): Name of the pump.
 
-            pump_config (Dict): Dictionary containg the pump configurattion data.
+            pump_config (Dict): Dictionary containing the pump configuration data.
 
         Returns:
             C3000Controller: New C3000Controller object with the data set from the configuration.
@@ -1124,6 +1124,10 @@ class C3000Controller(object):
         """
         eeprom_config_packet = self._protocol.forge_eeprom_config_packet(operand_value)
         self.write_and_read_from_pump(eeprom_config_packet)
+
+        eeprom_sign_packet = self._protocol.forge_eeprom_lowlevel_config_packet(sub_command=20, operand_value="pycont1")
+        self.write_and_read_from_pump(eeprom_sign_packet)
+
         if operand_value == 1:
             print("####################################################")
             print("3-Way Y-Valve: Connect jumper to pin 5 (bottom pin) below address switch at back of pump")
