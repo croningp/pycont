@@ -330,7 +330,8 @@ class C3000Controller(object):
         ValueError: Invalid microstep mode.
 
     """
-    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000, initialize_valve_position=VALVE_INPUT):
+    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000,
+                 initialize_valve_position=VALVE_INPUT):
         self.logger = create_logger(self.__class__.__name__)
 
         self._io = pump_io
@@ -381,7 +382,6 @@ class C3000Controller(object):
 
         return cls(pump_io, pump_name, **pump_config)
 
-    ##
     def write_and_read_from_pump(self, packet, max_repeat=MAX_REPEAT_WRITE_AND_READ):
         """
         Writes packets to and reads the response from the pump.
@@ -414,7 +414,6 @@ class C3000Controller(object):
         self.logger.debug("Too many failed communication!")
         raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
-    ##
     def volume_to_step(self, volume_in_ml):
         """
         Determines the number of steps for a given volume.
@@ -441,7 +440,6 @@ class C3000Controller(object):
         """
         return step / float(self.steps_per_ml)
 
-    ##
     def is_idle(self):
         """
         Determines if the pump is idle or Busy
@@ -490,7 +488,6 @@ class C3000Controller(object):
         while self.is_busy():
             time.sleep(WAIT_SLEEP_TIME)
 
-    ##
     def is_initialized(self):
         """
         Determines if the pump has been initialised.
@@ -544,10 +541,24 @@ class C3000Controller(object):
             self.initialize_no_valve()
 
             if self.is_initialized():
+                self.check_jumper_position()
                 return True
 
         self.logger.debug("Too many failed attempts to initialize!")
         raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
+
+    def check_jumper_position(self):
+        """
+        After initialization verifies if pump settings are sane
+        """
+
+        # Ensure the absence of the jumper for 120 deg operation (3-way Y) when a 4-way config is set
+        four_way_valves = ("4-WAY dist", "4-WAY nondist")
+        if self.get_current_valve_config() in four_way_valves:
+            # Read jumper position
+            (_, _, jumper_position) = self.write_and_read_from_pump(self._protocol.forge_report_jumper_packet())
+            if int(jumper_position) == 3:
+                raise ControllerRepeatedError("Remove jumper J2-5 from pump {}!".format(self.name))
 
     def initialize_valve_right(self, operand_value=0, wait=True):
         """
@@ -577,7 +588,7 @@ class C3000Controller(object):
         if wait:
             self.wait_until_idle()
 
-    def initialize_no_valve(self, operand_value=0, wait=True):
+    def initialize_no_valve(self, operand_value=None, wait=True):
         """
         Initialise with no valves.
 
@@ -587,6 +598,13 @@ class C3000Controller(object):
             wait (bool): Whether or not to wait until the pump is idle, default set to True.
 
         """
+
+        if operand_value is None:
+            if self.total_volume < 1:
+                operand_value = 1 # Half plunger stall force for syringes with volume of 500 uL or less
+            else:
+                operand_value = 0
+
         self.write_and_read_from_pump(self._protocol.forge_initialize_no_valve_packet(operand_value))
         if wait:
             self.wait_until_idle()
@@ -605,7 +623,6 @@ class C3000Controller(object):
         if wait:
             self.wait_until_idle()
 
-    ##
     def init_all_pump_parameters(self, secure=True):
         """
         Initialises the pump parameters, Microstep Mode, and Top Velocity.
@@ -620,7 +637,6 @@ class C3000Controller(object):
         self.set_top_velocity(self.default_top_velocity, secure=secure)
         self.wait_until_idle()  # just in case, but should not be needed
 
-    ##
     def set_microstep_mode(self, micro_step_mode):
         """
         Sets the Microstep Mode to use.
@@ -631,7 +647,6 @@ class C3000Controller(object):
         """
         self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
 
-    ##
     def check_top_velocity_within_range(self, top_velocity):
         """
         Checks that the top velocity is within a maximum range.
@@ -794,7 +809,6 @@ class C3000Controller(object):
         """
         return self.total_volume - self.current_volume
 
-    ##
     def is_volume_pumpable(self, volume_in_ml):
         """
         Determines if the volume is pumpable.
@@ -855,7 +869,6 @@ class C3000Controller(object):
         else:
             return False
 
-    ##
     def is_volume_deliverable(self, volume_in_ml):
         """
         Determines if the supplied volume is deliverable.
@@ -914,7 +927,6 @@ class C3000Controller(object):
         else:
             return False
 
-    ##
     def transfer(self, volume_in_ml, from_valve, to_valve, speed_in=None, speed_out=None):
         """
         Transfers the desired volume in mL.
@@ -939,7 +951,6 @@ class C3000Controller(object):
         if remaining_volume_to_transfer > 0:
             self.transfer(remaining_volume_to_transfer, from_valve, to_valve, speed_in, speed_out)
 
-    ##
     def is_volume_valid(self, volume_in_ml):
         """
         Determines if the supplied volume is valid.
@@ -1011,7 +1022,6 @@ class C3000Controller(object):
         """
         self.go_to_volume(self.total_volume, speed=speed, wait=wait)
 
-    # valve
     def get_raw_valve_postion(self):
         """
         Gets the raw value of the valve's position.
@@ -1166,19 +1176,25 @@ class C3000Controller(object):
         """
         Infers the current valve configuration based on the EEPROM data.
         """
-        current_eeprom_config = self.get_eeprom_config()
+        current_eeprom_config = self.get_eeprom_config().split(',')
+        valve_config = current_eeprom_config[10]
+        # Valve config: IOBEXYZ
+        # [I]nput, [O]utput, [B]ypass, [E]xtra positions: n*90 deg (e.g. 0 -> 0 deg, 2 -> 180 deg)
+        # [X], [Y] allow plunger movement in [B] and [E], respectively (Y=1 for DIST to enable delivering to E!)
+        # [Z] swap the bypass and extra position on a 4-position valve if a [Y] initialization command is issued.
 
-        if current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2013100,0,0,0,0,0,25,20,15,0000000":
-            # flash_eeprom_3_way_t_valve() AND flash_eeprom_3_way_y_valve()
+        if valve_config == "2013100":
+            # flash_eeprom_3_way_t_valve() AND flash_eeprom_3_way_y_valve(). Difference is jumper J2-5, check with ?28
             current_valve_config = "3-WAY"
-        elif current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2033110,0,0,0,0,0,25,20,15,0000000":
+        elif valve_config == "2033110":
             # flash_eeprom_4_way_dist_valve()
             current_valve_config = "4-WAY dist"
-        elif current_eeprom_config == "10,75,14,62,1,1,20,10,48,210,2130001,0,0,0,0,0,25,20,15,0000000":
+        elif valve_config == "2130001":
             # flash_eeprom_4_way_nondist_valve()
             current_valve_config = "4-WAY nondist"
         else:
             # e.g. DEBUG:pycont.DTStatus:Received /0`10,75,14,62,1,1,20,10,48,210,2013010,0,0,0,0,0,25,20,15,0000000
+            print(valve_config)
             current_valve_config = "Unknown"
 
         return current_valve_config
@@ -1244,7 +1260,7 @@ class MultiPumpController(object):
             pump_config (Dict): Dictionary containing the pump configuration.
 
         Returns:
-            defaulted_pump_config (Dict): A new defualt pump configuration mirroring that of pump_config.
+            defaulted_pump_config (Dict): A new default pump configuration mirroring that of pump_config.
 
         """
         defaulted_pump_config = dict(self.default_config)  # make a copy
@@ -1364,19 +1380,24 @@ class MultiPumpController(object):
             secure (bool): Ensures everything is correct, default set to True.
 
         """
-        for _, pump in list(self.pumps.items()):
+        for pump in list(self.pumps.values()):
             if not pump.is_initialized():
                 pump.initialize_valve_only(wait=False)
         self.wait_until_all_pumps_idle()
 
-        for _, pump in list(self.pumps.items()):
+        for pump in list(self.pumps.values()):
             if not pump.is_initialized():
                 pump.set_valve_position(pump.initialize_valve_position, secure=secure)
         self.wait_until_all_pumps_idle()
 
-        for _, pump in list(self.pumps.items()):
+        for pump in list(self.pumps.values()):
             if not pump.is_initialized():
                 pump.initialize_no_valve(wait=False)
+        self.wait_until_all_pumps_idle()
+
+        for pump in list(self.pumps.values()):
+            if not pump.is_initialized():
+                pump.check_jumper_position()
         self.wait_until_all_pumps_idle()
 
         self.apply_command_to_all_pumps('init_all_pump_parameters', secure=secure)

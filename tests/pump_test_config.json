@@ -5,10 +5,9 @@
       "timeout": 1
   },
   "default": {
-    "volume": 12.5,
+    "volume": 0.5,
     "micro_step_mode": 2,
-    "top_velocity": 12000,
-    "initialize_valve_position": "I"
+    "top_velocity": 5000
   },
   "groups": {
     "chemicals": ["acetone"]

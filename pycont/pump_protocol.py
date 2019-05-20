@@ -32,15 +32,14 @@ CMD_DELIVER = 'D'
 #: Command to achieve top velocity
 CMD_TOPVELOCITY = 'V'
 #: Command to access the EEPROM configuration
-#: .. warning:: Requires power restart to take effect
-
 CMD_EEPROM_CONFIG = 'U'      # Requires power restart to take effect
+CMD_EEPROM_LOWLEVEL_CONFIG = 'u'      # Requires power restart to take effect
 #: Command to terminate current operation
 CMD_TERMINATE = 'T'
 
 #: Command for the valve init_all_pump_parameters
 #: .. note:: Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>
-CMD_VALVE_INPUT = 'I'       # Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>
+CMD_VALVE_INPUT = 'I'   # Depending on EEPROM settings (U4 or U11) 4-way distribution valves either use IOBE or I<n>O<n>
 #: Command for the valve output
 CMD_VALVE_OUTPUT = 'O'
 #: Command for the valve bypass
@@ -64,6 +63,8 @@ CMD_REPORT_VALVE_POSITION = '?6'
 CMD_REPORT_INTIALIZED = '?19'
 #: Command for reporting the EEPROM
 CMD_REPORT_EEPROM = '?27'
+#: Command for reporting the status of J2-5 for 3 way-Y valve (i.e. 120 deg rotation)
+CMD_REPORT_JUMPER_3WAY = '?28'
 
 #: Idle status when there are no errors
 STATUS_IDLE_ERROR_FREE = '`'
@@ -135,7 +136,7 @@ class C3000Protocol(object):
             execute (bool): Sets the execute value, True by default.
 
         Returns:
-            DTInstructionPacket: The created packet.
+            DTInstructionPacket: The packet created.
 
         """
         self.logger.debug("Forging packet with {} and execute set to {}".format(dtcommands, execute))
@@ -167,7 +168,7 @@ class C3000Protocol(object):
 
     """
 
-    # the functions below should be generated automatically but not really  needed for now
+    # the functions below should be generated automatically but not really needed for now
 
     def forge_initialize_valve_right_packet(self, operand_value=0):
         """
@@ -177,7 +178,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand, 0 by default.
 
         Returns:
-            DTInstructionPacket: The created packet for initialising the right valve.
+            DTInstructionPacket: The packet created for initialising the right valve.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_RIGHT, str(operand_value))
@@ -191,7 +192,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand, 0 by defualt.
 
         Returns:
-            DTInstructionPacket: The created packet for initialising the left valve.
+            DTInstructionPacket: The packet created for initialising the left valve.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_LEFT, str(operand_value))
@@ -205,7 +206,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand, 0 by default.
 
         Returns:
-            DTInstructionPacket: The created packet for initialising with no valves.
+            DTInstructionPacket: The packet created for initialising with no valves.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_NO_VALVE, str(operand_value))
@@ -219,7 +220,7 @@ class C3000Protocol(object):
             operand_string (str): String representing the operand, None by default
 
         Returns:
-            DTInstructionPacket: The created packet for initialising with valves only
+            DTInstructionPacket: The packet created for initialising with valves only
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_INITIALIZE_VALVE_ONLY, operand_string)
@@ -233,7 +234,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand.
 
         Returns:
-            DTInstructionPacket: The created packet for initialising microstep mode.
+            DTInstructionPacket: The packet created for initialising microstep mode.
 
         """
         if operand_value not in list(range(3)):
@@ -249,7 +250,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand.
 
         Returns:
-            DTInstructionPacket: The created packet for moving the device to a location.
+            DTInstructionPacket: The packet created for moving the device to a location.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_MOVE_TO, str(operand_value))
@@ -263,7 +264,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand
 
         Returns:
-            DTInstructionPacket: The created packet for the pump action of the device.
+            DTInstructionPacket: The packet created for the pump action of the device.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_PUMP, str(operand_value))
@@ -277,7 +278,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand.
 
         Returns:
-            DTInstructionPacket: The created packet for delivering the payload.
+            DTInstructionPacket: The packet created for delivering the payload.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_DELIVER, str(operand_value))
@@ -291,7 +292,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand.
 
         Returns:
-            DTInstructionPacket: The created packet for the top velocity of the device.
+            DTInstructionPacket: The packet created for the top velocity of the device.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_TOPVELOCITY, str(int(operand_value)))
@@ -305,7 +306,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand.
 
         Returns:
-            DTInstructionPacket: The created packet for accessing the EEPROM configuration of the device.
+            DTInstructionPacket: The packet created for accessing the EEPROM configuration of the device.
 
         """
         dtcommand = dtprotocol.DTCommand(CMD_EEPROM_CONFIG, str(operand_value))
@@ -316,7 +317,7 @@ class C3000Protocol(object):
         Creates a packet for the input into a valve on the device.
 
         Returns:
-            DTInstructionPacket: The created packet for the input into a valve on the device.
+            DTInstructionPacket: The packet created for the input into a valve on the device.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_INPUT))
@@ -326,7 +327,7 @@ class C3000Protocol(object):
         Creates a packet for the output from a valve on the device.
 
         Returns:
-            DTInstructionPacket: The created packet for the output from a valve on the device.
+            DTInstructionPacket: The packet created for the output from a valve on the device.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_OUTPUT))
@@ -336,7 +337,7 @@ class C3000Protocol(object):
         Creates a packet for bypassing a valve on the device.
 
         Returns:
-            DTInstructionPacket: The created packet for bypassing a valve on the device.
+            DTInstructionPacket: The packet created for bypassing a valve on the device.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_BYPASS))
@@ -346,7 +347,7 @@ class C3000Protocol(object):
         Creates a packet for an extra valve.
 
         Returns:
-            DTInstructionPacket: The created packet for an extra valve.
+            DTInstructionPacket: The packet created for an extra valve.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_EXTRA))
@@ -359,7 +360,7 @@ class C3000Protocol(object):
             operand_value (int): The value of the supplied operand, None by default.
 
         Returns:
-            DTInstructionPacket: The created packet for the input into a valve on the device.
+            DTInstructionPacket: The packet created for the input into a valve on the device.
 
         """
         return self.forge_packet(dtprotocol.DTCommand('{}{}'.format(CMD_VALVE_INPUT, valve_position)))
@@ -369,7 +370,7 @@ class C3000Protocol(object):
         Creates a packet for reporting the device status.
 
         Returns:
-            DTInstructionPacket: The created packet for reporting the device status.
+            DTInstructionPacket: The packet created for reporting the device status.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_STATUS))
@@ -379,7 +380,7 @@ class C3000Protocol(object):
         Creates a packet for reporting the device's plunger position.
 
         Returns:
-            DTInstructionPacket: The created packet for reporting the device's plunger position.
+            DTInstructionPacket: The packet created for reporting the device's plunger position.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_PLUNGER_POSITION))
@@ -389,7 +390,7 @@ class C3000Protocol(object):
         Creates a packet for reporting the device's start velocity.
 
         Returns:
-            DTInstructionPacket: The created packet for reporting the device's starting velocity.
+            DTInstructionPacket: The packet created for reporting the device's starting velocity.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_START_VELOCITY))
@@ -399,7 +400,7 @@ class C3000Protocol(object):
         Creates a packet for reporting the device's peak velocity.
 
         Returns:
-            DTInstructionPacket: The created packet for reporting the device's peak velocity.
+            DTInstructionPacket: The packet created for reporting the device's peak velocity.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_PEAK_VELOCITY))
@@ -409,7 +410,7 @@ class C3000Protocol(object):
         Creates a packet for reporting the device's cutoff velocity.
 
         Returns:
-            DTInstructionPacket: The created packet for reporting the device's cutoff velocity.
+            DTInstructionPacket: The packet created for reporting the device's cutoff velocity.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_CUTOFF_VELOCITY))
@@ -419,7 +420,7 @@ class C3000Protocol(object):
         Creates a packet for reporting the device's valve position.
 
         Returns:
-            DTInstructionPacket: The created packet for reporting the device's valve position.
+            DTInstructionPacket: The packet created for reporting the device's valve position.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_VALVE_POSITION))
@@ -429,7 +430,7 @@ class C3000Protocol(object):
         Creates a packet for reporting the initialisation of the device.
 
         Returns:
-            DTInstructionPacket: The created packet for reporting the initialisation of the device.
+            DTInstructionPacket: The packet created for reporting the initialisation of the device.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_INTIALIZED))
@@ -439,17 +440,27 @@ class C3000Protocol(object):
         Creates a packet for reporting the EEPROM.
 
         Returns:
-            The created packet for reporting the EEPROM.
+            The packet for reporting the EEPROM.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_EEPROM))
+
+    def forge_report_jumper_packet(self):
+        """
+        Creates a packet for reporting the position of Jumper 2-5, used in 3-way Y-valves.
+
+        Returns:
+            The packet for reporting the EEPROM.
+
+        """
+        return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_JUMPER_3WAY))
 
     def forge_terminate_packet(self):
         """
         Creates the data packet for terminating the current command
 
         Returns:
-            The created packet for terminating movement
+            The packet for terminating any running command.
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_TERMINATE))
