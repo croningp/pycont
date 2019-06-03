@@ -1,13 +1,13 @@
 {
   "io": {
-      "port": "/dev/pycont",
+      "port": "/dev/tricable",
       "baudrate": 9600,
       "timeout": 1
   },
   "default": {
-    "volume": 0.5,
+    "volume": 5,
     "micro_step_mode": 2,
-    "top_velocity": 5000
+    "top_velocity": 6000
   },
   "groups": {
     "chemicals": ["acetone"]

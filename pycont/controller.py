@@ -1138,6 +1138,18 @@ class C3000Controller(object):
             print("Unpower and repower the pump to make changes active!")
             print("####################################################")
 
+    def set_eeprom_lowlevel_config(self, command, operand):
+        """
+        Sets the configuration of the EEPROM on the pumps.
+
+        Args:
+            command (int): The value of the command to be issued.
+            operand (int): The value of the supplied operand.
+
+        """
+        eeprom_packet = self._protocol.forge_eeprom_lowlevel_config_packet(sub_command=command, operand_value=operand)
+        self.write_and_read_from_pump(eeprom_packet)
+
     def flash_eeprom_3_way_y_valve(self):
         """
         Sets the EEPROM config of the pump to use a 3-way Y valve (I/O operations)
