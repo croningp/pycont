@@ -1299,17 +1299,49 @@ class MultiPumpController(object):
 
     def get_pumps(self, pump_names):
         """
-        Obtains a list of all pumps.
+        Obtains a list of all pumps with name in pump_names.
 
         Args:
             pump_names (List): A list of the pump names
 
         Returns:
-            pumps (List): A list of the pump names.
+            pumps (List): A list of the pump objects.
 
         """
         pumps = []
         for pump_name in pump_names:
+            pumps.append(self.pumps[pump_name])
+        return pumps
+
+    def get_all_pumps(self):
+        """
+        Obtains a list of all pumps.
+
+        Returns:
+            pumps (List): A list of the all the pump objects in the Controller.
+
+        """
+
+        return self.pumps
+
+    def get_pumps_in_group(self, group_name):
+        """
+        Obtains a list of all pumps with group_name.
+
+        Args:
+            group_name (List): The group name
+
+        Returns:
+            pumps (List): A list of the pump objects in the group. None for non-existing groups.
+
+        """
+        pumps = []
+        try:
+            pump_list = self.groups[group_name]
+        except KeyError:
+            return None
+
+        for pump_name in pump_list:
             pumps.append(self.pumps[pump_name])
         return pumps
 
@@ -1546,7 +1578,7 @@ class MultiPumpController(object):
             secure (bool): Ensures that everything is correct, default set to False.
 
         """
-        volume_transfered = 1000000  # some big number 1000L is more than any descent person will try
+        volume_transfered = 1000000  # some big number 1000L is more than any decent person will try
         for pump in self.get_pumps(pump_names):
             candidate_volume = min(volume_in_ml, pump.remaining_volume)
             volume_transfered = min(candidate_volume, volume_transfered)
