@@ -1,7 +1,7 @@
 {
   "io": {
       "port": "/dev/tricable",
-      "baudrate": 9600,
+      "baudrate": 38400,
       "timeout": 1
   },
   "default": {
@@ -10,11 +10,11 @@
     "top_velocity": 6000
   },
   "groups": {
-    "chemicals": ["acetone"]
+    "oils": ["oil1", "oil2", "oil3", "oil4"]
   },
   "pumps": {
       "acetone": {
-        "switch": "0"
+        "switch": "4"
       }
   }
 }

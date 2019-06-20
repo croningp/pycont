@@ -1457,6 +1457,12 @@ class MultiPumpController(object):
         """
         self.apply_command_to_all_pumps('wait_until_idle')
 
+    def wait_until_group_idle(self, group_name):
+        """
+        Sends the command ' wait_until_idle' to all pumps of a group.
+        """
+        self.apply_command_to_group(group_name=group_name, command='wait_until_idle')
+
     def terminate_all_pumps(self):
         """
         Sends the command 'terminate' to all the pumps.
