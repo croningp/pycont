@@ -1,0 +1,44 @@
+{
+  "default": {
+    "volume": 5,
+    "micro_step_mode": 2,
+    "top_velocity": 6000
+  },
+  "groups": {
+    "oils": ["oil1", "oil2", "oil3", "oil4"],
+    "solvents": ["water", "acetone"]
+  },
+  "hubs": [{
+    "io": {
+        "port": "/dev/trihub",
+        "baudrate": 38400,
+        "timeout": 1
+    },
+    "pumps": {
+        "acetone": {
+          "switch": "0"
+        },
+        "water": {
+            "switch": "1"
+        },
+        "oil1": {
+           "switch": "2"
+        }
+    }}, {
+    "io": {
+        "port": "/dev/tricable",
+        "baudrate": 38400,
+        "timeout": 1
+    },
+    "pumps": {
+        "oil2": {
+          "switch": "0"
+        },
+        "oil3": {
+            "switch": "1"
+        },
+        "oil4": {
+           "switch": "2"
+        }
+    }}]
+}
