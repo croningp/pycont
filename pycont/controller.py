@@ -1039,7 +1039,7 @@ class C3000Controller(object):
         Gets the position of the valve.
 
         Args:
-            max_repeat (int): The maximum number of times to repeat an operation, default set to MAX_REPEAT_OPERATION (10).
+            max_repeat (int): Maximum number of times to repeat an operation, default set to MAX_REPEAT_OPERATION (10).
 
         Returns:
             (chr): The position of the valve.
@@ -1060,8 +1060,8 @@ class C3000Controller(object):
                 return VALVE_EXTRA
             elif raw_valve_position in VALVE_6WAY_LIST:
                 return raw_valve_position
-            self.logger.debug("Valve position request failed attempt {}/{}, {} is unknown".format(i + 1, max_repeat, raw_valve_position))
-        raise ValueError('Valve position received was {}. It is unknown'.format(raw_valve_position))
+            self.logger.debug(f"Valve position request failed attempt {i+1}/{max_repeat}, {raw_valve_position} unknown")
+        raise ValueError(f'Valve position received was {raw_valve_position}. It is unknown')
 
     def set_valve_position(self, valve_position, max_repeat=MAX_REPEAT_OPERATION, secure=True):
         """
@@ -1239,14 +1239,14 @@ class MultiPumpController(object):
         self.groups = setup_config['groups'] if 'groups' in setup_config else {}
         self.default_config = setup_config['default'] if 'default' in setup_config else {}
 
-        if "hubs" in setup_config:
+        if "hubs" in setup_config:  # This implements the "new" behaviour with multiple hubs
             for hub_config in setup_config["hubs"]:
                 # Each hub has its own I/O config. Create a PumpIO object per each hub and reuse it with -1 after append
                 self._io.append(PumpIO.from_config(hub_config['io']))
                 for pump_name, pump_config in list(hub_config['pumps'].items()):
                     full_pump_config = self.default_pump_config(pump_config)
                     self.pumps[pump_name] = C3000Controller.from_config(self._io[-1], pump_name, full_pump_config)
-        else:
+        else:  # This implements the "old" behaviour with one hub per object instance / json file
             self._io = PumpIO.from_config(setup_config['io'])
             for pump_name, pump_config in list(setup_config['pumps'].items()):
                 full_pump_config = self.default_pump_config(pump_config)
