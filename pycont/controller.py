@@ -54,7 +54,7 @@ VALVE_6WAY_LIST = ['1', '2', '3', '4', '5', '6']
 
 #: Microstep Mode 0
 MICRO_STEP_MODE_0 = 0
-#:Microstep Mode 2
+#: Microstep Mode 2
 MICRO_STEP_MODE_2 = 2
 
 #: Number of steps in Microstep Mode 0
@@ -100,6 +100,7 @@ class PumpIO(object):
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
+        self._serial = None
 
         self.open(port, baudrate, timeout)
 
@@ -163,7 +164,7 @@ class PumpIO(object):
 
             exc_value (Exception): The value associated with the Exception.
 
-            traceback (str): Location of where the exception occured.
+            traceback (str): Location of where the exception occurred.
 
         """
         self.close()
@@ -318,7 +319,7 @@ class C3000Controller(object):
 
         address (str): Address of the controller.
 
-        total_volume (int): Total volume of the pump.
+        total_volume (float): Total volume of the pump.
 
         micro_step_mode (int): The mode which the microstep will use, default set to MICRO_STEP_MODE_2 (2)
 
@@ -504,7 +505,7 @@ class C3000Controller(object):
 
     def smart_initialize(self, valve_position=None, secure=True):
         """
-        Initialises the pump and sets all pump parammeters.
+        Initialises the pump and sets all pump parameters.
 
         Args:
             valve_position (int): Position of the valve, default set None.
@@ -733,8 +734,8 @@ class C3000Controller(object):
             if secure is False:
                 return True
 
-        self.logger.debug("[PUMP {}] Too many failed attempts in set_top_velocity!".format(self.name))
-        raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
+        self.logger.debug(f"[PUMP {self.name}] Too many failed attempts in set_top_velocity!")
+        raise ControllerRepeatedError(f'Repeated Error from pump {self.name}')
 
     def get_top_velocity(self):
         """
@@ -943,11 +944,11 @@ class C3000Controller(object):
             speed_out (int): The speed of transfer from the valve, default set to None.
 
         """
-        volume_transfered = min(volume_in_ml, self.remaining_volume)
-        self.pump(volume_transfered, from_valve, speed_in=speed_in, wait=True)
-        self.deliver(volume_transfered, to_valve, speed_out=speed_out, wait=True)
+        volume_transferred = min(volume_in_ml, self.remaining_volume)
+        self.pump(volume_transferred, from_valve, speed_in=speed_in, wait=True)
+        self.deliver(volume_transferred, to_valve, speed_out=speed_out, wait=True)
 
-        remaining_volume_to_transfer = volume_in_ml - volume_transfered
+        remaining_volume_to_transfer = volume_in_ml - volume_transferred
         if remaining_volume_to_transfer > 0:
             self.transfer(remaining_volume_to_transfer, from_valve, to_valve, speed_in, speed_out)
 
@@ -977,9 +978,9 @@ class C3000Controller(object):
 
             speed (int): The speed of movement, default set to None.
 
-            wait (bool): Waits for the pump to be idle, defualt set to False.
+            wait (bool): Waits for the pump to be idle, default set to False.
 
-            secure (bool): Ensures that everything is corect, default set to True.
+            secure (bool): Ensures that everything is correct, default set to True.
 
         Returns:
             True (bool): The supplied volume is valid.
@@ -1022,7 +1023,7 @@ class C3000Controller(object):
         """
         self.go_to_volume(self.total_volume, speed=speed, wait=wait)
 
-    def get_raw_valve_postion(self):
+    def get_raw_valve_position(self):
         """
         Gets the raw value of the valve's position.
 
@@ -1049,7 +1050,7 @@ class C3000Controller(object):
 
         """
         for i in range(max_repeat):
-            raw_valve_position = self.get_raw_valve_postion()
+            raw_valve_position = self.get_raw_valve_position()
             if raw_valve_position == 'i':
                 return VALVE_INPUT
             elif raw_valve_position == 'o':

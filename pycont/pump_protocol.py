@@ -189,7 +189,7 @@ class C3000Protocol(object):
         Creates a packet for initialising the left valve.
 
         Args:
-            operand_value (int): The value of the supplied operand, 0 by defualt.
+            operand_value (int): The value of the supplied operand, 0 by default.
 
         Returns:
             DTInstructionPacket: The packet created for initialising the left valve.
@@ -328,7 +328,7 @@ class C3000Protocol(object):
         dtcommand = dtprotocol.DTCommand(CMD_EEPROM_LOWLEVEL_CONFIG, str(sub_command) + "_" + str(operand_value))
         return self.forge_packet(dtcommand, execute=False)
 
-    def forge_valve_input_packet(self, operand_value=None):
+    def forge_valve_input_packet(self):
         """
         Creates a packet for the input into a valve on the device.
 
@@ -368,12 +368,9 @@ class C3000Protocol(object):
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_VALVE_EXTRA))
 
-    def forge_valve_6way_packet(self, valve_position, operand_value=None):
+    def forge_valve_6way_packet(self, valve_position):
         """
         Creates a packet for the 6way valve on the device.
-
-        Args:
-            operand_value (int): The value of the supplied operand, None by default.
 
         Returns:
             DTInstructionPacket: The packet created for the input into a valve on the device.

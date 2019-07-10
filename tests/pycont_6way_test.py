@@ -9,10 +9,11 @@
 import time
 
 import logging
-logging.basicConfig(level=logging.INFO)
 
 # simply import the module
 import pycont.controller
+
+logging.basicConfig(level=logging.INFO)
 
 # link to your config file
 SETUP_CONFIG_FILE = './pump_setup_config_6way.json'
@@ -96,7 +97,7 @@ time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 # They are '1', '2', '3', '4', '5', '6', all are in the list pycont.controller.VALVE_6WAY_LIST
 for valve_position in pycont.controller.VALVE_6WAY_LIST:
     controller.pumps['water'].set_valve_position(valve_position)
-    controller.acetone.set_valve_position(valve_position)  ## this is another way to call the pump
+    controller.acetone.set_valve_position(valve_position)  # This is another way to call the pump
     time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
 # of course you can change all the valve position at once

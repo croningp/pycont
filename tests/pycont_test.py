@@ -3,10 +3,11 @@
 import time
 
 import logging
-logging.basicConfig(level=logging.INFO)
 
 # simply import the module
 import pycont.controller
+
+logging.basicConfig(level=logging.INFO)
 
 # link to your config file
 SETUP_CONFIG_FILE = './pump_setup_config.json'
@@ -14,7 +15,7 @@ SETUP_CONFIG_FILE = './pump_setup_config.json'
 # and load the config file in a MultiPumpController
 controller = pycont.controller.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
 
-# initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
+# Initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
 controller.smart_initialize()
 
 # individual pumps can be accessed in two ways:
