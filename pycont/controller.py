@@ -1049,6 +1049,7 @@ class C3000Controller(object):
             ValueError: The valve position is not valid/unknown.
 
         """
+        raw_valve_position = None
         for i in range(max_repeat):
             raw_valve_position = self.get_raw_valve_position()
             if raw_valve_position == 'i':
@@ -1357,21 +1358,21 @@ class MultiPumpController(object):
 
     def apply_command_to_pumps(self, pump_names, command, *args, **kwargs):
         """
-                Applies a given command to the pumps.
+        Applies a given command to the pumps.
 
-                Args:
-                    pump_names (List): List containing the pump names.
+        Args:
+            pump_names (List): List containing the pump names.
 
-                    command (str): The command to apply.
+            command (str): The command to apply.
 
-                    *args: Variable length argument list.
+            *args: Variable length argument list.
 
-                    **kwargs: Arbitrary keyword arguments.
+            **kwargs: Arbitrary keyword arguments.
 
-                Returns:
-                    returns (Dict): Dictionary of the functions.
+        Returns:
+            returns (Dict): Dictionary of the functions.
 
-                """
+        """
         returns = {}
         for pump_name in pump_names:
             func = getattr(self.pumps[pump_name], command)
@@ -1599,3 +1600,49 @@ class MultiPumpController(object):
         remaining_volume_to_transfer = volume_in_ml - volume_transferred
         if remaining_volume_to_transfer > 0:
             self.transfer(pump_names, remaining_volume_to_transfer, from_valve, to_valve, speed_in, speed_out)
+
+    def parallel_transfer(self, pumps_and_volumes_dict: dict, from_valve: str, to_valve: str,
+                          speed_in=None, speed_out=None, secure=True):
+        """
+        Transfers the desired volume between pumps.
+
+        Args:
+            pumps_and_volumes_dict (dict): The names and volumes to be pumped for each pump.
+
+            from_valve (chr): The valve to transfer from.
+
+            to_valve (chr): the valve to transfer to.
+
+            speed_in (int): The speed at which to receive transfer, default set to None.
+
+            speed_out (int): The speed at which to transfer, default set to None
+
+            secure (bool): Ensures that everything is correct, default set to False.
+
+        """
+
+        remaining_volume = {}
+        volume_to_transfer = {}
+
+        # Pump the target volume (or the maximum possible) for each pump
+        for pump_name, pump_target_volume in pumps_and_volumes_dict:
+            # Get pump
+            pump = self.get_pumps(pump_name)
+
+            # Find the volume to transfer (maximum pumpable or target, whatever is lower)
+            volume_to_transfer[pump_name] = min(pump_target_volume, pump.remaining_volume)
+            pump.pump(volume_in_ml=volume_to_transfer, from_valve=from_valve, speed_in=speed_in, wait=False, secure=secure)
+
+            # Calculate remaining volume
+            remaining_volume[pump_name] = pump_target_volume - volume_to_transfer[pump_name]
+
+        # Wait until all the pumps have pumped to start deliver
+        self.apply_command_to_pumps(list(pump_name.keys), "wait_until_idle")
+
+        for pump_name, volume_to_deliver in remaining_volume:
+            pump = self.get_pumps(pump_name)
+            pump.deliver(volume_in_ml=volume_to_deliver, wait=False, to_valve=to_valve, speed_out=speed_out)
+
+        left_to_pump = {pump: volume for pump, volume in remaining_volume.items() if volume > 0}
+        if len(left_to_pump) > 0:
+            self.parallel_transfer(left_to_pump, from_valve, to_valve, speed_in, speed_out, secure)
