@@ -1602,7 +1602,7 @@ class MultiPumpController(object):
             self.transfer(pump_names, remaining_volume_to_transfer, from_valve, to_valve, speed_in, speed_out)
 
     def parallel_transfer(self, pumps_and_volumes_dict: dict, from_valve: str, to_valve: str,
-                          speed_in=None, speed_out=None, secure=True):
+                          speed_in=None, speed_out=None, secure=True, wait=False):
         """
         Transfers the desired volume between pumps.
 
@@ -1624,6 +1624,9 @@ class MultiPumpController(object):
         remaining_volume = {}
         volume_to_transfer = {}
 
+        # Wait until all the pumps have pumped to start deliver
+        self.apply_command_to_pumps(list(pumps_and_volumes_dict.keys()), "wait_until_idle")
+
         # Pump the target volume (or the maximum possible) for each pump
         for pump_name, pump_target_volume in pumps_and_volumes_dict:
             # Get pump
@@ -1637,7 +1640,7 @@ class MultiPumpController(object):
             remaining_volume[pump_name] = pump_target_volume - volume_to_transfer[pump_name]
 
         # Wait until all the pumps have pumped to start deliver
-        self.apply_command_to_pumps(list(pump_name.keys), "wait_until_idle")
+        self.apply_command_to_pumps(list(pumps_and_volumes_dict.keys()), "wait_until_idle")
 
         for pump_name, volume_to_deliver in remaining_volume:
             pump = self.get_pumps(pump_name)
@@ -1646,3 +1649,5 @@ class MultiPumpController(object):
         left_to_pump = {pump: volume for pump, volume in remaining_volume.items() if volume > 0}
         if len(left_to_pump) > 0:
             self.parallel_transfer(left_to_pump, from_valve, to_valve, speed_in, speed_out, secure)
+        elif wait is True:  # If no more pumping is needed wait if needed
+            self.apply_command_to_pumps(list(pumps_and_volumes_dict.keys()), "wait_until_idle")
