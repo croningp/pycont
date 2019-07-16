@@ -1628,13 +1628,18 @@ class MultiPumpController(object):
         self.apply_command_to_pumps(list(pumps_and_volumes_dict.keys()), "wait_until_idle")
 
         # Pump the target volume (or the maximum possible) for each pump
-        for pump_name, pump_target_volume in pumps_and_volumes_dict:
+        for pump_name, pump_target_volume in pumps_and_volumes_dict.items():
             # Get pump
-            pump = self.get_pumps(pump_name)
+            try:
+                pump = self.pumps[pump_name]
+            except KeyError:
+                self.logger.warning(f"Pump specified {pump_name} not found in the controller! (Available: {self.pumps}")
+                return False
 
             # Find the volume to transfer (maximum pumpable or target, whatever is lower)
             volume_to_transfer[pump_name] = min(pump_target_volume, pump.remaining_volume)
-            pump.pump(volume_in_ml=volume_to_transfer, from_valve=from_valve, speed_in=speed_in, wait=False, secure=secure)
+            pump.pump(volume_in_ml=volume_to_transfer[pump_name], from_valve=from_valve, speed_in=speed_in, wait=False,
+                      secure=secure)
 
             # Calculate remaining volume
             remaining_volume[pump_name] = pump_target_volume - volume_to_transfer[pump_name]
@@ -1642,8 +1647,8 @@ class MultiPumpController(object):
         # Wait until all the pumps have pumped to start deliver
         self.apply_command_to_pumps(list(pumps_and_volumes_dict.keys()), "wait_until_idle")
 
-        for pump_name, volume_to_deliver in remaining_volume:
-            pump = self.get_pumps(pump_name)
+        for pump_name, volume_to_deliver in volume_to_transfer.items():
+            pump = self.pumps[pump_name]  # This cannot fail otherwise it would have failed in pumping ;)
             pump.deliver(volume_in_ml=volume_to_deliver, wait=False, to_valve=to_valve, speed_out=speed_out)
 
         left_to_pump = {pump: volume for pump, volume in remaining_volume.items() if volume > 0}
