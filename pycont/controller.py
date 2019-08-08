@@ -330,7 +330,8 @@ class C3000Controller(object):
         ValueError: Invalid microstep mode.
 
     """
-    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000, initialize_valve_position=VALVE_INPUT):
+    def __init__(self, pump_io, name, address, total_volume, micro_step_mode=MICRO_STEP_MODE_2, top_velocity=6000,
+                 initialize_valve_position=VALVE_INPUT):
         self.logger = create_logger(self.__class__.__name__)
 
         self._io = pump_io
@@ -367,7 +368,7 @@ class C3000Controller(object):
 
             pump_name (str): Name of the pump.
 
-            pump_config (Dict): Dictionary containg the pump configurattion data.
+            pump_config (Dict): Dictionary containing the pump configuration data.
 
         Returns:
             C3000Controller: New C3000Controller object with the data set from the configuration.
@@ -381,7 +382,6 @@ class C3000Controller(object):
 
         return cls(pump_io, pump_name, **pump_config)
 
-    ##
     def write_and_read_from_pump(self, packet, max_repeat=MAX_REPEAT_WRITE_AND_READ):
         """
         Writes packets to and reads the response from the pump.
@@ -414,7 +414,6 @@ class C3000Controller(object):
         self.logger.debug("Too many failed communication!")
         raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
 
-    ##
     def volume_to_step(self, volume_in_ml):
         """
         Determines the number of steps for a given volume.
@@ -441,7 +440,6 @@ class C3000Controller(object):
         """
         return step / float(self.steps_per_ml)
 
-    ##
     def is_idle(self):
         """
         Determines if the pump is idle or Busy
@@ -490,7 +488,6 @@ class C3000Controller(object):
         while self.is_busy():
             time.sleep(WAIT_SLEEP_TIME)
 
-    ##
     def is_initialized(self):
         """
         Determines if the pump has been initialised.
@@ -577,7 +574,7 @@ class C3000Controller(object):
         if wait:
             self.wait_until_idle()
 
-    def initialize_no_valve(self, operand_value=0, wait=True):
+    def initialize_no_valve(self, operand_value=None, wait=True):
         """
         Initialise with no valves.
 
@@ -587,6 +584,13 @@ class C3000Controller(object):
             wait (bool): Whether or not to wait until the pump is idle, default set to True.
 
         """
+
+        if operand_value is None:
+            if self.total_volume < 1:
+                operand_value = 1  # Half plunger stall force for syringes with volume of 500 uL or less
+            else:
+                operand_value = 0
+
         self.write_and_read_from_pump(self._protocol.forge_initialize_no_valve_packet(operand_value))
         if wait:
             self.wait_until_idle()
@@ -605,7 +609,6 @@ class C3000Controller(object):
         if wait:
             self.wait_until_idle()
 
-    ##
     def init_all_pump_parameters(self, secure=True):
         """
         Initialises the pump parameters, Microstep Mode, and Top Velocity.
@@ -620,7 +623,6 @@ class C3000Controller(object):
         self.set_top_velocity(self.default_top_velocity, secure=secure)
         self.wait_until_idle()  # just in case, but should not be needed
 
-    ##
     def set_microstep_mode(self, micro_step_mode):
         """
         Sets the Microstep Mode to use.
@@ -631,7 +633,6 @@ class C3000Controller(object):
         """
         self.write_and_read_from_pump(self._protocol.forge_microstep_mode_packet(micro_step_mode))
 
-    ##
     def check_top_velocity_within_range(self, top_velocity):
         """
         Checks that the top velocity is within a maximum range.
@@ -794,7 +795,6 @@ class C3000Controller(object):
         """
         return self.total_volume - self.current_volume
 
-    ##
     def is_volume_pumpable(self, volume_in_ml):
         """
         Determines if the volume is pumpable.
@@ -855,7 +855,6 @@ class C3000Controller(object):
         else:
             return False
 
-    ##
     def is_volume_deliverable(self, volume_in_ml):
         """
         Determines if the supplied volume is deliverable.
@@ -914,7 +913,6 @@ class C3000Controller(object):
         else:
             return False
 
-    ##
     def transfer(self, volume_in_ml, from_valve, to_valve, speed_in=None, speed_out=None):
         """
         Transfers the desired volume in mL.
@@ -939,7 +937,6 @@ class C3000Controller(object):
         if remaining_volume_to_transfer > 0:
             self.transfer(remaining_volume_to_transfer, from_valve, to_valve, speed_in, speed_out)
 
-    ##
     def is_volume_valid(self, volume_in_ml):
         """
         Determines if the supplied volume is valid.
@@ -1011,7 +1008,6 @@ class C3000Controller(object):
         """
         self.go_to_volume(self.total_volume, speed=speed, wait=wait)
 
-    # valve
     def get_raw_valve_postion(self):
         """
         Gets the raw value of the valve's position.
@@ -1244,7 +1240,7 @@ class MultiPumpController(object):
             pump_config (Dict): Dictionary containing the pump configuration.
 
         Returns:
-            defaulted_pump_config (Dict): A new defualt pump configuration mirroring that of pump_config.
+            defaulted_pump_config (Dict): A new default pump configuration mirroring that of pump_config.
 
         """
         defaulted_pump_config = dict(self.default_config)  # make a copy
@@ -1267,17 +1263,49 @@ class MultiPumpController(object):
 
     def get_pumps(self, pump_names):
         """
-        Obtains a list of all pumps.
+        Obtains a list of all pumps with name in pump_names.
 
         Args:
             pump_names (List): A list of the pump names
 
         Returns:
-            pumps (List): A list of the pump names.
+            pumps (List): A list of the pump objects.
 
         """
         pumps = []
         for pump_name in pump_names:
+            pumps.append(self.pumps[pump_name])
+        return pumps
+
+    def get_all_pumps(self):
+        """
+        Obtains a list of all pumps.
+
+        Returns:
+            pumps (List): A list of the all the pump objects in the Controller.
+
+        """
+
+        return self.pumps
+
+    def get_pumps_in_group(self, group_name):
+        """
+        Obtains a list of all pumps with group_name.
+
+        Args:
+            group_name (List): The group name
+
+        Returns:
+            pumps (List): A list of the pump objects in the group. None for non-existing groups.
+
+        """
+        pumps = []
+        try:
+            pump_list = self.groups[group_name]
+        except KeyError:
+            return None
+
+        for pump_name in pump_list:
             pumps.append(self.pumps[pump_name])
         return pumps
 
@@ -1364,17 +1392,17 @@ class MultiPumpController(object):
             secure (bool): Ensures everything is correct, default set to True.
 
         """
-        for _, pump in list(self.pumps.items()):
+        for pump in list(self.pumps.values()):
             if not pump.is_initialized():
                 pump.initialize_valve_only(wait=False)
         self.wait_until_all_pumps_idle()
 
-        for _, pump in list(self.pumps.items()):
+        for pump in list(self.pumps.values()):
             if not pump.is_initialized():
                 pump.set_valve_position(pump.initialize_valve_position, secure=secure)
         self.wait_until_all_pumps_idle()
 
-        for _, pump in list(self.pumps.items()):
+        for pump in list(self.pumps.values()):
             if not pump.is_initialized():
                 pump.initialize_no_valve(wait=False)
         self.wait_until_all_pumps_idle()
@@ -1387,6 +1415,12 @@ class MultiPumpController(object):
         Sends the command 'wait_until_idle' to the pumps.
         """
         self.apply_command_to_all_pumps('wait_until_idle')
+
+    def wait_until_group_idle(self, group_name):
+        """
+        Sends the command ' wait_until_idle' to all pumps of a group.
+        """
+        self.apply_command_to_group(group_name=group_name, command='wait_until_idle')
 
     def terminate_all_pumps(self):
         """
@@ -1509,7 +1543,7 @@ class MultiPumpController(object):
             secure (bool): Ensures that everything is correct, default set to False.
 
         """
-        volume_transfered = 1000000  # some big number 1000L is more than any descent person will try
+        volume_transfered = 1000000  # some big number 1000L is more than any decent person will try
         for pump in self.get_pumps(pump_names):
             candidate_volume = min(volume_in_ml, pump.remaining_volume)
             volume_transfered = min(candidate_volume, volume_transfered)
