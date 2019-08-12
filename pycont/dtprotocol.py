@@ -91,8 +91,11 @@ class DTStatus(object):
         if self.response is not None:
             info = self.response.rstrip().rstrip('\x03').lstrip(DTStart)
             address = info[0]
+            # try:
             status = info[1]
             data = info[2:]
+            # except IndexError:
+            #     return None
             return address, status, data
         else:
             return None
