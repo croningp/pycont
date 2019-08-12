@@ -1,21 +1,25 @@
 {
   "io": {
-      "port": "/dev/pycont",
+      "port": "/dev/ttyUSB0",
       "baudrate": 9600,
       "timeout": 1
   },
   "default": {
-    "volume": 12.5,
+    "volume": 5,
     "micro_step_mode": 2,
-    "top_velocity": 12000,
+    "top_velocity": 24000,
     "initialize_valve_position": "I"
   },
   "groups": {
-    "chemicals": ["acetone"]
+    "chemicals": ["acetone", "water"]
   },
   "pumps": {
       "acetone": {
         "switch": "0"
+      },
+      "water": {
+          "switch": "1",
+          "top_velocity": 12000
       }
   }
 }

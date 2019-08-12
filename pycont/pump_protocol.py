@@ -126,7 +126,7 @@ class C3000Protocol(object):
 
         self.address = address
 
-    def forge_packet(self, dtcommands, execute=True):
+    def forge_packet(self, dtcommands: dtprotocol.DTCommand, execute=True) -> dtprotocol.DTInstructionPacket:
         """
         Creates a packet which will be sent to the device.
 
@@ -457,16 +457,6 @@ class C3000Protocol(object):
 
         """
         return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_EEPROM))
-
-    def forge_report_jumper_packet(self):
-        """
-        Creates a packet for reporting the position of Jumper 2-5, used in 3-way Y-valves.
-
-        Returns:
-            The packet for reporting the EEPROM.
-
-        """
-        return self.forge_packet(dtprotocol.DTCommand(CMD_REPORT_JUMPER_3WAY))
 
     def forge_terminate_packet(self):
         """

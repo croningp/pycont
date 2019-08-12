@@ -542,24 +542,10 @@ class C3000Controller(object):
             self.initialize_no_valve()
 
             if self.is_initialized():
-                self.check_jumper_position()
                 return True
 
         self.logger.debug("Too many failed attempts to initialize!")
         raise ControllerRepeatedError('Repeated Error from pump {}'.format(self.name))
-
-    def check_jumper_position(self):
-        """
-        After initialization verifies if pump settings are sane
-        """
-
-        # Ensure the absence of the jumper for 120 deg operation (3-way Y) when a 4-way config is set
-        four_way_valves = ("4-WAY dist", "4-WAY nondist")
-        if self.get_current_valve_config() in four_way_valves:
-            # Read jumper position
-            (_, _, jumper_position) = self.write_and_read_from_pump(self._protocol.forge_report_jumper_packet())
-            if int(jumper_position) == 3:
-                raise ControllerRepeatedError("Remove jumper J2-5 from pump {}!".format(self.name))
 
     def initialize_valve_right(self, operand_value=0, wait=True):
         """
@@ -1452,11 +1438,6 @@ class MultiPumpController(object):
         for pump in list(self.pumps.values()):
             if not pump.is_initialized():
                 pump.initialize_no_valve(wait=False)
-        self.wait_until_all_pumps_idle()
-
-        for pump in list(self.pumps.values()):
-            if not pump.is_initialized():
-                pump.check_jumper_position()
         self.wait_until_all_pumps_idle()
 
         self.apply_command_to_all_pumps('init_all_pump_parameters', secure=secure)

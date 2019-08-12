@@ -3,11 +3,10 @@
 import time
 
 import logging
+logging.basicConfig(level=logging.INFO)
 
 # simply import the module
 import pycont.controller
-
-logging.basicConfig(level=logging.INFO)
 
 # link to your config file
 SETUP_CONFIG_FILE = './pump_setup_config.json'
@@ -15,7 +14,7 @@ SETUP_CONFIG_FILE = './pump_setup_config.json'
 # and load the config file in a MultiPumpController
 controller = pycont.controller.MultiPumpController.from_configfile(SETUP_CONFIG_FILE)
 
-# Initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
+# initialize the pumps in a smart way, if they are already initialized we do not want to reinitialize them because they got back to zero position
 controller.smart_initialize()
 
 # individual pumps can be accessed in two ways:
@@ -29,13 +28,16 @@ controller.smart_initialize()
 # the wait argument signifies if the command is blocking or non-blocking
 # if wait=False (default), the function returns immediately and let you go on
 # volumes are always in mL
-
-controller.pumps['acetone'].set_valve_position(valve_position='B')
 controller.pumps['acetone'].go_to_volume(0.5, wait=False)
 # if wait=True, the function returns only after the pump finished his move
+controller.pumps['water'].go_to_volume(0.5, wait=True)
+
+# of course you can pump and deliver volumes
+controller.pumps['water'].pump(0.5, wait=True)
+controller.pumps['water'].deliver(0.5, wait=True)
 
 # and those function tells you is the action what feasible or not
-succeed = controller.pumps['acetone'].pump(1000, wait=True)
+succeed = controller.pumps['water'].pump(1000, wait=True)
 if succeed:
     print('How could you pump 1000 mL')
 else:
@@ -43,8 +45,8 @@ else:
 
 # the pump and deliver function respectively have a from_valve and to_valve argument
 # if set, the valve position is set before the pump moves
-controller.pumps['acetone'].pump(0.5, from_valve=pycont.controller.VALVE_INPUT, wait=True)
-controller.pumps['acetone'].deliver(0.5, to_valve=pycont.controller.VALVE_OUTPUT, wait=True)
+controller.pumps['water'].pump(0.5, from_valve=pycont.controller.VALVE_INPUT, wait=True)
+controller.pumps['water'].deliver(0.5, to_valve=pycont.controller.VALVE_OUTPUT, wait=True)
 
 # you can also transfer volume from valve to valve
 # the function is recursive so even of the volume is bigger than the syringe, it will iterate as many times as needed
@@ -56,7 +58,7 @@ for _, pump in controller.pumps.items():
     pump.go_to_volume(0)  # here wait=False by default, all pumps move in parallel
 # wait until all pumps are ready to operate again
 controller.wait_until_all_pumps_idle()
-['ace   ']
+
 # you can apply command to all pumps in parallel, in one command!
 # this is the purpose of the controller.apply_command_to_all_pumps
 # let's have the pumps go to their max volume
@@ -68,13 +70,13 @@ while controller.are_pumps_busy():
 
 # and you set pump group in the config file and apply command to a group of pumps
 # check the config file for group definition
-# in this example 'chemicals' contains ['acetone', 'acetone']
+# in this example 'chemicals' contains ['water', 'acetone']
 controller.apply_command_to_group('chemicals', 'go_to_volume', 1)
 controller.wait_until_all_pumps_idle()
 
 # the two above function call the more generic apply_command_to_pumps function
 # which take a list of pumps to apply the command to
-controller.apply_command_to_pumps(['acetone', 'acetone'], 'go_to_volume', 1.5)
+controller.apply_command_to_pumps(['water', 'acetone'], 'go_to_volume', 1.5)
 controller.wait_until_all_pumps_idle()
 
 # So the three above way are different way to do the same things
@@ -86,7 +88,7 @@ time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 # for this you should use the command set_valve_position(valve_position) using for valve position the global variable
 # defined in pycont.controller. They are: VALVE_INPUT, VALVE_OUTPUT, VALVE_BYPASS, VALVE_EXTRA
 controller.pumps['acetone'].set_valve_position(pycont.controller.VALVE_OUTPUT)
-controller.pumps['acetone'].set_valve_position(pycont.controller.VALVE_OUTPUT)
+controller.pumps['water'].set_valve_position(pycont.controller.VALVE_OUTPUT)
 
 time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 
@@ -95,23 +97,23 @@ time.sleep(1)  # just to pause so that you can hear the sound of valve movements
 controller.apply_command_to_all_pumps('set_valve_position', pycont.controller.VALVE_INPUT)
 
 # get valve position
-print(controller.pumps['acetone'].get_valve_position())
+print(controller.pumps['water'].get_valve_position())
 print(controller.apply_command_to_all_pumps('get_valve_position'))
 
 # and compare it with global defined variable
-if controller.pumps['acetone'].get_valve_position() == pycont.controller.VALVE_INPUT:
-    print('The valve for acetone is indeed in input position')
+if controller.pumps['water'].get_valve_position() == pycont.controller.VALVE_INPUT:
+    print('The valve for water is indeed in input position')
 else:
     print('Something went wrong when setting the valve position')
 
 
 # finally there is some tools to track the status of the pumps
-print(controller.pumps['acetone'].is_idle())  # is the pump ready?
-print(controller.pumps['acetone'].is_busy())  # is the pump busy?
-print(controller.pumps['acetone'].current_volume)  # what volume is in the syringe, this is a direct reading from the pump position, we actually ask the pump!
-print(controller.pumps['acetone'].remaining_volume)  # what volume can still be pump
-print(controller.pumps['acetone'].is_volume_pumpable(1))  # can I pump 1 ml?
-print(controller.pumps['acetone'].is_volume_deliverable(1))  # can I deliver 1 ml?
+print(controller.pumps['water'].is_idle())  # is the pump ready?
+print(controller.pumps['water'].is_busy())  # is the pump busy?
+print(controller.pumps['water'].current_volume)  # what volume is in the syringe, this is a direct reading from the pump position, we actually ask the pump!
+print(controller.pumps['water'].remaining_volume)  # what volume can still be pump
+print(controller.pumps['water'].is_volume_pumpable(1))  # can I pump 1 ml?
+print(controller.pumps['water'].is_volume_deliverable(1))  # can I deliver 1 ml?
 
 # But note that the above tools are mostly encompassed in the higher level functions such as controller.wait_until_all_pumps_idle() which check is_idle() for all pumps
 
