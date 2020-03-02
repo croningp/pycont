@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import time
-
 import logging
 logging.basicConfig(level=logging.DEBUG)
 

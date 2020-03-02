@@ -1311,16 +1311,6 @@ class MultiPumpController(object):
                 pass
         return pumps
 
-    def get_all_pumps(self):
-        """
-        Obtains a list of all pumps.
-
-        Returns:
-            pumps (List): A list of the all the pump objects in the Controller.
-
-        """
-        return self.pumps
-
     def get_pumps_in_group(self, group_name):
         """
         Obtains a list of all pumps with group_name.
@@ -1352,27 +1342,6 @@ class MultiPumpController(object):
         """
 
         return self.pumps
-
-    def get_pumps_in_group(self, group_name):
-        """
-        Obtains a list of all pumps with group_name.
-
-        Args:
-            group_name (List): The group name
-
-        Returns:
-            pumps (List): A list of the pump objects in the group. None for non-existing groups.
-
-        """
-        pumps = []
-        try:
-            pump_list = self.groups[group_name]
-        except KeyError:
-            return None
-
-        for pump_name in pump_list:
-            pumps.append(self.pumps[pump_name])
-        return pumps
 
     def apply_command_to_pumps(self, pump_names, command, *args, **kwargs):
         """
