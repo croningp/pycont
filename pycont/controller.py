@@ -197,11 +197,11 @@ class PumpIO(object):
                                  'baudrate': self.baudrate,
                                  'timeout': self.timeout})
 
-    def flushInput(self):
+    def flush_input(self):
         """
         Flushes the input buffer of the serial communication.
         """
-        self._serial.flushInput()
+        self._serial.reset_input_buffer()
 
     def write(self, packet):
         """
@@ -250,7 +250,7 @@ class PumpIO(object):
             PumpIOTimeOutError: If the response time is greater than the timeout threshold.
         """
         self.lock.acquire()
-        self.flushInput()
+        self.flush_input()
         self.write(packet)
         try:
             response = self.readline()
