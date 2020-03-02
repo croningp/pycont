@@ -1533,7 +1533,7 @@ class MultiPumpController(object):
 
             speed_out (int): The speed at which to deliver.
 
-            wait (bool): Wait for the pumps to be idle ,default set to False.
+            wait (bool): Wait for the pumps to be idle, default set to False.
 
             secure (bool): Ensures everything is correct, default set to True.
 
@@ -1600,6 +1600,8 @@ class MultiPumpController(object):
             speed_out (int): The speed at which to transfer, default set to None
 
             secure (bool): Ensures that everything is correct, default set to False.
+
+            wait (bool): Wait for the pumps to be idle, default set to False.
 
         """
 
