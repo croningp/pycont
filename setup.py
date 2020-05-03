@@ -1,8 +1,9 @@
-from pycont._version import __version__
-
 from setuptools import find_packages, setup
+
+VERSION = '1.0.1'
+
 setup(name="pycont",
-      version=__version__,
+      version=VERSION,
       description="Tools to work with Tricontinental Pumps",
       author="Jonathan Grizou",
       author_email='jonathan.grizou@glasgow.ac.uk',
