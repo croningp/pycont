@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 setup(name="pycont",
       version=VERSION,
@@ -12,4 +12,5 @@ setup(name="pycont",
             "commanduino": ["py.typed"]
       },
       include_package_data=True,
+      install_requires=['pyserial']
       )
