@@ -8,4 +8,8 @@ setup(name="pycont",
       author="Jonathan Grizou",
       author_email='jonathan.grizou@glasgow.ac.uk',
       packages=find_packages(),
+      package_data={
+            "commanduino": ["py.typed"]
+      },
+      include_package_data=True,
       )
