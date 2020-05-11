@@ -7,6 +7,8 @@
 
 """
 # -*- coding: utf-8 -*-
+from typing import List, Union
+
 from ._logger import create_logger
 
 from . import dtprotocol
@@ -126,21 +128,22 @@ class C3000Protocol(object):
 
         self.address = address
 
-    def forge_packet(self, dtcommands: dtprotocol.DTCommand, execute=True) -> dtprotocol.DTInstructionPacket:
+    def forge_packet(self, dtcommands: Union[List[dtprotocol.DTCommand], dtprotocol.DTCommand],
+                     execute: bool = True) -> dtprotocol.DTInstructionPacket:
         """
         Creates a packet which will be sent to the device.
 
         Args:
-            dtcommands (list): List of dtcommands.
+            dtcommands: DTCommand or list of DTCommands.
 
-            execute (bool): Sets the execute value, True by default.
+            execute: Sets the execute value, True by default.
 
         Returns:
             DTInstructionPacket: The packet created.
 
         """
         self.logger.debug("Forging packet with {} and execute set to {}".format(dtcommands, execute))
-        if type(dtcommands) == dtprotocol.DTCommand:
+        if isinstance(dtcommands, dtprotocol.DTCommand):
             dtcommands = [dtcommands]
         if execute:
             dtcommands.append(dtprotocol.DTCommand(CMD_EXECUTE))
