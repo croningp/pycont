@@ -11,7 +11,7 @@
 
 import time
 import json
-from typing import Dict, Union, Optional, List, Any
+from typing import Dict, Union, Optional, List, Any, Tuple
 
 import serial
 import threading
@@ -218,10 +218,10 @@ class PumpIO:
 
         """
         str_to_send = packet.to_string()
-        self.logger.debug("Sending {}".format(str_to_send))
+        self.logger.debug("Sending {!r}".format(str_to_send))
         self._serial.write(str_to_send)
 
-    def readline(self) -> str:
+    def readline(self) -> bytes:
         """
         Reads a line from the serial communication.
 
@@ -237,7 +237,7 @@ class PumpIO:
             self.logger.debug("Readline timeout!")
             raise PumpIOTimeOutError
 
-    def write_and_readline(self, packet: DTInstructionPacket) -> str:
+    def write_and_readline(self, packet: DTInstructionPacket) -> bytes:
         """
         Writes a packet along the serial communication and waits for a response.
 
@@ -247,7 +247,7 @@ class PumpIO:
         .. note:: Unsure if this is the correct packet type (GAK).
 
         Returns:
-            response (str): The received response.
+            response: The received response.
 
         Raises:
             PumpIOTimeOutError: If the response time is greater than the timeout threshold.
@@ -408,7 +408,8 @@ class C3000Controller(object):
 
         return cls(pump_io, pump_name, **pump_config)
 
-    def write_and_read_from_pump(self, packet: DTInstructionPacket, max_repeat: int = MAX_REPEAT_WRITE_AND_READ) -> str:
+    def write_and_read_from_pump(self, packet: DTInstructionPacket, max_repeat: int = MAX_REPEAT_WRITE_AND_READ)\
+            -> Tuple[str, str, str]:
         """
         Writes packets to and reads the response from the pump.
 
@@ -434,7 +435,7 @@ class C3000Controller(object):
                 if decoded_response is not None:
                     return decoded_response
                 else:
-                    self.logger.debug("Decode error for {}, trying again!".format(response))
+                    self.logger.debug("Decode error for {!r}, trying again!".format(response))
             except PumpIOTimeOutError:
                 self.logger.debug("Timeout, trying again!")
         self.logger.debug("Too many failed communication!")
@@ -1153,7 +1154,7 @@ class C3000Controller(object):
             print("Unpower and repower the pump to make changes active!")
             print("####################################################")
 
-    def set_eeprom_lowlevel_config(self, command: int, operand: Optional[Union[str, float]]) -> None:
+    def set_eeprom_lowlevel_config(self, command: int, operand: str) -> None:
         """
         Sets the configuration of the EEPROM on the pumps.
 
