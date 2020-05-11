@@ -109,7 +109,7 @@ class PumpIO:
         self.open(port, baudrate, timeout)
 
     @classmethod
-    def from_config(cls, io_config: Dict) -> PumpIO:
+    def from_config(cls, io_config: Dict) -> 'PumpIO':
         """
         Sets details laid out in the configuration .json file
 
@@ -137,7 +137,7 @@ class PumpIO:
         return cls(port, baudrate, timeout)
 
     @classmethod
-    def from_configfile(cls, io_configfile: str) -> PumpIO:
+    def from_configfile(cls, io_configfile: str) -> 'PumpIO':
         """
         Opens the configuration file and parses the data to be used in the from_config method.
 
@@ -383,7 +383,7 @@ class C3000Controller(object):
         self.default_top_velocity = top_velocity
 
     @classmethod
-    def from_config(cls, pump_io: PumpIO, pump_name: str, pump_config: Dict) -> C3000Controller:
+    def from_config(cls, pump_io: PumpIO, pump_name: str, pump_config: Dict) -> 'C3000Controller':
         """
         Obtains the configuration data.
 
@@ -1344,7 +1344,7 @@ class MultiPumpController(object):
         self.set_pumps_as_attributes()
 
     @classmethod
-    def from_configfile(cls, setup_configfile: str) -> MultiPumpController:
+    def from_configfile(cls, setup_configfile: str) -> 'MultiPumpController':
         """
         Obtains the configuration data from the supplied configuration file.
 
