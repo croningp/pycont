@@ -66,28 +66,45 @@ Using a [config file](tests/pump_setup_config.json), you can define:
 A config file looks like this:
 ```python
 {
-  "io": {
-      "port": "/dev/ttyUSB0",
-      "baudrate": 9600,
-      "timeout": 1
-  },
   "default": {
     "volume": 5,
     "micro_step_mode": 2,
     "top_velocity": 24000,
-    "initialize_valve_position": "I",
+    "initialize_valve_position": "I"
   },
-  "groups": {
-    "chemicals": ["acetone", "water"]
-  },
-  "pumps": {
-      "acetone": {
-        "switch": "0"
+  "hubs": [
+    {
+      "io": {
+        "port": "/dev/ttyUSB0",
+        "baudrate": 9600,
+        "timeout": 1
       },
-      "water": {
+      "pumps": {
+        "acetone": {
+          "switch": "0"
+        },
+        "water": {
           "switch": "1",
           "top_velocity": 12000
+        }
       }
+    },
+    {
+      "io": {
+        "port": "/dev/ttyUSB1",
+        "baudrate": 9600,
+        "timeout": 1
+      },
+      "pumps": {
+        "pentanol": {
+          "switch": "0"
+        }
+      }
+    }
+  ],
+  "groups": {
+    "chemicals": ["acetone", "water"],
+    "oils": ["pentanol"]
   }
 }
 ```
