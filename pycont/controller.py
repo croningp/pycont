@@ -191,6 +191,10 @@ class PumpIO(object):
         """
         Closes the communication with the hardware.
         """
+        # This happens when serial.Serial fails in PumpIO.open(), so that PumpIO._serial is None.
+        if self._serial is None:
+            return
+
         self._serial.close()
         self.logger.debug("Closing port '%s'", self.port,
                           extra={'port': self.port,
