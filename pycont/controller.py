@@ -11,6 +11,7 @@
 
 import time
 import json
+from pathlib import Path
 from typing import Dict, Union, Optional, List, Any, Tuple
 
 import serial
@@ -137,7 +138,7 @@ class PumpIO:
         return cls(port, baudrate, timeout)
 
     @classmethod
-    def from_configfile(cls, io_configfile: str) -> 'PumpIO':
+    def from_configfile(cls, io_configfile: Union[str, Path]) -> 'PumpIO':
         """
         Opens the configuration file and parses the data to be used in the from_config method.
 
@@ -1349,7 +1350,7 @@ class MultiPumpController(object):
         self.set_pumps_as_attributes()
 
     @classmethod
-    def from_configfile(cls, setup_configfile: str) -> 'MultiPumpController':
+    def from_configfile(cls, setup_configfile: Union[str, Path]) -> 'MultiPumpController':
         """
         Obtains the configuration data from the supplied configuration file.
 
