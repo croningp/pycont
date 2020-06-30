@@ -9,7 +9,7 @@ setup(name="pycont",
       author_email='jonathan.grizou@glasgow.ac.uk',
       packages=find_packages(),
       package_data={
-            "commanduino": ["py.typed"]
+            "pycont": ["py.typed"]
       },
       include_package_data=True,
       install_requires=['pyserial']
